@@ -16,6 +16,8 @@ import { Ev, track } from './analytics';
 import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
 import { canSpend, clampToWindow, type NotifEntry } from './notif-budget';
 import { getNews } from './market';
+import { dayKey } from './day-keys';
+import { GENERIC_REMINDER, nearestReminderCopy, reminderDayOffsets } from './streak-reminder';
 
 /**
  * UNIT 15a. Kept as a named re-export so existing callers and the dev self-check keep compiling,
@@ -27,6 +29,8 @@ export const NUDGE_HOUR = DEFAULT_NUDGE_HOUR;
 
 /** Fixed id so a re-run REPLACES the reminder instead of adding a second one. */
 const DAILY_ID = 'euphoria-daily-nudge';
+/** How many days of streak reminders are queued ahead. */
+const REMINDER_SLOTS = 7;
 
 // Without a handler, a notification arriving while the app is open is silently swallowed.
 Notifications.setNotificationHandler({
@@ -54,36 +58,52 @@ Notifications.addNotificationResponseReceivedListener((response) => {
 export async function applyDailyNudge(
   optIn: boolean,
   hour: number = useApp.getState().nudgeHour,
+  /** false for a background re-arm: never show the permission prompt from there. */
+  ask = true,
 ): Promise<boolean> {
-  // Cancelling an id that was never scheduled is not an error worth propagating.
-  await Notifications.cancelScheduledNotificationAsync(DAILY_ID).catch(() => undefined);
+  // Cancelling an id that was never scheduled is not an error worth propagating. The legacy
+  // repeating DAILY_ID is cancelled too, so an upgraded install never gets both.
+  await Promise.all(
+    [DAILY_ID, ...Array.from({ length: REMINDER_SLOTS + 1 }, (_, i) => `${DAILY_ID}-${String(i)}`)].map((id) =>
+      Notifications.cancelScheduledNotificationAsync(id).catch(() => undefined),
+    ),
+  );
   if (!optIn) return false;
 
   const current = await Notifications.getPermissionsAsync();
   let status = current.status;
   // Asking again after a hard denial does nothing on iOS — it never re-prompts, so respect it
   // rather than firing a request that silently resolves denied.
-  if (status !== 'granted' && current.canAskAgain) {
+  if (status !== 'granted' && current.canAskAgain && ask) {
     status = (await Notifications.requestPermissionsAsync()).status;
   }
-  track(Ev.notificationPermission, { status });
+  if (ask) track(Ev.notificationPermission, { status });
   if (status !== 'granted') return false;
 
-  await Notifications.scheduleNotificationAsync({
-    identifier: DAILY_ID,
-    content: {
-      title: 'Keep your streak alive',
-      body: 'Five minutes with Atlas is all it takes.',
-      sound: true,
-      data: { kind: 'streak' },
-    },
-    trigger: {
-      type: Notifications.SchedulableTriggerInputTypes.DAILY,
-      hour,
-      minute: 0,
-    },
-  });
-  const accepted = (await scheduledNudges()).some((n) => n.identifier === DAILY_ID);
+  /*
+   * ROLLING ONE-SHOTS, NOT ONE DAILY REPEAT (streak-reminder.ts). A repeat fired on days already
+   * practised and could only ever say one generic thing. These skip a practised today, and the
+   * nearest one says what is at stake tonight; the rest stay generic because by then the state
+   * they would describe may no longer be true. Re-armed whenever the active day changes (below).
+   */
+  const st = useApp.getState();
+  const now = st.streakNow();
+  const nearest = nearestReminderCopy({ streak: now.streak, freezes: st.streakFreezes, repairLost: now.repairLost, repairLeft: now.repairLeft });
+  const offsets = reminderDayOffsets({ activeToday: st.lastActiveDay === dayKey(), nowHour: new Date().getHours(), hour }, REMINDER_SLOTS);
+  await Promise.all(
+    offsets.map((d, i) => {
+      const at = new Date();
+      at.setDate(at.getDate() + d);
+      at.setHours(hour, 0, 0, 0);
+      const copy = i === 0 ? nearest : GENERIC_REMINDER;
+      return Notifications.scheduleNotificationAsync({
+        identifier: `${DAILY_ID}-${String(i)}`,
+        content: { title: copy.title, body: copy.body, sound: true, data: { kind: 'streak' } },
+        trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: at },
+      });
+    }),
+  );
+  const accepted = (await scheduledNudges()).some((n) => n.identifier.startsWith(DAILY_ID));
   if (accepted) track(Ev.notificationScheduled, { kind: 'streak' });
   return accepted;
 }
@@ -336,6 +356,9 @@ useApp.subscribe((s) => {
   lastDayKey = s.lastActiveDay;
   if (!s.lastActiveDay) return;
   void applyWinBack(true);
+  // Re-arm the streak reminders so today's is dropped once practised and tomorrow's copy is
+  // current. Never prompts (ask = false): this runs in the background.
+  if (s.profile.notifyOptIn) void applyDailyNudge(true, s.nudgeHour, false);
   // Same once-a-day trigger. Budget-gated inside, so on most days this schedules nothing at all.
   void applyMarketAlert();
 });
