@@ -4,7 +4,7 @@
  * in its correct slot gets a green accent + check; onSolvedChange(true) when the whole order
  * matches. Sibling to MatchingPairs/MultiSelect.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';

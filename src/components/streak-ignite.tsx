@@ -71,7 +71,7 @@
  * done) behind a single 150ms opacity fade, with the landing's haptic and sound. `finishKey`
  * snaps to that composition at any time.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { AppNumberFlow } from '@/shared/motion/app-number-flow';

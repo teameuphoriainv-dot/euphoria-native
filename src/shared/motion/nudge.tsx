@@ -4,7 +4,7 @@
  * a spring, so a refusal never overshoots, and a Warning haptic fires. Reduced Motion: no shake;
  * the haptic and any hint text still carry the answer.
  */
-import * as Haptics from 'expo-haptics';
+import { feedback } from '@/lib/feedback';
 import { type ReactNode, useEffect } from 'react';
 import Animated, { useAnimatedStyle, useReducedMotion, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
 
@@ -18,7 +18,7 @@ export function Nudge({ trigger, children }: { trigger: number; children: ReactN
   const style = useAnimatedStyle(() => ({ transform: [{ translateX: x.get() }] }));
   useEffect(() => {
     if (trigger <= 0) return;
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    feedback('lockedTap');
     if (reduced) return;
     const leg = Duration.base / LEGS.length;
     x.set(withSequence(...LEGS.map((v) => withTiming(v, { duration: leg, easing: Ease.inOut }))));

@@ -29,7 +29,7 @@
  *
  * TUNE is the iteration surface. Preview in isolation at /dev-beat.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { Ease } from '@/shared/motion/tokens';
 import { StyleSheet, View } from 'react-native';

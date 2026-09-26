@@ -11,6 +11,8 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
+
+import { EmptyState } from '@/components/empty-state';
 import { Keyboard, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -117,17 +119,13 @@ export default function Search() {
           {shownError ? <RetryNotice code={shownError} onRetry={retry} /> : loading && <SkeletonRows count={5} height={60} />}
 
         {!loading && !term && (
-          <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
-            Try AAPL, Ford, or an index fund.
-          </ThemedText>
+          <EmptyState title="Find a stock to practise with" suggestions={['AAPL', 'Ford', 'SPY']} onSuggestion={setQ} />
         )}
 
         {!loading && results?.length === 0 && (
-          <ThemedText type="small" themeColor="mutedForeground" style={styles.hint}>
-            {/* Distinguishes "no matches" from "no live data" — collapsing the two hides a missing
-                key behind an apparently empty market. */}
-            Nothing matched “{term}”. Live search may also be switched off in this build.
-          </ThemedText>
+          /* Distinguishes "no matches" from "no live data" — collapsing the two hides a missing
+             key behind an apparently empty market. */
+          <EmptyState title={`Nothing matched “${term}”`} sub="Live search may also be switched off in this build." />
         )}
 
         {/*

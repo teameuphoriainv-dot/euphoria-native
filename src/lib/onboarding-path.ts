@@ -29,6 +29,9 @@ export type Profile = {
   blockers: string[];
   ageBand: string | null;
   notifyOptIn: boolean;
+  /** Settings switches. Undefined = on, so existing profiles need no migration. */
+  soundOn?: boolean;
+  hapticsOn?: boolean;
   /** Explicit, revocable consent for pseudonymous PostHog product analytics. Default off. */
   analyticsOptIn: boolean;
   /** Epoch ms. Non-null means the user reached the end of the flow. */

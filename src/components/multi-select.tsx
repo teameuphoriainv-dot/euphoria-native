@@ -4,7 +4,7 @@
  * correct answers are marked so the learner can fix and re-check. onSolvedChange(true) only
  * when the selected set exactly matches the correct set. Sibling to OrderSteps/TileBuilder.
  */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';

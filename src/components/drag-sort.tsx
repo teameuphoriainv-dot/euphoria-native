@@ -1,5 +1,5 @@
 /** Production 49e dragSort: adjacent head-to-head calls, then the authored full order. */
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight, useReducedMotion } from 'react-native-reanimated';
 

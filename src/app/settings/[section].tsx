@@ -425,6 +425,8 @@ function PreferencesSection() {
   const themePref = useApp((s) => s.themePref);
   const setThemePref = useApp((s) => s.setThemePref);
   const analyticsOptIn = useApp((s) => s.profile.analyticsOptIn);
+  const soundOn = useApp((s) => s.profile.soundOn !== false);
+  const hapticsOn = useApp((s) => s.profile.hapticsOn !== false);
 
   return (
     <>
@@ -493,6 +495,10 @@ function PreferencesSection() {
           </SpringPressable>
         );
       })}
+    </Section>
+    <Section title="SOUND & HAPTICS">
+      <ToggleRow label="Sound effects" sub="Chimes for answers and rewards." value={soundOn} onValueChange={(v) => setProfile({ soundOn: v })} />
+      <ToggleRow label="Haptics" sub="Taps you feel on answers and rewards." value={hapticsOn} onValueChange={(v) => setProfile({ hapticsOn: v })} last />
     </Section>
     <Section title="DAILY GOAL">
       {GOALS.map((g, i) => {

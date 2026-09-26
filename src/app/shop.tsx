@@ -17,7 +17,7 @@ import { useMemo, useState } from 'react';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Alert, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '@/lib/haptics';
 import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 
 import { AmbientBackground } from '@/components/ambient-background';

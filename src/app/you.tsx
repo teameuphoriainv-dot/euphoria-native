@@ -489,7 +489,7 @@ export default function You() {
 
         {fresh && (
           <RiseIn delay={260}>
-            <ThemedText type="small" themeColor="mutedForeground" style={styles.emptyNote}>
+            <ThemedText type="bodyMedium" style={styles.emptyNote}>
               Finish your first lesson to start climbing.
             </ThemedText>
           </RiseIn>

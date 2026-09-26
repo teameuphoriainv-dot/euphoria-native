@@ -13,6 +13,8 @@
  */
 import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-audio';
 
+import { useApp } from './store';
+
 const FILES = {
   correct: require('../../assets/sounds/confirmation_001.m4a'),
   wrong: require('../../assets/sounds/error_004.m4a'),
@@ -36,13 +38,10 @@ const FILES = {
 export type Sfx = keyof typeof FILES;
 
 const players: Partial<Record<Sfx, AudioPlayer>> = {};
-let modeSet = false;
+// Set once at import, not on first play, so the first sound is not the one paying for it (expo-audio docs).
+void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => undefined);
 
 function player(name: Sfx): AudioPlayer {
-  if (!modeSet) {
-    modeSet = true;
-    void setAudioModeAsync({ playsInSilentMode: false, interruptionMode: 'mixWithOthers' }).catch(() => undefined);
-  }
   return (players[name] ??= createAudioPlayer(FILES[name]));
 }
 
@@ -58,10 +57,14 @@ export function warmSfx(names: readonly Sfx[]): void {
   }
 }
 
-export function playSfx(name: Sfx): void {
+/** Respects the Sound effects switch. `rate` changes pitch with the speed (combo steps). */
+export function playSfx(name: Sfx, opts?: { rate?: number }): void {
+  if (useApp.getState().profile.soundOn === false) return;
   try {
     const p = player(name);
     // Restart-safe: a finished player sits at its end, where play() is silent.
+    p.shouldCorrectPitch = false;
+    p.setPlaybackRate(opts?.rate ?? 1);
     void p.seekTo(0).catch(() => undefined);
     p.play();
   } catch {
