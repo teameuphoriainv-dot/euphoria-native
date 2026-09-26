@@ -444,7 +444,7 @@ export default function Trade() {
         {ideas.length > 0 && (
           <RiseIn delay={185}>
             <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>
-              Ideas to practise
+              Ideas to practice
             </ThemedText>
             <Card padded={false}>
               {ideas.map((idea, i) => (
