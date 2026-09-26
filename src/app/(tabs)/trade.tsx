@@ -381,7 +381,7 @@ export default function Trade() {
                     sym={sym}
                     sub={avg === null ? sub : `${sub} · avg ${money(avg)}`}
                     right={money(positions[sym] * priceOf(sym))}
-                    change={avg === null ? null : ((priceOf(sym) - avg) / avg) * 100}
+                    change={avg === null || Math.abs((priceOf(sym) - avg) / avg) < 0.0005 ? null : ((priceOf(sym) - avg) / avg) * 100}
                     last={i === held.length - 1}
                   />
                 );

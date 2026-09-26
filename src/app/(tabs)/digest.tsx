@@ -366,7 +366,7 @@ export default function Digest() {
 
         <RiseIn delay={145}>
           <View style={styles.sectionHead}>
-            <ThemedText type="label" themeColor="mutedForeground">
+            <ThemedText type="heading">
               {browsing ? 'Categories' : 'Guides'}
             </ThemedText>
             {readPosts.length > 0 ? (
