@@ -325,7 +325,9 @@ function AccountSection({ forceBillingIssue = false }: { forceBillingIssue?: boo
 
       <Section title="SUPPORT">
         <Row label="Privacy Policy" onPress={() => void Linking.openURL('https://euphoriainv.com/privacy').catch(() => undefined)} />
-        <Row label="Terms of Use" onPress={() => void Linking.openURL('https://euphoriainv.com/terms').catch(() => undefined)} last />
+        <Row label="Terms of Use" onPress={() => void Linking.openURL('https://euphoriainv.com/terms').catch(() => undefined)} />
+        {/* Attribution the free logo tiers require (ticker-logo.tsx). */}
+        <Row label="Company logos by Elbstream" onPress={() => void Linking.openURL('https://elbstream.com/logos').catch(() => undefined)} last />
       </Section>
 
       <Section title="SESSION">
