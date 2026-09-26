@@ -44,6 +44,15 @@ function pickSuggestions(n: number): string[] {
   return pool.slice(0, n);
 }
 
+/** Exact ticker first, then tickers that start with the term, then names that do: typing
+ *  "AAPL" must put Apple above the AAPL-tracking ETFs. Stable within each band. */
+function rankHits(hits: TickerHit[], term: string): TickerHit[] {
+  const t = term.trim().toUpperCase();
+  const band = (h: TickerHit) =>
+    h.sym === t ? 0 : h.sym.startsWith(t) ? 1 : h.name.toUpperCase().startsWith(t) ? 2 : 3;
+  return hits.map((h, i) => ({ h, i })).sort((a, b) => band(a.h) - band(b.h) || a.i - b.i).map((x) => x.h);
+}
+
 export default function Search() {
   const theme = useTheme();
   const params = useLocalSearchParams<{ qa?: string }>();
@@ -84,7 +93,7 @@ export default function Search() {
       searchTickers(term)
         .then((r) => {
           if (mine !== seq.current) return;
-          setHits({ term, results: r });
+          setHits({ term, results: rankHits(r, term) });
         })
         .catch((e: unknown) => {
           // Only the latest term may surface an error, or a stale slow failure would blank a
@@ -155,6 +164,12 @@ export default function Search() {
           * tail of a long list dragging behind the user, and ticker search can return dozens.
           * RiseIn degrades to a fade under Reduced Motion on its own, so no guard is needed here.
           */}
+        {results?.length ? (
+          // Attribution the free logo tiers require wherever their logos appear.
+          <ThemedText type="small" themeColor="mutedForeground" style={styles.credit}>
+            {process.env.EXPO_PUBLIC_LOGO_DEV_KEY ? 'Logos by Logo.dev and Elbstream' : 'Logos by Elbstream'}
+          </ThemedText>
+        ) : null}
         {results?.map((h, i) => (
           <RiseIn key={`${h.sym}-${i}`} delay={Math.min(i * STAGGER_GAP, STAGGER_CAP)}>
           <SpringPressable
@@ -198,6 +213,7 @@ const styles = StyleSheet.create({
   input: { flex: 1, fontSize: FontSize.bodySm, fontFamily: Fonts.body },
   list: { paddingHorizontal: Spacing.three, paddingBottom: Spacing.six },
   hint: { textAlign: 'center', marginTop: Spacing.four },
+  credit: { textAlign: 'right', marginBottom: Spacing.one },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
