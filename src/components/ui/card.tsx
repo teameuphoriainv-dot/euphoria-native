@@ -9,12 +9,15 @@ import { useTheme } from '@/hooks/use-theme';
  *  every card on a screen carrying a loud gradient reads as busy rather than rich. */
 const TINT_STRONG = '24'; // ~14%
 const TINT_FAINT = '05'; // ~2%
+const DEPTH_BORDER = 2;
+const DEPTH_BOTTOM = 5;
 
 export function Card({
   style,
   padded = true,
   elevated = false,
   tint,
+  depthColor,
   children,
   ...rest
 }: ViewProps & {
@@ -24,6 +27,9 @@ export function Card({
    *  without changing its footprint. Static by design — an animated wash on a card showing
    *  numbers reads as live data. */
   tint?: string;
+  /** Colour of the thick bottom edge. The card's OWN colour, stronger than its sides, is what makes
+   *  it read as a block with thickness (Duolingo) rather than a grey outline. */
+  depthColor?: string;
 }) {
   const theme = useTheme();
   const lesson = theme === LessonColors;
@@ -33,7 +39,10 @@ export function Card({
         {
           backgroundColor: elevated ? theme.cardElevated : theme.card,
           borderColor: tint ? tint + '2E' : lesson ? LessonColors.border + '80' : theme.border,
-          borderWidth: lesson ? 1 : StyleSheet.hairlineWidth,
+          borderWidth: lesson ? 1 : DEPTH_BORDER,
+          // Duolingo's card anatomy: a 2px edge and a heavier 5px bottom, so a card reads as a solid
+          // object resting on the page instead of a hairline outline. Lessons keep their own style.
+          ...(lesson ? null : { borderBottomWidth: DEPTH_BOTTOM, borderBottomColor: depthColor ?? (tint ? tint + '80' : theme.border) }),
           borderRadius: Radius.lg,
           ...(lesson ? {
             shadowColor: '#000000',

@@ -6,6 +6,7 @@ import {
   DMSans_900Black,
 } from '@expo-google-fonts/dm-sans';
 import { EBGaramond_400Regular, EBGaramond_500Medium, EBGaramond_600SemiBold, EBGaramond_700Bold } from '@expo-google-fonts/eb-garamond';
+import { Nunito_800ExtraBold, Nunito_900Black } from '@expo-google-fonts/nunito';
 import { useFonts } from 'expo-font';
 import { Observe, ObserveRoot, useObserve } from 'expo-observe';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
@@ -69,6 +70,8 @@ function RootLayout() {
     DMSans_600SemiBold,
     DMSans_700Bold,
     DMSans_900Black,
+    Nunito_800ExtraBold,
+    Nunito_900Black,
     EBGaramond_400Regular,
     EBGaramond_500Medium,
     EBGaramond_600SemiBold,

@@ -39,12 +39,16 @@ export function SpringPressable({
   haptic = true,
   disabled,
   scaleTo = 0.95,
+  sink = 0,
   ...rest
 }: PressableProps & {
   children: ReactNode;
   style?: StyleProp<ViewStyle>;
   haptic?: boolean;
   scaleTo?: number;
+  /** Opt-in press-sink in pt: the child drops onto its bottom edge while held (Duolingo's card
+   *  and button press). Pair with a Card, whose 4pt bottom edge it sinks into. */
+  sink?: number;
   /** Layout/entrance/exit animations. The underlying element IS an Animated component, so these
    *  already worked at runtime — but the prop type was plain `PressableProps`, so TypeScript
    *  rejected them and every caller silently went without. Declaring them here is what lets any
@@ -60,7 +64,8 @@ export function SpringPressable({
     ? { stiffness: 420, damping: 32, mass: 1 }
     : Spring.press;
   const scale = useSharedValue(1);
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ scale: scale.get() }] }));
+  const drop = useSharedValue(0);
+  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ translateY: drop.get() }, { scale: scale.get() }] }));
 
   return (
     <AnimatedPressable
@@ -74,9 +79,11 @@ export function SpringPressable({
       disabled={disabled}
       onPressIn={() => {
         scale.set(reduced ? 1 : withSpring(scaleTo, pressSpring));
+        if (sink) drop.set(reduced ? 0 : withSpring(sink, pressSpring));
       }}
       onPressOut={() => {
         scale.set(reduced ? 1 : withSpring(1, pressSpring));
+        if (sink) drop.set(reduced ? 0 : withSpring(0, pressSpring));
       }}
       onPress={(e) => {
         if (haptic) Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);

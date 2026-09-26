@@ -26,5 +26,7 @@ export function AppNumberFlow({ style, ...rest }: Props) {
   const { fontWeight: _ignored, ...s } = flat;
   const fontSize = s.fontSize ?? 16;
   const lineHeight = Math.max(s.lineHeight ?? 0, Math.round(fontSize * MIN_LINE_RATIO));
-  return <NumberFlow {...rest} style={{ ...s, fontFamily: s.fontFamily ?? Fonts.semibold, fontSize, lineHeight }} />;
+  // Tabular numerals (Robinhood's rule for money): digits keep one width, so a rolling figure
+  // never jitters sideways as it changes.
+  return <NumberFlow {...rest} style={{ ...s, fontFamily: s.fontFamily ?? Fonts.semibold, fontSize, lineHeight, fontVariant: ['tabular-nums'] }} />;
 }
