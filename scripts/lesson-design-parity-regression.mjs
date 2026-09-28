@@ -76,8 +76,12 @@ requires(warmup, /First, a quick check on what you have already covered\./, 'les
 requires(reveal, /withTiming\(isOpen \? 1 : 0, \{ duration: (?:280|Duration\.base)/, 'tap-reveal cards must cross-fade over the web 280ms');
 forbids(reveal, /rotateY/, 'tap-reveal cards must not flip on the Y axis (owner rejected it, c499b09)');
 requires(reveal, /minHeight: 210/, 'tap-reveal cards must keep the web 210px minimum height');
-requires(matching, /cols: \{ flexDirection: 'column'/, 'matching pairs must stack their two columns on phones');
-requires(matching, /height: 90,[^}]*borderRadius: 12/, 'matching cells must retain the web 90px/r12 geometry');
+// The owner asked on 2026-09-28 for Match the Pairs to go side by side: the old phone stack put
+// every match below every term at a fixed 90pt, so matches sat below the fold. These two lines
+// used to pin that stack (`cols: { flexDirection: 'column'`) and the fixed `height: 90`.
+requires(matching, /row: \{ flexDirection: 'row'/, 'matching pairs must render aligned term/match rows side by side (owner, 2026-09-28)');
+requires(matching, /minHeight: 64,[^}]*borderRadius: 12/, 'matching cells must grow from a 64pt minimum (not a fixed height) and keep r12 (owner, 2026-09-28)');
+forbids(matching, /height: 90\b/, 'matching cells must not return to the fixed 90pt height that clipped and pushed matches below the fold');
 requires(atlasSheet, /height: '72%'/, 'Atlas tutor must retain the web mobile 72vh composition');
 requires(atlasSheet, /surface: '#14121C'[\s\S]*?border: '#1C1C22'/, 'Atlas tutor must retain its canonical web surface and border');
 requires(graph, /COMPOUND_CURVE_MS = 250/, 'compound growth curve must retain the web 250ms tween');

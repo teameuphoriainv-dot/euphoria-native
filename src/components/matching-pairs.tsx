@@ -4,9 +4,10 @@
  * shuffled once on mount. onSolvedChange(true) when every pair is matched. Sibling to
  * OrderSteps/MultiSelect.
  */
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
-import { useEffect } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
   FadeIn,
   interpolate,
@@ -85,7 +86,6 @@ export function MatchingPairs({
   onComplete: (passed: boolean) => void;
 }) {
   const theme = useTheme();
-  const { width } = useWindowDimensions();
   const reduced = useReducedMotion();
   const [rightOrder] = useLessonStepState<number[]>('match.rightOrder', () => shuffle(spec.pairs.map((_, i) => i)));
   const [selected, setSelected] = useLessonStepState<number | null>('match.selected', null);
@@ -100,9 +100,12 @@ export function MatchingPairs({
   const solved = matched.length === spec.pairs.length;
   const escape = matchingPairsEscape(wrongAttempts, matched.length, spec.pairs.length);
 
+  const wasSolved = useRef(solved);
   useEffect(() => {
     onSolvedChange(solved);
-    if (solved) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // The whole board done is the right answer: confetti, chime and buzz, once, not on a restore.
+    if (solved && !wasSolved.current) feedback('correct');
+    wasSolved.current = solved;
   }, [solved, onSolvedChange]);
 
   const tapLeft = (i: number) => {
@@ -136,87 +139,90 @@ export function MatchingPairs({
     <View>
       <ThemedText type="label" style={{ color: theme.primary, marginBottom: Spacing.two }}>✦ MATCH THE PAIRS</ThemedText>
       <ThemedText type="title" style={{ marginBottom: Spacing.two }}>{spec.title}</ThemedText>
-      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.four }}>
+      <ThemedText type="small" themeColor="mutedForeground" style={{ marginBottom: Spacing.three }}>
         {matched.length} of {spec.pairs.length} matched · Tap a term, then tap its match.
       </ThemedText>
 
-      <View style={[styles.cols, width >= 1024 && styles.colsWide]}>
-        <View style={styles.col}>
-          {spec.pairs.map((p, i) => {
-            const isMatched = matched.includes(i);
-            const isSel = selected === i;
-            return (
+      {/* ROWS, NOT COLUMNS. This rendered every term stacked in one column and every match
+          stacked below it at a fixed 90pt: four pairs made eight tall cards, the matches sat
+          below the fold, and the learner scrolled away from a term to find its match. The owner
+          called it "really weird" (2026-09-28). Row i pairs left term i with shuffled right cell
+          rightOrder[i]; the row stretches both cells to the taller one, so a long definition
+          grows its row instead of clipping, and the whole board fits on one phone screen. */}
+      <View style={styles.board}>
+        {spec.pairs.map((p, i) => {
+          const isLeftMatched = matched.includes(i);
+          const isSel = selected === i;
+          const j = rightOrder[i];
+          const right = j == null ? undefined : spec.pairs[j];
+          const isRightMatched = j != null && matchedRight.includes(j);
+          const isWrong = j != null && wrong === j;
+          return (
+            <View key={`row-${String(i)}`} style={styles.row}>
               <SpringPressable
                 // Index-qualified: three authored steps repeat an option's text (for example
                 // `Credit (right side)` twice in The Language of Accounting), and a bare
                 // content key made React reconcile them as one child -- a console error on
                 // every render, and LogBox covering the whole step in dev.
                 key={`${String(i)}-${p.left}`}
-                disabled={isMatched}
+                style={styles.slot}
+                disabled={isLeftMatched}
                 onPress={() => tapLeft(i)}
                 // Selection and matched-ness were carried only by border colour and a tick
                 // glyph. Without them announced, a screen-reader user cannot tell which term
                 // is currently picked up or which pairs are already done.
                 accessibilityRole="button"
                 accessibilityLabel={p.left}
-                accessibilityState={{ selected: isSel, disabled: isMatched }}
-                accessibilityHint={isMatched ? undefined : 'Activate, then choose its definition.'}>
+                accessibilityState={{ selected: isSel, disabled: isLeftMatched }}
+                accessibilityHint={isLeftMatched ? undefined : 'Activate, then choose its definition.'}>
                 <MatchCell
-                  stage={isMatched ? 2 : isSel ? 1 : 0}
+                  stage={isLeftMatched ? 2 : isSel ? 1 : 0}
                   accent={theme.primary}
                   tint={isSel ? theme.primary + '14' : theme.card}>
-                  <ThemedText type="bodyMedium" style={{ flex: 1 }}>{p.left}</ThemedText>
+                  <ThemedText type="bodyMedium" style={styles.text}>{p.left}</ThemedText>
                   {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
                       most satisfying moment in the step, well below R1's p10 of 130ms, while
                       sibling step kinds (`order-steps`, `multi-select`) animate their state
                       change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
                       ordinary interaction, which is the rule protecting the defect the owner
                       originally reported. */}
-                  {isMatched && (
-                    <Animated.View entering={FadeIn.duration(Duration.fast)}>
+                  {isLeftMatched && (
+                    <Animated.View entering={reduced ? undefined : FadeIn.duration(Duration.fast)}>
                       <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
                     </Animated.View>
                   )}
                 </MatchCell>
               </SpringPressable>
-            );
-          })}
-        </View>
 
-        <View style={styles.col}>
-          {rightOrder.map((j) => {
-            const isMatched = matchedRight.includes(j);
-            const isWrong = wrong === j;
-            return (
-              <SpringPressable
-                key={`${String(j)}-${spec.pairs[j].right}`}
-                disabled={isMatched}
-                onPress={() => tapRight(j)}
-                accessibilityRole="button"
-                accessibilityLabel={spec.pairs[j].right}
-                accessibilityState={{ disabled: isMatched }}
-                accessibilityHint={isMatched ? undefined : 'Activate to match this with the selected term.'}>
-                <MatchCell
-                  stage={isMatched ? 2 : isWrong ? 1 : 0}
-                  accent={theme.destructive}
-                  tint={isMatched ? theme.success + '14' : theme.card}>
-                  <ThemedText type="small" style={{ flex: 1 }}>{spec.pairs[j].right}</ThemedText>
-                  {/* FADES IN. This was `{isMatched && <UIcon …/>}` — a 0ms appearance on the
-                      most satisfying moment in the step, well below R1's p10 of 130ms, while
-                      sibling step kinds (`order-steps`, `multi-select`) animate their state
-                      change. A fade and not a scale: motion-invariant 1 forbids a scale-pop on
-                      ordinary interaction, which is the rule protecting the defect the owner
-                      originally reported. */}
-                  {isMatched && (
-                    <Animated.View entering={FadeIn.duration(Duration.fast)}>
-                      <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
-                    </Animated.View>
-                  )}
-                </MatchCell>
-              </SpringPressable>
-            );
-          })}
-        </View>
+              {j == null || !right ? (
+                <View style={styles.slot} />
+              ) : (
+                <SpringPressable
+                  key={`${String(j)}-${right.right}`}
+                  style={styles.slot}
+                  disabled={isRightMatched}
+                  onPress={() => tapRight(j)}
+                  accessibilityRole="button"
+                  accessibilityLabel={right.right}
+                  accessibilityState={{ disabled: isRightMatched }}
+                  accessibilityHint={isRightMatched ? undefined : 'Activate to match this with the selected term.'}>
+                  <MatchCell
+                    stage={isRightMatched ? 2 : isWrong ? 1 : 0}
+                    accent={theme.destructive}
+                    tint={isRightMatched ? theme.success + '14' : theme.card}>
+                    <ThemedText type="small" style={styles.text}>{right.right}</ThemedText>
+                    {/* Fades in for the same reason as the left tick above. */}
+                    {isRightMatched && (
+                      <Animated.View entering={reduced ? undefined : FadeIn.duration(Duration.fast)}>
+                        <UIcon name="check" size={16} color={theme.success} strokeWidth={3} />
+                      </Animated.View>
+                    )}
+                  </MatchCell>
+                </SpringPressable>
+              )}
+            </View>
+          );
+        })}
       </View>
 
       {solved && (
@@ -246,10 +252,11 @@ export function MatchingPairs({
 }
 
 const styles = StyleSheet.create({
-  cols: { flexDirection: 'column', alignItems: 'center', gap: 24 },
-  colsWide: { flexDirection: 'row', justifyContent: 'center', gap: 48 },
-  col: { width: '100%', maxWidth: 380, gap: 12 },
-  cell: { height: 90, flexDirection: 'row', alignItems: 'center', gap: 12, padding: 16, borderRadius: 12, borderWidth: 2 },
+  board: { gap: 10 },
+  row: { flexDirection: 'row', alignItems: 'stretch', gap: 10 },
+  slot: { flex: 1 },
+  cell: { flex: 1, minHeight: 64, flexDirection: 'row', alignItems: 'center', gap: 8, padding: 12, borderRadius: 12, borderWidth: 2 },
+  text: { flex: 1 },
   escape: { alignItems: 'center', gap: Spacing.one, marginTop: Spacing.four },
   escapeMessage: { textAlign: 'center' },
 });
