@@ -5,7 +5,7 @@
  * coords. Body spins on tap (eyes stay upright); idle blink; 6 expressions.
  */
 import { useIsFocused } from 'expo-router';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
 import { Pressable } from 'react-native';
 import Animated, {
@@ -27,6 +27,7 @@ import Svg, {
 } from 'react-native-svg';
 
 import { AtlasMarkBody } from '@/components/atlas-mark';
+import { useLessonAtlasPresence } from '@/components/lesson-atlas-presence';
 import { Duration, Ease, Spring } from '@/shared/motion/tokens';
 
 
@@ -138,7 +139,7 @@ const CELEBRATE_GAIN = 0.32;
 export function Atlas({
   size = 120,
   expression = 'default',
-  interactive = true,
+  interactive: interactiveProp = true,
   glasses = false,
   celebrate = false,
   celebrateKey = 0,
@@ -150,9 +151,9 @@ export function Atlas({
   entrance,
   idle = false,
   still = false,
-  onPress,
-  accessibilityLabel = 'Atlas, the Euphoria mascot',
-  accessibilityHint,
+  onPress: onPressProp,
+  accessibilityLabel: accessibilityLabelProp = 'Atlas, the Euphoria mascot',
+  accessibilityHint: accessibilityHintProp,
 }: {
   size?: number;
   expression?: AtlasExpression;
@@ -202,6 +203,16 @@ export function Atlas({
   accessibilityLabel?: string;
   accessibilityHint?: string;
 }) {
+  /* Inside a lesson, every mascot claims the screen (the float hides) and, unless the caller gave
+     him a job already, becomes the Ask-Atlas door. See lesson-atlas-presence.tsx. */
+  const presence = useLessonAtlasPresence();
+  // Layout effect: the float is hidden before the first paint, so it never flashes for a frame.
+  useLayoutEffect(() => presence?.claim(), [presence]);
+  const asksAtlas = presence !== null && !onPressProp;
+  const onPress = asksAtlas ? presence.ask : onPressProp;
+  const interactive = interactiveProp || asksAtlas;
+  const accessibilityLabel = asksAtlas ? 'Ask Atlas' : accessibilityLabelProp;
+  const accessibilityHint = asksAtlas ? 'Opens a tutor grounded in this lesson step' : accessibilityHintProp;
   const reduced = useReducedMotion();
   const scale = useSharedValue(1);
   const jumpY = useSharedValue(0);

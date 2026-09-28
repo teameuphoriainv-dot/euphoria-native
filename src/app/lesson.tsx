@@ -41,6 +41,7 @@ import { LessonProse } from '@/components/lesson-prose';
 import { LessonDesignProvider } from '@/components/lesson-design-provider';
 import { LessonWarmup } from '@/components/lesson-warmup';
 import { CorrectConfettiHost } from '@/components/correct-confetti';
+import { LessonAtlasPresenceProvider } from '@/components/lesson-atlas-presence';
 import { LessonStepSessionProvider } from '@/components/lesson-step-session';
 import { MatchingPairs } from '@/components/matching-pairs';
 import { CalcBlanks } from '@/components/calc-blanks';
@@ -97,7 +98,7 @@ import {
 } from '@/lib/lesson-segments';
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
-import { applyDailyNudge } from '@/lib/notifications';
+import { applyDailyNudge, notificationsNeverAsked } from '@/lib/notifications';
 import { lessonKey, useApp, type AppState } from '@/lib/store';
 import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
 import { feedback, warmLesson } from '@/lib/feedback';
@@ -403,6 +404,10 @@ export default function Lesson() {
   const [showWhy, setShowWhy] = useState(false);
   /** The active deck card draws its own Atlas (card-deck.tsx cardDrawsAtlas), so the float hides. */
   const [deckAtlas, setDeckAtlas] = useState(false);
+  /** A mascot is drawn inside the step (lesson-atlas-presence), so the float must not draw one. */
+  const [contentAtlas, setContentAtlas] = useState(false);
+  /** Bumped by a tap on that in-content Atlas: it opens the float's tutor sheet. */
+  const [askAtlasKey, setAskAtlasKey] = useState(0);
   /*
    * THE BOTTOM LANE, MEASURED (S2 review, 2026-09-22). Two absolute overlays used to be positioned
    * against guesses instead of against what is on the screen:
@@ -987,6 +992,23 @@ export default function Lesson() {
       }
       // Guarded on the count actually moving, so re-finishing a completed lesson (which dedupes to
       // a no-op) cannot re-fire activation.
+      /*
+       * The ask (explained below) runs on ANY newly finished lesson, not only the first, but only
+       * while iOS has never shown the prompt. Gating it on "completed count is exactly 1" left every
+       * install that passed lesson one before this ask existed with no way to be asked at all.
+       * `undetermined` cannot be a nag: once answered, or switched off in Settings, it never returns.
+       * `!alreadyCompleted` (not `wasFirst`, which is "first lesson EVER") keeps it to real finishes.
+       */
+      if (!alreadyCompleted) {
+        InteractionManager.runAfterInteractions(() => {
+          void notificationsNeverAsked().then((never) => {
+            if (!never) return;
+            void applyDailyNudge(true).then((scheduled) => {
+              useApp.getState().setProfile({ notifyOptIn: scheduled });
+            });
+          }).catch(() => undefined);
+        });
+      }
       if (wasFirst && useApp.getState().completedLessons.length === 1) {
         track(Ev.firstLesson, { course: courseId, lesson: lessonNum });
         /*
@@ -1009,11 +1031,6 @@ export default function Lesson() {
          * Persists what iOS ACTUALLY scheduled, never what we intended — the same rule the
          * Settings toggle follows.
          */
-        InteractionManager.runAfterInteractions(() => {
-          void applyDailyNudge(true).then((scheduled) => {
-            useApp.getState().setProfile({ notifyOptIn: scheduled });
-          });
-        });
         /*
          * 17c fires HERE, on the first lesson finished inside the trial — the win Headway's chest
          * is anchored to, and the only moment at which the approved copy ("That's your first lesson
@@ -1446,6 +1463,9 @@ export default function Lesson() {
         <ThemedText type="smallBold" style={[styles.stepLabel, NUM_L]}>{stepLabel}</ThemedText>
       </View>
 
+      <LessonAtlasPresenceProvider
+        onPresentChange={setContentAtlas}
+        onAsk={() => setAskAtlasKey((k) => k + 1)}>
       <View style={[styles.body, idx === 0 && styles.warmupBody]}>
         {idx === 0 && (
           <LessonWarmup
@@ -1853,6 +1873,7 @@ export default function Lesson() {
         )}
 
       </View>
+      </LessonAtlasPresenceProvider>
 
       {/*
         * HIDDEN in two cases, both one-mascot-per-screen (CONSTITUTION 5.6) and overlap:
@@ -1871,12 +1892,20 @@ export default function Lesson() {
           Photographed on the simulator 2026-09-22 (personal-finance:9 part 2): the chat Atlas and
           the float were on screen together, which is the same 5.6 break as the clip cards, on the
           186 lessons that have a vocab part. */}
-      {atlasContext && !deckAtlas && norm?.kind !== 'vocab' && verdict === null && segmentBreak === null ? (
+      {/* ...and in general (owner, 2026-09-28): ANY step that draws Atlas in its content hides the
+          float, and that Atlas opens this same tutor sheet. The button stays mounted while hidden
+          so the sheet has somewhere to live. */}
+      {atlasContext ? (
         <View
           pointerEvents="box-none"
           style={[styles.atlasFloat, { bottom: atlasLift }]}
         >
-          <LessonAtlasButton topic={lesson.title} context={atlasContext} />
+          <LessonAtlasButton
+            topic={lesson.title}
+            context={atlasContext}
+            hidden={!(atlasContext && !deckAtlas && !contentAtlas && norm?.kind !== 'vocab' && verdict === null && segmentBreak === null)}
+            openKey={askAtlasKey}
+          />
         </View>
       ) : null}
 

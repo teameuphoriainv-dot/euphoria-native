@@ -202,7 +202,8 @@ for (const kind of Object.keys(counts)) {
   }
   const lessonSrc = read('src/app/lesson.tsx');
   if (!/onAtlasCard=\{setDeckAtlas\}/.test(lessonSrc)) fail('lesson.tsx does not pass onAtlasCard to CardDeck');
-  if (!/\{atlasContext && !deckAtlas\b[^}]*\? \(/.test(lessonSrc)) fail('lesson.tsx floats Ask-Atlas without checking deckAtlas');
+  // The float stays mounted since 2026-09-28 and takes the guard as `hidden={!(...)}`; either form.
+  if (!/\{atlasContext && !deckAtlas\b[^}]*\? \(|hidden=\{!\(atlasContext && !deckAtlas\b/.test(lessonSrc)) fail('lesson.tsx floats Ask-Atlas without checking deckAtlas');
 }
 
 if (failures.length) {

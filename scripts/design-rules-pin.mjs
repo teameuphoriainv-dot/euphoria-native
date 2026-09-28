@@ -99,6 +99,16 @@ const lessonSrc = strip(readFileSync(new URL('../src/app/lesson.tsx', import.met
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
 assert.match(lessonSrc, /onAtlasCard=\{setDeckAtlas\}/, 'lesson.tsx never asks the deck which card owns the mascot');
 assert.match(lessonSrc, /atlasContext && !deckAtlas/, 'lesson.tsx floats Ask-Atlas without checking deckAtlas, so a scene or clip card shows two Atlases');
+/*
+ * RULE 6, generalised (owner, 2026-09-28): the slider showed THREE Atlases (its prompt, the wrong-
+ * answer correction, the float). Per-kind exemptions kept missing new step kinds, so every <Atlas>
+ * inside the lesson body now claims presence and the float hides; a tap on that Atlas opens the
+ * same tutor. These three links are the whole mechanism.
+ */
+const atlasSrc = readFileSync(new URL('../src/components/atlas.tsx', import.meta.url), 'utf8');
+assert.match(atlasSrc, /useLayoutEffect\(\(\) => presence\?\.claim\(\)/, 'atlas.tsx no longer claims lesson presence, so the float draws a second mascot beside it');
+assert.match(lessonSrc, /<LessonAtlasPresenceProvider[\s\S]*?styles\.body[\s\S]*?<\/LessonAtlasPresenceProvider>/, 'lesson.tsx no longer wraps the step body in LessonAtlasPresenceProvider');
+assert.match(lessonSrc, /!contentAtlas/, 'the lesson float ignores an Atlas drawn by the step itself');
 
 /* ── RULE 2: no half-finished rows ────────────────────────────────────────────────────────────
  * Two of the three Pro benefits carried a one-line sub and the third carried none, so it rendered

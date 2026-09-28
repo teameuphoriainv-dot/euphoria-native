@@ -178,7 +178,9 @@ export function findings(lessonRaw, storeRaw, driverRaw) {
   // a second mascot there too (photographed 2026-09-22, personal-finance:9 part 2). Matched loosely
   // between !deckAtlas and segmentBreak so a new exclusion does not read as the part card's guard
   // going missing, but segmentBreak === null itself is still required.
-  check(/atlasContext && !deckAtlas &&[^;{}]{0,90}segmentBreak === null \?/.test(src),
+  // Since 2026-09-28 the float stays MOUNTED (its tutor sheet is what an in-content Atlas opens)
+  // and the same guard drives `hidden={!(...)}` instead of a ternary; either form satisfies this.
+  check(/atlasContext && !deckAtlas &&[^;{}]{0,110}segmentBreak === null(?: \?|\)\})/.test(src),
     'lesson.tsx: the floating Ask Atlas is not hidden by the part card, so two mascots share the '
     + 'screen (CONSTITUTION 5.6) and one of them sits on Keep going');
   check(/<SegmentFinishCard/.test(src) && /onKeepGoing=\{keepGoing\}/.test(src) && /onDoneForNow=\{doneForNow\}/.test(src),

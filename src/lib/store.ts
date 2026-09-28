@@ -1489,6 +1489,10 @@ export const useApp = create<AppState>()(
             // report yesterday's practice minutes as today's. A read credits no minutes of its
             // own — the daily goal measures practice, and reading is not practice.
             minutesToday: s.lastActiveDay === today ? s.minutesToday : 0,
+            // Same rule for the lesson tally. It was left stale, so a guide read first thing made
+            // quests.ts see lastActiveDay === today beside YESTERDAY's lessonsToday, and "Finish a
+            // lesson" showed done before any lesson that day.
+            lessonsToday: s.lastActiveDay === today ? s.lessonsToday : 0,
           };
         }),
       setDailyPick: (day, slug) =>
