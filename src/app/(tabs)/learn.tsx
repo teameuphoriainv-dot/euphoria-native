@@ -481,7 +481,7 @@ export default function Learn() {
                 * line and "Finance" on the next: complete AND cleanly broken. Verified on
                 * device both times rather than assumed.
                 */}
-              <ThemedText type="title" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>{course?.title ?? 'Courses'}</ThemedText>
+              <ThemedText type="title" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.titleSm }} numberOfLines={2}>{/* 'Learn', not the course title: the selected chip right below already names the course. */}Learn</ThemedText>
             </SpringPressable>
             {/*
               * THE STREAK FOLLOWS YOU ONTO THE LEARNING SURFACE. Audit finding (FINDINGS.md, LEARN):
@@ -615,6 +615,10 @@ export default function Learn() {
               return (
                 <View key={unit.index} style={styles.sagaUnit}>
                   <Card padded={false} tint={accent} depthColor={accent + '80'} style={styles.levelHeader}>
+                    {/* Unit number and progress: the banner named the unit but never said where you are in it. */}
+                    <ThemedText type="smallBold" themeColor="mutedForeground" style={styles.levelTitle}>
+                      {`Unit ${String(unit.index + 1)} · ${String(nodes.filter((n) => doneFlags[n.lessonIndex]).length)}/${String(nodes.length)}`}
+                    </ThemedText>
                     <ThemedText type="heading" numberOfLines={2} style={styles.levelTitle}>{unit.title}</ThemedText>
                   </Card>
 
