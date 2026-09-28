@@ -24,7 +24,7 @@ export const STREAK_DOT = 34;
 
 /**
  * The Today card's week. A done day holds Atlas in its circle and joins a tinted band with its
- * neighbours, so a run reads as one unbroken streak; today is a bright ring, the rest are grey.
+ * neighbours, so a run reads as one unbroken streak; today is a bright ring, the rest are small grey pips.
  * Atlas springs in once when a day is earned (not on every mount -- `entering` only fires when
  * the node first appears, which is exactly the moment the day flips to done).
  */
@@ -70,7 +70,9 @@ export function WeekStreak({ isDone, todayIdx, onRowLayout }: {
                   styles.wkDot,
                   done
                     ? { borderColor: theme.primary, backgroundColor: theme.card }
-                    : { borderColor: today ? theme.text : theme.border },
+                    : today
+                      ? { borderColor: theme.text }
+                      : [styles.wkPip, { backgroundColor: theme.border }],
                 ]}>
                 {done && (
                   <Animated.View entering={reduced ? undefined : atlasArrive}>
@@ -93,4 +95,6 @@ const styles = StyleSheet.create({
   wkSlot: { alignSelf: 'stretch', height: STREAK_DOT + 6, alignItems: 'center', justifyContent: 'center' },
   wkBand: { position: 'absolute', top: 0, bottom: 0 },
   wkDot: { width: STREAK_DOT, height: STREAK_DOT, borderRadius: STREAK_DOT / 2, borderWidth: 2, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
+  // Not done and not today: a quiet pip, so today's ring is the only empty circle that asks for action.
+  wkPip: { width: 8, height: 8, borderRadius: 4, borderWidth: 0 },
 });
