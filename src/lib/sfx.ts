@@ -16,7 +16,10 @@ import { createAudioPlayer, setAudioModeAsync, type AudioPlayer } from 'expo-aud
 import { useApp } from './store';
 
 const FILES = {
-  correct: require('../../assets/sounds/confirmation_001.m4a'),
+  /* The web app's playCorrect() (C5 then E5 bell, shimmer, reverb send), rendered offline from
+     euphoriaweb-master/src/lib/soundEffects.ts so a right answer sounds the same on both, peak
+     normalised to sit level with the Kenney files. Not Kenney: our own render. */
+  correct: require('../../assets/sounds/correct_web.m4a'),
   wrong: require('../../assets/sounds/error_004.m4a'),
   complete: require('../../assets/sounds/confirmation_002.m4a'),
   /* Shop purchase. drop_002 reads as a coin dropping, distinct from every lesson chime and from

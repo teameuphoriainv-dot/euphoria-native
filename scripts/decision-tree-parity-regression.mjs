@@ -50,7 +50,8 @@ for (const required of [
   'translateX: -30',
   'scale: 0.9',
   'scale: 0.6',
-  "Haptics.NotificationFeedbackType.Error",
+  // Right and wrong now go through the shared lib/feedback vocabulary (haptic + sound + confetti).
+  "feedback(option.correct ? 'correct' : 'wrong')",
   "Good effort. Review the feedback you saw along the way.",
   'DECISION_TREE_RESULT_HOLD_MS',
   'decisionTreeCompletion(allCorrect, selected)',

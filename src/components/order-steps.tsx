@@ -4,8 +4,9 @@
  * in its correct slot gets a green accent + check; onSolvedChange(true) when the whole order
  * matches. Sibling to MatchingPairs/MultiSelect.
  */
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { LinearTransition } from 'react-native-reanimated';
 import { StyleSheet, View } from 'react-native';
 
@@ -60,9 +61,12 @@ export function OrderSteps({ spec, onSolvedChange }: { spec: OrderSpec; onSolved
 
   const solved = order.every((v, i) => v === i);
 
+  const wasSolved = useRef(solved);
   useEffect(() => {
     onSolvedChange(solved);
-    if (solved) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Celebrate the moment it becomes solved, not a solved step restored by Previous.
+    if (solved && !wasSolved.current) feedback('correct');
+    wasSolved.current = solved;
   }, [solved, onSolvedChange]);
 
   const tap = (pos: number) => {

@@ -169,7 +169,14 @@ for (const f of [...walk('src/app'), ...walk('src/components')]) {
  * (#A855EB twice, #C89CF5) became the stepped PixelBeam in theme tokens. Measured 99 after the
  * batch, the lowest it can be set without failing today.
  */
-const HEX_CEILING = 99;
+/*
+ * RAISED 2026-09-28 to 101 for src/components/correct-confetti.tsx. The owner asked for "the
+ * confetti thing from webapp" on a right answer, and the web burst's colours are fixed literals
+ * (fireSmallConfetti: #22c55e, #3b82f6, #b862ed), not theme tokens. The blue and the violet have
+ * no token here; matching the web burst is the point, so they stay literal and commented at the
+ * site. The green equals theme.success but stays with its two siblings as one palette.
+ */
+const HEX_CEILING = 101;
 assert.ok(
   hex <= HEX_CEILING,
   `${String(hex)} hardcoded hex literals outside the art files, ceiling is ${String(HEX_CEILING)}. ` +

@@ -40,6 +40,7 @@ import { HookOpener } from '@/components/hook-opener';
 import { LessonProse } from '@/components/lesson-prose';
 import { LessonDesignProvider } from '@/components/lesson-design-provider';
 import { LessonWarmup } from '@/components/lesson-warmup';
+import { CorrectConfettiHost } from '@/components/correct-confetti';
 import { LessonStepSessionProvider } from '@/components/lesson-step-session';
 import { MatchingPairs } from '@/components/matching-pairs';
 import { CalcBlanks } from '@/components/calc-blanks';
@@ -2011,6 +2012,8 @@ export default function Lesson() {
           leave();
         }}
       />
+      {/* Last child, so the right-answer confetti falls over the step and the check bar. */}
+      <CorrectConfettiHost />
     </SafeAreaView>
     </LessonDesignProvider>
   );

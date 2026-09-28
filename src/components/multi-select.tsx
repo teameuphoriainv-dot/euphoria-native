@@ -4,8 +4,9 @@
  * correct answers are marked so the learner can fix and re-check. onSolvedChange(true) only
  * when the selected set exactly matches the correct set. Sibling to OrderSteps/TileBuilder.
  */
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -31,9 +32,12 @@ export function MultiSelect({ spec, onSolvedChange }: { spec: MultiSpec; onSolve
   const solved = checked && spec.options.every((o, i) => o.correct === picked[i]);
   const anyPicked = picked.some(Boolean);
 
+  const wasSolved = useRef(solved);
   useEffect(() => {
     onSolvedChange(solved);
-    if (solved) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Celebrate the moment it becomes solved, not a solved step restored by Previous.
+    if (solved && !wasSolved.current) feedback('correct');
+    wasSolved.current = solved;
   }, [solved, onSolvedChange]);
 
   const toggle = (i: number) => {

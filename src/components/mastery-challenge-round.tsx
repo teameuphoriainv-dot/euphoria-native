@@ -1,3 +1,4 @@
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
@@ -32,7 +33,6 @@ import { PixelSpriteView, heart, lightbulb, trophy } from '@/lib/pixel';
 import { SemanticMotion } from '@/shared/motion/semantic-motion';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
-import { playSfx } from '@/lib/sfx';
 
 type Phase = 'quiz' | 'passed' | 'failed';
 
@@ -100,10 +100,7 @@ export function MasteryChallengeRound({
     const result = gradeChallengeAnswer(selected, current.correct, hearts);
     setSubmitted(true);
     setHearts(result.hearts);
-    void Haptics.notificationAsync(result.correct
-      ? Haptics.NotificationFeedbackType.Success
-      : Haptics.NotificationFeedbackType.Error);
-    playSfx(result.correct ? 'correct' : 'wrong');
+    feedback(result.correct ? 'correct' : 'wrong');
     if (result.failed) {
       failureTimer.current = setTimeout(() => {
         void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
