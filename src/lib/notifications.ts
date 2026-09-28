@@ -11,10 +11,11 @@
  * are on while the OS drops every one of them.
  */
 import * as Notifications from 'expo-notifications';
+import { Linking, Platform } from 'react-native';
 
 import { Ev, track } from './analytics';
 import { DEFAULT_NUDGE_HOUR, TRIAL_DAYS, useApp } from './store';
-import { canSpend, clampToWindow, type NotifEntry } from './notif-budget';
+import { canSpend, clampToWindow, dropQueued, prune, type NotifEntry, type NotifKind } from './notif-budget';
 import { getNews } from './market';
 import { dayKey } from './day-keys';
 import { GENERIC_REMINDER, nearestReminderCopy, reminderDayOffsets } from './streak-reminder';
@@ -26,6 +27,19 @@ import { GENERIC_REMINDER, nearestReminderCopy, reminderDayOffsets } from './str
  * convertible — the user has already decided when, so iOS is only asking whether.
  */
 export const NUDGE_HOUR = DEFAULT_NUDGE_HOUR;
+
+/*
+ * THE BUDGET LEDGER, written here rather than through store.recordNotif. That action prunes against
+ * the SEND time, so recording a day-14 win-back erased the week of real history before it. And a
+ * cancelled notification must hand its slot back (dropQueued), or each daily re-arm leaves phantoms
+ * that crowd out the next schedule: replayed, three active days in a row left zero win-backs queued.
+ */
+function spend(kind: NotifKind, at: number, now: number) {
+  useApp.setState((s) => ({ notifLedger: prune([...s.notifLedger, { at, kind }], now) }));
+}
+function unspend(kind: NotifKind, now: number) {
+  useApp.setState((s) => ({ notifLedger: dropQueued(s.notifLedger, kind, now) }));
+}
 
 /** Fixed id so a re-run REPLACES the reminder instead of adding a second one. */
 const DAILY_ID = 'euphoria-daily-nudge';
@@ -110,6 +124,51 @@ export async function applyDailyNudge(
 
 /** What the OS actually has queued. Used by the dev self-check below and safe to call anywhere. */
 export const scheduledNudges = async () => Notifications.getAllScheduledNotificationsAsync();
+
+/**
+ * Where the notification permission stands, in the three states a control can act on:
+ * `ask` means the system prompt can still appear, `blocked` means only iOS Settings can change it.
+ */
+export type NotifAccess = 'granted' | 'ask' | 'blocked';
+
+export async function notificationAccess(): Promise<NotifAccess> {
+  const p = await Notifications.getPermissionsAsync();
+  if (p.status === 'granted') return 'granted';
+  return p.canAskAgain ? 'ask' : 'blocked';
+}
+
+/**
+ * Dev builds only (Settings > Notifications > DEVELOPER). One notification five seconds out, the
+ * only way to prove delivery on a physical phone rather than infer it from what was queued. It
+ * also exercises the foreground handler above if the app is still open when it lands.
+ */
+export async function sendTestNotification(): Promise<boolean> {
+  if ((await notificationAccess()) !== 'granted') return false;
+  await Notifications.scheduleNotificationAsync({
+    identifier: 'euphoria-test',
+    content: { title: 'Test notification', body: 'If you can read this, reminders reach this phone.', sound: true, data: { kind: 'test' } },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL, seconds: 5, repeats: false },
+  });
+  return true;
+}
+
+/**
+ * Take the user to the switch itself instead of describing where it is. iOS 15.4+ opens
+ * Euphoria's Notifications page directly via UIApplicationOpenNotificationSettingsURLString
+ * (its value, `app-settings:notifications`, read out of UIKitCore; RN 0.86 has no wrapper yet).
+ * Anything older, or Android, lands on the app's own settings page, one row away.
+ */
+export async function openNotificationSettings(): Promise<void> {
+  if (Platform.OS === 'ios') {
+    try {
+      await Linking.openURL('app-settings:notifications');
+      return;
+    } catch {
+      // Fall through to the app's settings page.
+    }
+  }
+  await Linking.openSettings().catch(() => undefined);
+}
 
 /* ── THE TRIAL REMINDER ────────────────────────────────────────────────────────────────────────
  *
@@ -304,6 +363,7 @@ export async function applyWinBack(schedule: boolean, now: Date = new Date()): P
   await Promise.all(
     WINBACK.map((w) => Notifications.cancelScheduledNotificationAsync(w.id).catch(() => undefined)),
   );
+  unspend('winback', now.getTime());
   if (!schedule) return [];
 
   const { status } = await Notifications.getPermissionsAsync();
@@ -336,7 +396,7 @@ export async function applyWinBack(schedule: boolean, now: Date = new Date()): P
       },
     });
     spent.push({ at: ms, kind: 'winback' });
-    st.recordNotif('winback', ms);
+    spend('winback', ms, now.getTime());
     track(Ev.notificationScheduled, { kind: 'winback', day: w.days });
   }
 
@@ -397,6 +457,7 @@ const STRONG_SENTIMENT = 0.35;
  */
 export async function applyMarketAlert(now: Date = new Date()): Promise<string | null> {
   await Notifications.cancelScheduledNotificationAsync(MARKET_ID).catch(() => undefined);
+  unspend('market', now.getTime());
 
   const { status } = await Notifications.getPermissionsAsync();
   if (status !== 'granted') return null;
@@ -441,7 +502,7 @@ export async function applyMarketAlert(now: Date = new Date()): Promise<string |
       repeats: false,
     },
   });
-  st.recordNotif('market', at.getTime());
+  spend('market', at.getTime(), now.getTime());
 
   // Read back what iOS actually holds, per the rule this file has followed since it was written.
   const queued = await scheduledNudges();

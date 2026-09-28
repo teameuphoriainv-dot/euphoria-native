@@ -25,8 +25,9 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import type { ReactNode } from 'react';
-import { useState } from 'react';
-import { Alert, Linking, Pressable, ScrollView, StyleSheet, Switch, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+// Aliased like _layout.tsx: `AppState` in this codebase already names the Zustand store's shape.
+import { Alert, Linking, Pressable, AppState as RNAppState, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
@@ -36,7 +37,16 @@ import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { deleteServerAccount } from '@/lib/auth';
 import { setAnalyticsConsent } from '@/lib/analytics';
-import { applyDailyNudge, applyMarketAlert, applyWinBack } from '@/lib/notifications';
+import { SlabButton } from '@/components/ui/button';
+import {
+  applyDailyNudge,
+  applyMarketAlert,
+  applyWinBack,
+  notificationAccess,
+  openNotificationSettings,
+  sendTestNotification,
+  type NotifAccess,
+} from '@/lib/notifications';
 import { hourLabel, NudgeTimePicker } from '@/components/nudge-time-picker';
 import { FREE_ATLAS_MESSAGES, useApp } from '@/lib/store';
 import { TRIAL_DAYS, trialDayNumber, useTier } from '@/lib/entitlement';
@@ -369,33 +379,90 @@ function AccountSection({ forceBillingIssue = false }: { forceBillingIssue?: boo
 }
 
 function NotificationsSection() {
+  const theme = useTheme();
   const optIn = useApp((s) => s.profile.notifyOptIn);
   const nudgeHour = useApp((s) => s.nudgeHour);
   const setProfile = useApp((s) => s.setProfile);
   const [busy, setBusy] = useState(false);
+  /** null until the OS has answered, so the switch does not flash off on the way in. */
+  const [access, setAccess] = useState<NotifAccess | null>(null);
+  /** Set when this screen sent the user to iOS Settings to turn notifications on. The intent is
+   *  already stated, so coming back with the switch flipped arms the reminder without a second tap. */
+  const wantOnReturn = useRef(false);
+
+  /*
+   * The owner's report: this screen used to answer a blocked toggle with an alert reading "Turn them
+   * on in Settings › Notifications › Euphoria", directions instead of a door. Now a blocked
+   * permission gets a button that opens that exact page, and the state is re-read every time the
+   * app comes back to the foreground, so returning from Settings updates this screen by itself.
+   */
+  useEffect(() => {
+    const refresh = async () => {
+      const next = await notificationAccess().catch(() => null);
+      if (!next) return;
+      setAccess(next);
+      if (next !== 'granted' || !wantOnReturn.current) return;
+      wantOnReturn.current = false;
+      // ask = false: permission is already granted, and this runs without a tap behind it.
+      const scheduled = await applyDailyNudge(true, useApp.getState().nudgeHour, false);
+      useApp.getState().setProfile({ notifyOptIn: scheduled });
+    };
+    void refresh();
+    const sub = RNAppState.addEventListener('change', (next) => {
+      if (next === 'active') void refresh();
+    });
+    return () => {
+      sub.remove();
+    };
+  }, []);
+
+  const turnOnInSettings = () => {
+    wantOnReturn.current = true;
+    void openNotificationSettings();
+  };
 
   /** Persist what the OS ACTUALLY scheduled, never what was tapped — notifications.ts is explicit
    *  that iOS keeps a veto at the permission prompt, and storing intent as outcome is how an app
    *  ends up believing reminders are on while every one is dropped. */
   const toggle = async (want: boolean) => {
+    // iOS never shows the prompt twice, so the only way to "on" from here is its Settings page.
+    if (want && access === 'blocked') {
+      turnOnInSettings();
+      return;
+    }
     setBusy(true);
-    const scheduled = await applyDailyNudge(want);
-    setProfile({ notifyOptIn: scheduled });
-    setBusy(false);
-    if (want && !scheduled) {
-      Alert.alert(
-        'Notifications are off',
-        'iOS is blocking notifications for Euphoria. Turn them on in Settings › Notifications › Euphoria.',
-      );
+    try {
+      // Still askable: applyDailyNudge raises the system prompt itself.
+      const scheduled = await applyDailyNudge(want);
+      setProfile({ notifyOptIn: scheduled });
+      // A "Don't Allow" just now turns this to blocked, which brings up the button below.
+      setAccess(await notificationAccess().catch(() => null));
+    } finally {
+      setBusy(false);
     }
   };
 
+  // A stored opt-in means nothing while iOS is blocking delivery, so the switch shows the truth.
+  const on = optIn && (access === null || access === 'granted');
+
   return (
+    <>
     <Section title="DAILY NUDGE">
+      {access === 'blocked' && (
+        <View style={[styles.notifBlocked, { borderBottomColor: theme.border }]}>
+          <View style={styles.rowText}>
+            <ThemedText type="smallBold">Notifications are off for Euphoria</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground">
+              Your daily reminder can&apos;t reach you until they&apos;re on.
+            </ThemedText>
+          </View>
+          <SlabButton label="Turn on notifications" onPress={turnOnInSettings} full />
+        </View>
+      )}
       <ToggleRow
         label="Daily reminder"
-        sub={optIn ? `Every day at ${hourLabel(nudgeHour)}` : 'Off'}
-        value={optIn}
+        sub={on ? `Every day at ${hourLabel(nudgeHour)}` : 'Off'}
+        value={on}
         onValueChange={(v) => { if (!busy) void toggle(v); }}
       />
       {/* UNIT 15a. This row USED to render a hardcoded constant — it looked editable and was not,
@@ -406,6 +473,21 @@ function NotificationsSection() {
         <NudgeTimePicker compact />
       </Row>
     </Section>
+    {__DEV__ && (
+      <Section title="DEVELOPER">
+        {/* Proves delivery on a real phone. The queued list in the Metro log only proves scheduling. */}
+        <Row
+          label="Send a test notification in 5 seconds"
+          last
+          onPress={() => {
+            void sendTestNotification().then((sent) => {
+              if (!sent) Alert.alert('Not sent', 'Notification permission is not granted on this device.');
+            });
+          }}
+        />
+      </Section>
+    )}
+    </>
   );
 }
 
@@ -603,6 +685,7 @@ const styles = StyleSheet.create({
     minHeight: 52,
   },
   rowText: { flex: 1, gap: 1 },
+  notifBlocked: { gap: Spacing.three, padding: Spacing.three, borderBottomWidth: StyleSheet.hairlineWidth },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, flexShrink: 1 },
   version: { textAlign: 'center', marginTop: -Spacing.two },
 });
