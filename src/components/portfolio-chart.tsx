@@ -110,7 +110,8 @@ export function PortfolioChart() {
     : null;
   const up = (delta?.abs ?? 0) >= 0;
   const color = up ? theme.success : theme.destructive;
-  const d = toPath(points, W, H);
+  // Floor the y-range at 1% of the starting value: sub-1% moves read as the small moves they are.
+  const d = toPath(points, W, H, 2, (first ?? 0) * 0.01);
   // A dead-flat series (every trade at market price leaves total value unchanged) draws a line
   // pinned to the vertical centre with a full-width block of fill under it — which reads as a
   // broken graphic, not "flat". Flat gets the line alone.
@@ -124,7 +125,7 @@ export function PortfolioChart() {
         {/* A zero change is neutral, never a green +$0.00 (honest, and no leading zero). */}
         {delta && !flat ? (
           <ThemedText type="smallBold" style={{ color }}>
-            {up ? '+' : '−'}{money(Math.abs(delta.abs))} ({Math.abs(delta.pct).toFixed(2)}%) {range2.label}
+            {up ? '+' : '−'}{money(Math.abs(delta.abs))} ({Math.abs(delta.pct) < 0.01 ? '<0.01' : Math.abs(delta.pct).toFixed(2)}%) {range2.label}
           </ThemedText>
         ) : (
           <ThemedText type="small" themeColor="mutedForeground">

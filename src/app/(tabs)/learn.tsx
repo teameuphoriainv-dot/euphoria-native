@@ -243,7 +243,7 @@ export default function Learn() {
   const activeCourseId = useApp((s) => s.activeCourseId);
   const setActiveCourse = useApp((s) => s.setActiveCourse);
   const completedLessons = useApp((s) => s.completedLessons);
-  const streak = useApp((s) => s.streak);
+  const streak = useApp((s) => s.streakNow().streak); // live, like Home: the stored value is stale after a break
 
   const course = getCourseById(activeCourseId);
 

@@ -201,11 +201,16 @@ export function seriesChange(points: ChartPoint[]): { abs: number; pct: number }
 
 /** Points -> an SVG path, scaled into `w` x `h`. Flat series get a centre line rather than a
  *  divide-by-zero. */
-export function toPath(points: ChartPoint[], w: number, h: number, pad = 2): string {
+export function toPath(points: ChartPoint[], w: number, h: number, pad = 2, minSpan = 0): string {
   if (points.length < 2) return '';
   const ys = points.map((p) => p.c);
-  const min = Math.min(...ys);
-  const max = Math.max(...ys);
+  // minSpan: a floor on the vertical range, centred on the data, so a $0.49 wobble on $10,000
+  // draws near-flat instead of auto-scaling into a full-height spike. 0 keeps the old behaviour.
+  const lo = Math.min(...ys);
+  const hi = Math.max(...ys);
+  const grow = Math.max(0, minSpan - (hi - lo)) / 2;
+  const min = lo - grow;
+  const max = hi + grow;
   const span = max - min;
   const inner = h - pad * 2;
   const x = (i: number) => (i / (points.length - 1)) * w;

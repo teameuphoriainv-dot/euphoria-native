@@ -333,11 +333,6 @@ export default function Trade() {
           </View>
         </RiseIn>
 
-        {/* UNIT 10. Directly below the action row per §10b. Renders NOTHING when there are no
-            articles — no skeleton, no placeholder headlines (§0.4). Scoped to the first holding
-            when there is one, which is Investing.com's "Related News" variant. */}
-        <NewsGallery symbols={held} delay={130} />
-
         {held.length > 0 && (
           <RiseIn delay={150}>
             <ThemedText type="label" themeColor="mutedForeground" style={styles.sectionLabel}>Your positions</ThemedText>
@@ -389,6 +384,11 @@ export default function Trade() {
             </Card>
           </RiseIn>
         )}
+
+        {/* UNIT 10. Below YOUR POSITIONS (harsh re-score 2026-09-28: holdings were pushed under the
+            fold by news about them). Renders NOTHING when there are no articles (§0.4). Scoped to
+            the first holding when there is one, which is Investing.com's "Related News" variant. */}
+        <NewsGallery symbols={held} delay={130} />
 
         {/*
           * OPEN CONTRACTS. Not a layout question — an ARITHMETIC one. `portfolioValue()` counts open

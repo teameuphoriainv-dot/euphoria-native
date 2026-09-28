@@ -252,7 +252,7 @@ export default function Digest() {
   const dailyPick = useApp((s) => s.dailyPick);
   const setDailyPick = useApp((s) => s.setDailyPick);
   // a stored NUMBER is a safe selector; a getter that builds an array is not
-  const streak = useApp((s) => s.streak);
+  const streak = useApp((s) => s.streakNow().streak);
 
   const { day, post: today } = useMemo(() => pickToday(readPosts, dailyPick), [readPosts, dailyPick]);
 

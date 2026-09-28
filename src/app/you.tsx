@@ -115,7 +115,7 @@ export default function You() {
   const usesLargePlanLayout = fontScale >= 1.8;
   const router = useRouter();
   const xp = useApp((s) => s.xp);
-  const streak = useApp((s) => s.streak);
+  const streak = useApp((s) => s.streakNow().streak);
   const bestStreak = useApp((s) => s.bestStreak ?? 0);
   const level = useApp((s) => s.level());
   // ponytail: levelProgress() returns a fresh object → unstable zustand snapshot → infinite render
