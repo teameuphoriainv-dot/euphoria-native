@@ -29,9 +29,20 @@ for (const g of guides) {
   if (!posts.includes(g.slug)) problems.push(`"${g.slug}" is not a post in digest-content.ts`);
 }
 
-// --- every post should have a CTA target ------------------------------------
+// --- every post has a CTA target, or is DELIBERATELY listed as having none ----
+// NO_LESSON (added 2026-09-28 with the first post that has nothing to practise, a product
+// announcement). Forcing such a post onto a random lesson is worse than the pathway fallback, but
+// an unmapped post must still be a decision, so the opt-out is a named list with a reason each.
+const noLessonBlock = /NO_LESSON[^=]*=\s*\{([\s\S]*?)\n\};/.exec(mapSrc);
+if (!noLessonBlock) problems.push("digest-lessons.ts: could not find NO_LESSON. Did the map's shape change?");
+const noLesson = [...(noLessonBlock?.[1] ?? '').matchAll(/^\s*'([a-z0-9-]+)':\s*'[^']+'/gm)].map((m) => m[1]);
 for (const slug of posts) {
-  if (!guides.some((g) => g.slug === slug)) problems.push(`post "${slug}" has no lesson mapping, so its CTA falls back to the demo lesson`);
+  const mapped = guides.some((g) => g.slug === slug);
+  if (!mapped && !noLesson.includes(slug)) problems.push(`post "${slug}" has no lesson mapping and is not in NO_LESSON, so its CTA silently falls back to the pathway`);
+  if (mapped && noLesson.includes(slug)) problems.push(`"${slug}" is both mapped to a lesson and listed in NO_LESSON; pick one`);
+}
+for (const slug of noLesson) {
+  if (!posts.includes(slug)) problems.push(`NO_LESSON lists "${slug}", which is not a post in digest-content.ts`);
 }
 
 // --- course id -> module file, straight out of the loader switch -------------
@@ -71,5 +82,5 @@ if (problems.length) {
 const courses = [...new Set(guides.map((g) => g.course))];
 const dupes = guides.length - new Set(guides.map((g) => `${g.course}:${g.num}`)).size;
 console.log(`digest lesson map OK`);
-console.log(`  ${guides.length} guides -> ${guides.length - dupes} distinct lessons across ${courses.length} courses`);
+console.log(`  ${guides.length} guides -> ${guides.length - dupes} distinct lessons across ${courses.length} courses, ${noLesson.length} with no lesson by decision`);
 console.log(`  ${courses.join(", ")}`);

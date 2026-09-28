@@ -19,9 +19,8 @@
 import * as Haptics from '@/lib/haptics';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { StyleSheet, TextInput, View } from 'react-native';
+import { Image, StyleSheet, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SvgXml } from 'react-native-svg';
 
 import { EmptyState } from '@/components/empty-state';
 import { AmbientBackground } from '@/components/ambient-background';
@@ -39,7 +38,8 @@ import {
   type ExtraPost,
 } from '@/lib/digest-extra';
 import { pickToday } from '@/lib/digest-pick';
-import { heroTint, tintedHero } from '@/lib/hero-tint';
+import { heroTint } from '@/lib/hero-tint';
+import { photoFor } from '@/lib/digest-photos';
 import { dayKey, useApp } from '@/lib/store';
 import { useTheme } from '@/hooks/use-theme';
 import { RiseIn } from '@/shared/motion/rise-in';
@@ -47,7 +47,7 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration, Ease, STAGGER_CAP } from '@/shared/motion/tokens';
 import { RewardPop } from '@/shared/motion/reward-pop';
 import {
-  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, paycheck, shield, umbrella,
+  PixelSpriteView, bolt, chartUp, checkBadge, compass, creditCard, flame as flameSprite, car, house, newspaper, paycheck, phone, shield, umbrella,
   stockTicker, wallet, type PixelSprite,
 } from '@/lib/pixel';
 import { ProfileButton } from '@/components/profile-button';
@@ -72,6 +72,10 @@ const CATEGORY_ART: Record<AnyDigestCategory, PixelSprite> = {
   Investing: chartUp,
   'Money basics': wallet,
   Markets: stockTicker,
+  // Reported, data-led features (the web's Research category, 2026-09-28)
+  Research: newspaper,
+  // The app talking about itself: release notes, what's new
+  Product: phone,
   // ── iOS-added categories (digest-extra.ts)
   Earning: paycheck,
   Housing: house,
@@ -82,20 +86,36 @@ const CATEGORY_ART: Record<AnyDigestCategory, PixelSprite> = {
 
 const ALL = 'All';
 
-function Hero({ post, size }: { post: ExtraPost; size: number }) {
+/**
+ * A category with no mark (a web category that reached the sync before this table did) draws the
+ * newspaper rather than crashing the tile grid on an undefined sprite.
+ */
+const artFor = (c: string): PixelSprite => (CATEGORY_ART as Partial<Record<string, PixelSprite>>)[c] ?? newspaper;
+
+function Hero({ post, size, box = size }: { post: ExtraPost; size: number; box?: number }) {
   /*
-   * TWO KINDS OF HERO, and the key tells them apart. The 35 synced guides carry SVG scenes from
-   * the web repo. Guides added on iOS carry a `px-` key that resolves to a sprite instead, because
-   * the synced art cannot be changed from here and new art should not be written in a style the
-   * rest of the app has left behind.
+   * TWO KINDS OF HERO. Synced guides carry the web's licensed photo, keyed by slug (photos
+   * replaced the generated SVG covers on 2026-09-28). Guides written on iOS have no photo and
+   * carry a `px-` key that resolves to a sprite from the app's own catalogue.
+   *
+   * The photo fills the whole `box` (the panel), cropped to it; a sprite sits inside it at `size`,
+   * because a 16x16 sprite stretched to the panel edge would be four enormous squares.
    */
-  const sprite = EXTRA_HERO_ART[post.hero];
+  const sprite = post.hero ? EXTRA_HERO_ART[post.hero] : undefined;
   if (sprite) return <PixelSpriteView sprite={sprite} size={Math.round(size * 0.66)} />;
 
-  const xml = tintedHero(post.hero, post.category);
-  if (!xml) return null;
-  // default preserveAspectRatio letterboxes inside the box, so the illustration never distorts
-  return <SvgXml xml={xml} width={size} height={size} />;
+  const photo = photoFor(post.slug);
+  if (!photo) return null;
+  // Decorative here: the title sits right beside it, and a list of 60 alt texts read aloud
+  // between titles would bury the titles.
+  return (
+    <Image
+      source={photo.source}
+      resizeMode="cover"
+      accessible={false}
+      style={{ width: box, height: box, borderRadius: box >= 60 ? Radius.md : Radius.sm }}
+    />
+  );
 }
 
 /** Today's guide, before it has been read. Brilliant's big-hero treatment. */
@@ -112,14 +132,14 @@ function TodayCard({ post }: { post: ExtraPost }) {
         * for one lesson and was fixed by exactly this move, so the fix is the one this codebase
         * has already proven rather than a new idea. The `heroPanel` alone was 150pt tall.
         *
-        * The art is not shrunk to nothing: 84pt in a 96pt panel still reads as illustration, and
-        * the covers were authored at 320x200 so they survive the reduction. What goes is the
+        * The art is not shrunk to nothing: the photo fills the 96pt panel (an iOS guide's sprite
+        * sits in it at 84pt), which still reads as a picture of the subject. What goes is the
         * full-bleed band, which was spending a third of the card on decoration.
         */}
       <Card style={styles.today} tint={theme.primary} elevated>
         <View style={styles.todayTop}>
           <View style={[styles.heroPanelSm, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
-            <Hero post={post} size={84} />
+            <Hero post={post} size={84} box={96} />
           </View>
           <View style={styles.todayHead}>
             <View style={styles.metaRow}>
@@ -223,7 +243,7 @@ function GuideCard({ post, read }: { post: ExtraPost; read: boolean }) {
     <SpringPressable onPress={() => router.push(`/digest/${post.slug}`)} scaleTo={0.97}>
       <Card style={styles.guide}>
         <View style={[styles.guideArt, { backgroundColor: (heroTint(post.category) ?? theme.primary) + '12' }]}>
-          <Hero post={post} size={62} />
+          <Hero post={post} size={62} box={74} />
         </View>
         <View style={{ flex: 1 }}>
           <ThemedText type="bodyMedium" themeColor={read ? 'mutedForeground' : undefined} style={{ lineHeight: 20 }}>
@@ -423,7 +443,7 @@ export default function Digest() {
                       accessibilityLabel={`${c}, ${String(readCounts[c] ?? 0)} of ${String(counts[c] ?? 0)} read`}>
                       {/* Colour on the wash and icon only; one neutral depth edge so ten tiles do not read as a rainbow. */}
                       <Card tint={tint} depthColor={theme.border} style={styles.sectionCard}>
-                        <PixelSpriteView sprite={CATEGORY_ART[c]} size={44} />
+                        <PixelSpriteView sprite={artFor(c)} size={44} />
                         <ThemedText type="heading" maxFontSizeMultiplier={1.6} style={{ fontSize: FontSize.body, textAlign: 'center' }} numberOfLines={2}>
                           {c}
                         </ThemedText>

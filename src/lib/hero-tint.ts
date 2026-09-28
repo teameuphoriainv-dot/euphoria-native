@@ -1,29 +1,18 @@
 /**
- * Per-category hue rotation for digest hero + figure art.
+ * Per-category hue for the Digest's category tiles and iOS guide panels.
  *
- * WHY THIS EXISTS AT RENDER TIME, NOT IN THE ART:
- * digest-heroes.ts is auto-synced from the web repo and carries a DO-NOT-EDIT
- * banner, so recolouring the 54 SVGs in place would be wiped by the next
- * ./scripts/sync-digest.sh. Rotating hue here keeps the fix durable and lets
- * web and native diverge on palette without forking the artwork.
+ * HISTORY. This used to recolour the web's synced SVG hero and figure art at render time, by
+ * rotating the hue of every stop in its violet ramp. On 2026-09-28 the owner removed that art:
+ * synced guides carry real photos now, which are never tinted. What survives is the one colour
+ * per category that the tiles and the pixel-sprite panels are washed in, kept as the same ramps
+ * so the category colours the owner has already seen do not change.
  *
- * WHY HUE-ONLY:
- * every stop below preserves the *exact* lightness and saturation of the violet
- * it replaces — only H moves. The illustrations' internal contrast structure is
- * therefore untouched, which is what makes them readable at 320x200. Taking the
- * accent's own saturation instead blew out the darkest stop (#5B21B6 -> #CD0A0A,
- * a pure alarm red as the dominant base fill).
- *
- * 'Money basics' is deliberately absent: it keeps the brand violet, leaving
- * ~20% of content-band art brand-hued. That is the Brilliant benchmark (20.2%),
- * not an oversight. See refs/MOTION_RESEARCH_V3.md §D2.
+ * 'Money basics', 'Research' and 'Product' are deliberately absent: they keep the brand violet
+ * (theme.primary). Product is the app talking about itself; Research has no hue left that is not
+ * already one of the ramps below.
  */
-import { heroSvg } from './digest-heroes';
 
-/** The violet ramp every synced illustration is built from, darkest first. */
-const VIOLET_RAMP = ['#5B21B6', '#7C3AED', '#A855EB', '#C89CF5', '#E7D5FB'] as const;
-
-/** Hue-rotated ramps, index-aligned to VIOLET_RAMP. Hues come from COURSE_ACCENTS. */
+/** Five-stop ramps, darkest first; index 2 is the tint. Hues come from COURSE_ACCENTS. */
 /*
  * Keyed by plain string, not DigestCategory. iOS adds its own categories in digest-extra.ts, and
  * that module imports the pixel catalogue — narrowing this to a union that lives in digest-extra
@@ -59,40 +48,11 @@ const CATEGORY_RAMPS: Partial<Record<string, readonly string[]>> = {
   'Big purchases': ['#3F4A5C', '#5D6E8A', '#7286A6', '#A9B7C9', '#D8DFE8'],
 };
 
-const RAMP_RE = new RegExp(VIOLET_RAMP.join('|'), 'gi');
-
-/** key + category -> tinted svg. Synced art is static, so this never invalidates. */
-const cache = new Map<string, string | undefined>();
-
-export function tintedHero(key: string, category: string): string | undefined {
-  const cacheKey = `${category}\0${key}`;
-  if (cache.has(cacheKey)) return cache.get(cacheKey);
-
-  const xml = heroSvg(key);
-  const ramp = CATEGORY_RAMPS[category];
-  let out = xml;
-
-  if (xml && ramp) {
-    // Single pass with alternation, so a substituted stop can never be re-matched.
-    out = xml.replace(RAMP_RE, (hit) => {
-      const i = VIOLET_RAMP.indexOf(hit.toUpperCase() as (typeof VIOLET_RAMP)[number]);
-      return i === -1 ? hit : ramp[i];
-    });
-  }
-
-  cache.set(cacheKey, out);
-  return out;
-}
-
 /**
- * The hue-rotated equivalent of `theme.primary` for a category.
+ * A category's counterpart of `theme.primary`: each ramp's index 2 is the old violet stop #A855EB
+ * with only the hue moved, so a tinted wash sits at the same lightness in every category.
  *
- * theme.primary is #A855EB, which is VIOLET_RAMP[2] exactly — so the panel wash behind a
- * tinted illustration has a precise counterpart in every category ramp and nothing is invented.
- * Without this the art recolours but its ground does not, leaving a cyan illustration sitting
- * on a violet wash: measured at 37.4% violet in the Markets content band, over the ≤35% target.
- *
- * Returns undefined for 'Money basics' (deliberately untinted) — callers keep theme.primary.
+ * Returns undefined for the untinted categories; callers fall back to theme.primary.
  */
 export function heroTint(category: string): string | undefined {
   return CATEGORY_RAMPS[category]?.[2];

@@ -186,7 +186,14 @@ for (const f of [...walk('src/app'), ...walk('src/components')]) {
  * no token here; matching the web burst is the point, so they stay literal and commented at the
  * site. The green equals theme.success but stays with its two siblings as one palette.
  */
-const HEX_CEILING = 101;
+/*
+ * RAISED 2026-09-28 to 105 for src/components/digest-chart.tsx. The Digest now renders the web's
+ * data charts, and the web's four series colours (#AE4EFE #0BA3B1 #BE8802 #4D7FFF) were solved AS
+ * A SET by its palette validator for colour-blind separation and contrast. Swapping any one for a
+ * nearby app token would break the separation the set exists for, so they stay literal, in fixed
+ * order, commented at the site as a parity contract with the web chart.
+ */
+const HEX_CEILING = 105;
 assert.ok(
   hex <= HEX_CEILING,
   `${String(hex)} hardcoded hex literals outside the art files, ceiling is ${String(HEX_CEILING)}. ` +

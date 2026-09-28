@@ -2,8 +2,8 @@
  * Digest article reader — paginated by section rather than one long scroll.
  *
  * The article's `## ` headings already divide it into one idea each, so each heading becomes a
- * card: hero and lead first, then Key Takeaways, the explanation, the worked example, The Bottom
- * Line. Same header/footer rhythm as lesson.tsx (close + progress track at the top, one CTA at the
+ * card: photo, title and excerpt first, then Key points, the explanation with its charts and stat
+ * rows, The Bottom Line, and the Sources list last (the web article page's order). Same header/footer rhythm as lesson.tsx (close + progress track at the top, one CTA at the
  * bottom) so reading and doing a lesson feel like the same app.
  *
  * Reaching the last card is what marks the guide read. Mounting used to be enough, which meant
@@ -11,10 +11,9 @@
  */
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { SvgXml } from 'react-native-svg';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { GateSheet } from '@/components/gate-sheet';
@@ -24,12 +23,14 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { SlabButton } from '@/components/ui/button';
 import { Fonts, Radius, Spacing, FontSize } from '@/constants/theme';
-// The MERGED lookup: iOS-added guides live in digest-extra.ts, and the synced bodyFor cannot see them.
-import { allBodyFor as bodyFor, ALL_DIGEST_POSTS, EXTRA_HERO_ART } from '@/lib/digest-extra';
+// The MERGED lookup: iOS-added guides live in digest-extra.ts, and the synced articleFor cannot see them.
+import type { DigestArticle as Article } from '@/lib/digest-bodies';
+import { allArticleFor, EXTRA_HERO_ART, findDigestPost } from '@/lib/digest-extra';
+import { photoFor } from '@/lib/digest-photos';
 import { PixelSpriteView } from '@/lib/pixel';
 import { lessonForGuide } from '@/lib/digest-lessons';
 import { ReadReward } from "@/components/read-reward";
-import { heroTint, tintedHero } from '@/lib/hero-tint';
+import { heroTint } from '@/lib/hero-tint';
 import { useApp } from '@/lib/store';
 import { entitled, type Refusal } from '@/lib/entitlement';
 import { useTheme } from '@/hooks/use-theme';
@@ -53,17 +54,35 @@ type Card = { blocks: Block[] };
 /**
  * Vertical cost of a block in words-equivalent.
  *
- * Calibrated against the real layout rather than guessed: body is 16.5/26 in a ~370pt column,
- * about 7.5 words a line, so one word is roughly 3.5pt. A heading with its margins is ~55pt, a
- * figure panel with its margin ~222pt.
+ * Calibrated against the real layout rather than guessed: body is 18/29 in a ~358pt column,
+ * about 7.5 words a line, so one word is roughly 3.5pt. A heading with its margins is ~55pt.
+ * A chart panel (title, note, legend, a 186pt plot, axis, the numbers toggle, source) measures
+ * about 380pt; a stat row about 64pt each.
  */
 const WORD_PT = 3.5;
-const COST = (b: Block) => {
-  if (b.kind === 'h2') return 55 / WORD_PT;
-  if (b.kind === 'image') return 222 / WORD_PT;
-  if (b.kind === 'bullet') return b.items.reduce((n, i) => n + i.split(/\s+/).length, 0) + b.items.length * 4;
-  if (b.kind === 'quote') return b.text.split(/\s+/).length + 10;
-  return b.text.split(/\s+/).length + 16 / WORD_PT;
+const words = (s: string) => s.split(/\s+/).length;
+const COST = (b: Block): number => {
+  switch (b.kind) {
+    case 'h2':
+      return 55 / WORD_PT;
+    case 'h3':
+      return 40 / WORD_PT;
+    case 'chart':
+      return 380 / WORD_PT;
+    case 'stats':
+      return (b.items.length * 64 + 24) / WORD_PT;
+    case 'callout':
+      return words(b.title) + words(b.text) + 60 / WORD_PT;
+    case 'bullet':
+    case 'keypoints':
+      return b.items.reduce((n, i) => n + words(i), 0) + b.items.length * 4 + (b.kind === 'keypoints' ? 60 / WORD_PT : 0);
+    case 'sources':
+      return (b.items.length * 44 + 60) / WORD_PT;
+    case 'quote':
+      return words(b.text) + 10;
+    default:
+      return words(b.text) + 16 / WORD_PT;
+  }
 };
 
 /**
@@ -78,8 +97,17 @@ const COST = (b: Block) => {
  */
 const BUDGET = 196;
 
-function toCards(markdown: string): Card[] {
-  const blocks = parseBlocks(markdown);
+/*
+ * Key points open the article and Sources close it, as on the web article page. They are spliced
+ * in as blocks rather than pinned to the cover or the footer so they paginate like everything
+ * else: the cover stays a cover, and a nine-source list cannot push the last card off screen.
+ */
+function toCards(article: Article): Card[] {
+  const blocks: Block[] = [
+    ...(article.keyPoints?.length ? [{ kind: 'keypoints' as const, items: article.keyPoints }] : []),
+    ...parseBlocks(article.body),
+    ...(article.sources?.length ? [{ kind: 'sources' as const, items: article.sources }] : []),
+  ];
   const out: Card[] = [];
   let cur: Block[] = [];
   let spent = 0;
@@ -103,27 +131,27 @@ function toCards(markdown: string): Card[] {
   return out;
 }
 
-/** Every figure in the corpus is authored on a 320x200 viewBox. Sizing the cover panel to that
- *  exact ratio makes the art full-bleed instead of letterboxed: it used to draw at 168x105 inside
- *  a 200pt panel, so most of the cover was empty tint. */
-const FIGURE_RATIO = 320 / 200;
+/** The cover panel's shape. 16:10 is the web card's photo aspect (PostCard aspect-[16/10]) and was
+ *  the SVG covers' 320x200 before that, so the masthead's height does not change with the art. */
+const FIGURE_RATIO = 16 / 10;
 
 export default function DigestArticle() {
   const theme = useTheme();
   const { width } = useWindowDimensions();
   const coverH = Math.round((width - Spacing.three * 2) / FIGURE_RATIO);
   const { slug } = useLocalSearchParams<{ slug: string }>();
-  const post = ALL_DIGEST_POSTS.find((p) => p.slug === slug);
+  const post = findDigestPost(slug);
   const markPostRead = useApp((s) => s.markPostRead);
   // a getter returning a NUMBER is a safe selector; one that builds an array is not. This previews
   // the streak the read is about to produce, because the reward renders before the write lands.
   const streakAfter = useApp((s) => s.streakIfCompletedToday());
   // Captured once, before markPostRead runs. Re-reading pays nothing — markPostRead is idempotent —
   // so celebrating a re-read would promise XP the store never mints.
-  const [firstRead] = useState(() => !useApp.getState().readPosts.includes(slug ?? ''));
+  const [firstRead] = useState(() => !useApp.getState().readPosts.includes(post?.slug ?? ''));
 
   const lesson = post ? lessonForGuide(post.slug) : undefined;
-  const cards = useMemo(() => (post ? toCards(bodyFor(post.slug) ?? '') : []), [post]);
+  const article = useMemo(() => (post ? allArticleFor(post.slug) : undefined), [post]);
+  const cards = useMemo(() => (article ? toCards(article) : []), [article]);
   const [i, setI] = useState(0);
   const total = cards.length + 1; // +1 for the cover
   const last = i === total - 1;
@@ -172,8 +200,8 @@ export default function DigestArticle() {
   }
 
   const card = i > 0 ? cards[i - 1] : null;
-  const heroSprite = EXTRA_HERO_ART[post.hero];
-  const xml = tintedHero(post.hero, post.category);
+  const heroSprite = post.hero ? EXTRA_HERO_ART[post.hero] : undefined;
+  const photo = photoFor(post.slug);
 
   return (
     <SafeAreaView edges={['top']} style={styles.safe}>
@@ -212,19 +240,30 @@ export default function DigestArticle() {
              * The cover keeps delay 0 so nothing feels slower to start than it did before.
              */
             <>
-              {/* A `px-` hero is an iOS-written guide and renders as a sprite. Centred rather than
-                  stretched: a 16x16 sprite blown to full cover width would be four enormous
-                  squares. See digest-extra.ts. */}
-              {heroSprite ? (
+              {/* A synced guide leads with its photo, credited underneath exactly as the web
+                  captions it. A `px-` hero is an iOS-written guide with no photo: its sprite sits
+                  centred rather than stretched, since a 16x16 sprite blown to full cover width
+                  would be four enormous squares. See digest-extra.ts. */}
+              {photo ? (
+                <RiseIn>
+                  <View style={styles.coverWrap}>
+                    <Image
+                      source={photo.source}
+                      resizeMode="cover"
+                      accessible={Boolean(photo.alt)}
+                      accessibilityRole="image"
+                      accessibilityLabel={photo.alt}
+                      style={[styles.cover, styles.coverPhoto, { height: coverH, backgroundColor: theme.card }]}
+                    />
+                    <ThemedText type="small" themeColor="mutedForeground" style={styles.credit}>
+                      {photo.credit}
+                    </ThemedText>
+                  </View>
+                </RiseIn>
+              ) : heroSprite ? (
                 <RiseIn>
                   <View style={[styles.cover, { height: coverH, backgroundColor: (heroTint(post.category) ?? theme.primary) + '14', alignItems: 'center', justifyContent: 'center' }]}>
                     <PixelSpriteView sprite={heroSprite} size={Math.round(coverH * 0.5)} />
-                  </View>
-                </RiseIn>
-              ) : xml ? (
-                <RiseIn>
-                  <View style={[styles.cover, { height: coverH, backgroundColor: (heroTint(post.category) ?? theme.primary) + '14' }]}>
-                    <SvgXml xml={xml} width="100%" height={coverH} />
                   </View>
                 </RiseIn>
               ) : null}
@@ -243,7 +282,7 @@ export default function DigestArticle() {
             </>
           ) : (
             <RiseIn>
-              <Blocks blocks={card?.blocks ?? []} category={post.category} />
+              <Blocks blocks={card?.blocks ?? []} charts={article?.charts} />
               {last && firstRead ? <ReadReward streak={streakAfter} /> : null}
             </RiseIn>
           )}
@@ -317,6 +356,10 @@ const styles = StyleSheet.create({
   // blocks floating in a void.
   contentCover: { justifyContent: 'center' },
   cover: { borderRadius: Radius.lg, overflow: 'hidden', justifyContent: 'center', marginBottom: Spacing.four },
+  // the caption carries the gap below a photo cover instead of the photo itself
+  coverWrap: { marginBottom: Spacing.four },
+  coverPhoto: { width: '100%', marginBottom: 0 },
+  credit: { marginTop: Spacing.one + 2 },
   /* gap + flexWrap added: at AX5 both labels grow until they touch, and space-between alone
      cannot separate them once they fill the row — the frame read "CREDIT2 min read" with no
      space at all. Wrapping lets the read-time drop to its own line rather than collide. */
