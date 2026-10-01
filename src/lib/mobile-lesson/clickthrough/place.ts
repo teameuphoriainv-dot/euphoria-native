@@ -307,8 +307,8 @@ export function placeBuilder(step: LessonStep): { spec: PlaceBuilt; text: string
  * stepIdPosition() prints them; the pin builds each one from the raw loader.
  */
 export const PLACE_PLACEMENTS: readonly { key: string; slot: 'chart' }[] = [
-  { key: 'personal-finance:2:2', slot: 'chart' },
-  { key: 'investing-fundamentals:8:2', slot: 'chart' },
-  { key: 'personal-finance:4:2', slot: 'chart' },
-  { key: 'corporate-finance:24:2', slot: 'chart' },
+  { key: 'personal-finance:2:1', slot: 'chart' },
+  { key: 'investing-fundamentals:8:1', slot: 'chart' },
+  { key: 'personal-finance:4:1', slot: 'chart' },
+  { key: 'corporate-finance:24:1', slot: 'chart' },
 ];

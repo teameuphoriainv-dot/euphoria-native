@@ -14,6 +14,8 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { LessonCheckBar } from '@/components/lesson-check-bar';
+import { LessonExplanation } from '@/components/lesson-explanation';
 import { SparkBurst } from '@/components/lesson-feedback';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
@@ -109,8 +111,14 @@ export function MasteryChallengeRound({
     }
   };
 
+  /** Why? on the check bar opens the authored explanation as its own page (owner, 2026-09-30). */
+  const [showWhy, setShowWhy] = useState(false);
+  /** The check bar's measured height, so the question scrolls clear of it. */
+  const [barH, setBarH] = useState(0);
+
   const continueChallenge = () => {
     if (!current) return;
+    setShowWhy(false);
     if (nextChallengePhase(currentIdx, activeQuestions.length) === 'question') {
       setCurrentIdx((index) => index + 1);
       setSelected(null);
@@ -177,10 +185,26 @@ export function MasteryChallengeRound({
 
   if (!current) return null;
   return (
+    <View style={styles.scroll}>
     <ScrollView
       style={styles.scroll}
-      contentContainerStyle={styles.content}
+      contentContainerStyle={[styles.content, { paddingBottom: 40 + barH }]}
       showsVerticalScrollIndicator={false}>
+      {/*
+        * THE EXPLANATION IS A PAGE, NOT A CARD (owner, 2026-09-30: "there should be separate
+        * screens for every question so it's not clutter on the main thing"). The verdict lives on
+        * the same check bar every lesson question uses, Why? opens the authored explanation on its
+        * own page, and the question stays where it was answered. The old translucent green card
+        * under the options also let the lesson backdrop bleed through the text.
+        */}
+      {showWhy && submitted ? (
+        <LessonExplanation
+          correct={answerCorrect}
+          answer={answerCorrect ? undefined : current.options[current.correct]}
+          reason={current.explanation}>
+          <SlabButton label="Continue" full onPress={continueChallenge} />
+        </LessonExplanation>
+      ) : (
       <Animated.View
         entering={reduced
           ? FadeIn.duration(Duration.fast)
@@ -287,20 +311,25 @@ export function MasteryChallengeRound({
             </Animated.View>
           ) : null}
 
-          {submitted ? (
-            <Animated.View entering={FadeIn.duration(Duration.base)} style={styles.feedback}>
-              {answerCorrect ? <SparkBurst size={150} color={theme.success} /> : null}
-              <View style={[styles.feedbackCard, { backgroundColor: (answerCorrect ? theme.success : theme.destructive) + '1A' }]}>
-                <ThemedText type="small" style={[styles.center, { color: answerCorrect ? theme.success : theme.destructive }]}>
-                  {current.explanation}
-                </ThemedText>
-              </View>
-              {hearts > 0 ? <SlabButton label="Continue" full onPress={continueChallenge} /> : null}
-            </Animated.View>
-          ) : null}
+          {submitted && answerCorrect ? <SparkBurst size={150} color={theme.success} /> : null}
         </Animated.View>
       </Animated.View>
+      )}
     </ScrollView>
+    {/* Out of hearts: no bar, the failure timer owns the exit. Otherwise the shared verdict bar. */}
+    {submitted && !showWhy && (answerCorrect || hearts > 0) ? (
+      <LessonCheckBar
+        verdict={answerCorrect ? 'correct' : 'answer'}
+        correctAnswer={current.options[current.correct]}
+        onContinue={continueChallenge}
+        /* A challenge answer is final: the bar never shows 'retry', so these never fire. */
+        onTryAgain={continueChallenge}
+        onSeeAnswer={continueChallenge}
+        onWhy={current.explanation?.trim() ? () => setShowWhy(true) : undefined}
+        onHeightChange={setBarH}
+      />
+    ) : null}
+    </View>
   );
 }
 

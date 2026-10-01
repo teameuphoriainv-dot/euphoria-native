@@ -373,7 +373,7 @@ export function LessonVisual({ visual, bare = false, chartMaxHeight }: {
                 {hasSprites ? <View style={styles.barSprite}><VisualSprite id={i.sprite} size={20} /></View> : null}
                 <ThemedText type="small" numberOfLines={2} style={styles.barLabel}>{i.label}</ThemedText>
                 <Bar percent={((Number(i.value) || 0) / max) * 100} color={accent} delay={n * 80} horizontal />
-                <ThemedText type="smallBold" numberOfLines={1} style={[styles.barValue, { color: accent }]}>{i.displayValue ?? String(i.value)}</ThemedText>
+                <ThemedText type="smallBold" numberOfLines={2} style={[styles.barValue, { color: accent }]}>{i.displayValue ?? String(i.value)}</ThemedText>
               </Animated.View>
             ))}
           </View>
@@ -809,7 +809,9 @@ const styles = StyleSheet.create({
   barTrack: { flex: 1 },
   barSprite: { width: 20, alignItems: 'center', justifyContent: 'center' },
   barLabel: { width: 110, flexShrink: 0, textAlign: 'right', fontSize: 11.5, lineHeight: 15 },
-  barValue: { width: 54, flexShrink: 0, fontSize: 12, lineHeight: 15, fontVariant: ['tabular-nums'] },
+  // A fixed 54pt cut "Emerging", "Dominant" and "80% of trades" to "Emergi…" (owner, 2026-09-30).
+  // The column now sizes to its label up to a third of the row and wraps to two lines past that.
+  barValue: { minWidth: 54, maxWidth: '34%', flexShrink: 0, fontSize: 12, lineHeight: 15, textAlign: 'right', fontVariant: ['tabular-nums'] },
   unitKey: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   pictographHeader: { minHeight: 44, paddingVertical: Spacing.one },
   marks: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 3 },

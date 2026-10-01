@@ -260,6 +260,20 @@ function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): Mobil
       ? { kind: 'chart', title: compressTitle(step.title, CARD_BUDGET.title), svg }
       : null;
 
+  /*
+   * THE RETIRED STAKES CARD'S VISUAL, as one more chart card (courseIndex.ts, withStakesFolded).
+   * It follows the slide's own chart in the running order, because `arrange` names `chart` once and
+   * appends whatever the order did not name, still ahead of the takeaway: the evidence, then the
+   * point, then "remember this". Titled by the visual's own title, as the slide's chart is.
+   */
+  const stakesVisual = step.stakesVisual as AnimatedVisual | undefined;
+  const stakesSvg = typeof step.stakesSvg === 'string' && step.stakesSvg.trim() ? step.stakesSvg : undefined;
+  const stakes: MobileCard | null = visualIsRenderable(stakesVisual)
+    ? { kind: 'chart', title: compressTitle(stakesVisual!.title || step.title, CARD_BUDGET.title), visual: stakesVisual! }
+    : stakesSvg
+      ? { kind: 'chart', title: compressTitle(step.title, CARD_BUDGET.title), svg: stakesSvg }
+      : null;
+
   // Authored send-offs only, for the reason given on the graph deck's takeaway below.
   const takeaway = takeawayCard([step.atlas?.recap, step.realExample?.explanation], used, step.title, art);
 
@@ -269,7 +283,7 @@ function deckFromTeachingSlide(step: TeachingSlideStep, sourceId: string): Mobil
     sourceId,
     label: step.sectionLabel || 'Learn',
     title,
-    cards: arrange(sourceId, [claim, word, chart, takeaway]),
+    cards: arrange(sourceId, [claim, word, chart, stakes, takeaway]),
   };
 }
 

@@ -190,7 +190,7 @@ const DEFAULT_FRAME_MS = 120;
  */
 export const SCENES: Record<string, SceneScript> = {
   /* investingFundamentals.ts:782-796, "How Compound Interest Works". */
-  'investing-fundamentals:3:2': {
+  'investing-fundamentals:3:1': {
     slot: 'idea',
     guards: ['earning returns on your returns', 'doubles every 9 years', 'it is the mechanism'],
     beats: [
@@ -238,7 +238,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* investingFundamentals.ts:1257-1271, "Don't Put All Your Eggs in One Basket". */
-  'investing-fundamentals:5:2': {
+  'investing-fundamentals:5:1': {
     slot: 'idea',
     guards: ['one failure cannot sink you', 'move opposite', 'strangest thing in the world'],
     beats: [
@@ -281,7 +281,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts:4690-4708, inflation. */
-  'personal-finance:20:2': {
+  'personal-finance:20:1': {
     slot: 'idea',
     guards: ['Inflation is rising prices.', '72/3=24', '$41 worth of goods'],
     beats: [
@@ -331,7 +331,7 @@ export const SCENES: Record<string, SceneScript> = {
    * timeline interactive; the 92% fact that timeline carried is also on step 2 of the same lesson,
    * so nothing is lost from the lesson.
    */
-  'investing-fundamentals:20:4': {
+  'investing-fundamentals:20:3': {
     slot: 'interactive',
     guards: ['compound growth you lose', '$10,063 over 30 years', '$208,000 over 30 years'],
     beats: [
@@ -382,7 +382,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* corporateFinance.ts:2135-2136, hedging. The lesson has no hands-on step at all. */
-  'corporate-finance:9:2': {
+  'corporate-finance:9:1': {
     slot: 'idea',
     guards: ['spotting and reducing financial dangers', 'lock in a future price', 'fixed for floating'],
     beats: [
@@ -433,7 +433,7 @@ export const SCENES: Record<string, SceneScript> = {
    * first drew beat 4 as a count of 3; nothing authored says 3, so it is three different sprites
    * falling together instead.
    */
-  'financial-analytics:23:2': {
+  'financial-analytics:23:1': {
     slot: 'idea',
     guards: ['worst loss expected at a set confidence', '$25M ES', 'LTCM $4.6 billion'],
     beats: [
@@ -478,7 +478,7 @@ export const SCENES: Record<string, SceneScript> = {
    * (that a raise can lower take-home pay). The takeaway card already says "A raise moves only the
    * new dollars ...", so the last beat is the sentence after it instead.
    */
-  'personal-finance:7:2': {
+  'personal-finance:7:1': {
     slot: 'idea',
     guards: ['Brackets are marginal', 'a 12.1% effective rate', 'earning more takes home less'],
     beats: [
@@ -524,7 +524,7 @@ export const SCENES: Record<string, SceneScript> = {
    * version kept only the second half, which opened the clip on a lowercase "people want ..." and
    * never named the effect the scene is about (the term card naming it comes after the scene).
    */
-  'behavioral-finance:19:2': {
+  'behavioral-finance:19:1': {
     slot: 'idea',
     guards: ['endowment effect in 1980', 'losses hurt 2-2.5x', 'own what you happen to have'],
     beats: [
@@ -569,7 +569,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* businessStrategy.ts, "Platform Business Models". The lesson has no hands-on step. */
-  'business-strategy:20:2': {
+  'business-strategy:20:1': {
     slot: 'idea',
     guards: ['connect two sides and take a cut', 'Uber needed riders and drivers', 'Rivals only win by being different'],
     beats: [
@@ -614,7 +614,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts, "Financial Independence & Early Retirement: Annual Expenses x 25". */
-  'personal-finance:23:2': {
+  'personal-finance:23:1': {
     slot: 'idea',
     guards: ['Trinity Study', 'expenses × 25 = your number', 'two things at once'],
     beats: [
@@ -667,7 +667,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* globalEconomics.ts, "Economic Bubbles & Financial Crises". One hands-on step in the lesson. */
-  'global-economics:21:2': {
+  'global-economics:21:1': {
     slot: 'idea',
     guards: ['tulips 1637', "Hyman Minsky's cycle", 'owing more than the house was worth'],
     beats: [
@@ -719,7 +719,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* corporateFinance.ts, "Capital Structure: Debt vs. Equity". The lesson has no hands-on step. */
-  'corporate-finance:4:4': {
+  'corporate-finance:4:3': {
     slot: 'idea',
     guards: ['Debt is the cheaper option.', 'is called dilution', 'the 5% is still due when sales collapse'],
     beats: [
@@ -766,7 +766,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* behavioralFinance.ts, "Behavioral Economics in Everyday Life". No hands-on step. */
-  'behavioral-finance:23:2': {
+  'behavioral-finance:23:1': {
     slot: 'idea',
     guards: ['the first price you see sets what feels normal', 'J.C. Penney scrapped fake sales', 'naming the first number'],
     beats: [
@@ -815,7 +815,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts, "Managing Debt Wisely: Good Debt vs. Bad Debt". */
-  'personal-finance:6:2': {
+  'personal-finance:6:1': {
     slot: 'idea',
     guards: ['Good debt buys assets', 'Payday loans hit 400% APR', 'grows faster than the interest eats'],
     beats: [

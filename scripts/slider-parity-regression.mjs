@@ -27,7 +27,8 @@ for (const course of COURSES) {
       assert.equal(normalized.spec.unit, step.unit, `${course.id} L${String(lesson.num)} S${String(index + 1)} lost its unit`);
       assert.equal(normalized.spec.explanation, step.explanation, `${course.id} L${String(lesson.num)} S${String(index + 1)} lost authored feedback`);
 
-      if (course.id === 'investing-fundamentals' && lesson.num === 1 && index === 14) {
+      // Native index 13 since 2026-09-30 (authored slide 15): the stakesCard at position 1 was retired at the loader.
+      if (course.id === 'investing-fundamentals' && lesson.num === 1 && index === 13) {
         investingLessonOneSlider = normalized.spec;
       }
     }

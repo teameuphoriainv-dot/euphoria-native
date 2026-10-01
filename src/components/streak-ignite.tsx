@@ -74,10 +74,10 @@
 import * as Haptics from '@/lib/haptics';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { AppNumberFlow } from '@/shared/motion/app-number-flow';
 import { PIConfetti, type PIConfettiMethods } from 'react-native-fast-confetti';
 import Animated, {
   cancelAnimation,
+  FadeInDown,
   Easing,
   useAnimatedReaction,
   useAnimatedStyle,
@@ -799,12 +799,18 @@ export function StreakIgnite({
       {/* A plinth under his feet, outside HeroUnit so it never turns. */}
       <Animated.View style={[styles.countBox, countStyle]}>
         {/* Capped so the numeral stays inside the bloom; uncapped it reaches ~125pt at AX5. */}
-        <AppNumberFlow
-          value={shown}
-          animated={!reduced}
-          spinTiming={{ duration: Duration.slow, easing: Ease.out.factory() }}
-          style={styles.count}
-        />
+        {/*
+          * A PLAIN NUMERAL, KEYED ON THE VALUE (owner, 2026-10-01: the streak "looks off or cut").
+          * NumberFlow clipped the DM Sans Black "2" inside its measured digit slot, cutting the
+          * right edge and the foot, even with the family fixed in AppNumberFlow. The tick from
+          * yesterday's count to today's is now the new numeral dropping into place, drawn at its
+          * own full width. Reduce Motion swaps it with no movement.
+          */}
+        <Animated.View key={shown} entering={reduced ? undefined : FadeInDown.duration(Duration.slow).easing(Ease.out.factory())}>
+          <ThemedText style={styles.count} maxFontSizeMultiplier={1.2} accessibilityLabel={`${String(shown)} day streak`}>
+            {String(shown)}
+          </ThemedText>
+        </Animated.View>
       </Animated.View>
 
       {/* Label and week are laid out from frame 0 at opacity 0, so nothing re-centres later. */}

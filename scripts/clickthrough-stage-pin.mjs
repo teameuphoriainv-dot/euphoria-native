@@ -191,7 +191,9 @@ for (const key of S.STAGE_PLACEMENTS) {
   check(`${key} WRAPPED deck holds no competing interactive`, wrappedOthers.length === 0, wrappedOthers.map((c) => c.spec.kind).join(','));
   if (stage) {
     check(`${key} WRAPPED stage equals the raw build`, JSON.stringify(stage) === JSON.stringify(spec));
-    check(`${key} WRAPPED stage replaced the chart`, !wrapped.cards.some((c) => c.kind === 'chart'));
+    // At most one chart may remain: the retired stakes card's, which rides on teaching decks as a
+    // second chart card since 2026-09-30. The slide's own chart is the slot the stage replaced.
+    check(`${key} WRAPPED stage replaced the chart`, wrapped.cards.filter((c) => c.kind === 'chart').length <= 1);
     wrappedStatus.push(`${key} renders stage`);
   } else {
     check(`${key} WRAPPED deck still has its chart (not integrated yet)`, wrapped?.cards?.some((c) => c.kind === 'chart'));

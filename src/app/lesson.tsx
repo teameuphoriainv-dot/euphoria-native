@@ -42,6 +42,8 @@ import { LessonDesignProvider } from '@/components/lesson-design-provider';
 import { LessonWarmup } from '@/components/lesson-warmup';
 import { CorrectConfettiHost } from '@/components/correct-confetti';
 import { LessonAtlasPresenceProvider } from '@/components/lesson-atlas-presence';
+import { LessonBackdrop } from '@/components/lesson-backdrop';
+import { LessonKeepsake } from '@/components/lesson-keepsake';
 import { LessonStepSessionProvider } from '@/components/lesson-step-session';
 import { MatchingPairs } from '@/components/matching-pairs';
 import { CalcBlanks } from '@/components/calc-blanks';
@@ -53,7 +55,6 @@ import { OrderSteps } from '@/components/order-steps';
 import { ProgressiveCalc } from '@/components/progressive-calc';
 import { StreakIgnite } from '@/components/streak-ignite';
 import { StepModeTransition } from '@/components/step-mode-transition';
-import { StakesCard } from '@/components/stakes-card';
 import { TapReveal } from '@/components/tap-reveal';
 import { Skeleton } from '@/components/skeleton';
 import { ThemedText } from '@/components/themed-text';
@@ -99,6 +100,7 @@ import {
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge, notificationsNeverAsked } from '@/lib/notifications';
+import { lessonArtFor } from '@/lib/pixel/scenes';
 import { lessonKey, useApp, type AppState } from '@/lib/store';
 import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
 import { feedback, warmLesson } from '@/lib/feedback';
@@ -223,6 +225,7 @@ export default function Lesson() {
   const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string; part?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
+  const lessonArt = lessonArtFor(courseId, lessonNum);
   const qa = __DEV__ ? params.qa : undefined;
   /**
    * `?part=learn|vocab|practice`. Read as a primitive so the load effect can depend on it without
@@ -682,6 +685,8 @@ export default function Lesson() {
           }
         }
         if (found && qa === 'complete') setIdx(expandSteps(found.steps).length + 1);
+        // DEV only, like every `qa`: the streak screen, for checking it without finishing a lesson.
+        if (found && qa === 'streak') setIdx(expandSteps(found.steps).length + 2);
         if (found && qa === 'heart-wall') setOutOfHearts(true);
         // Dev-only (`qa` is __DEV__-gated above): `qa=step-3` opens straight onto screen 3, so a
         // layout fix deep in a lesson can be checked on the simulator without tapping through it.
@@ -1092,7 +1097,7 @@ export default function Lesson() {
    */
   const doneForNow = () => {
     setSegmentBreak(null);
-    leave();
+    leave(false);
   };
 
   /**
@@ -1104,9 +1109,22 @@ export default function Lesson() {
    * Extracted so 17c can run BEFORE it without duplicating the rule — a second copy of this branch
    * is exactly the drift the regression scripts exist to catch.
    */
-  function leave() {
-    if (useApp.getState().pendingRewards.length > 0) router.replace('/reward');
-    else exitLesson();
+  function leave(finished = true) {
+    const here = { course: courseId, num: String(lessonNum) };
+    /*
+     * UP NEXT (owner, 2026-09-30: "add a wanna-continue button like Netflix"). A FINISHED lesson
+     * ends on /up-next, which names the next lesson on the path and counts down into it; the
+     * reward screen, when cards are waiting, hands over to it from its last card (the params say
+     * which lesson just finished). A part credit mid-lesson ("Done for now") passes finished=false
+     * and leaves the way it always did: there is no "next" to queue from the middle of a lesson.
+     */
+    if (useApp.getState().pendingRewards.length > 0) {
+      router.replace(finished ? ({ pathname: '/reward', params: here } as never) : '/reward');
+    } else if (finished) {
+      router.replace({ pathname: '/up-next', params: here } as never);
+    } else {
+      exitLesson();
+    }
   }
 
   /**
@@ -1282,7 +1300,7 @@ export default function Lesson() {
    * itself belongs in this set; steps that only need "keep going" (reveal, order, match) leave the
    * footer alone.
    */
-  const selfAdvancing = norm?.kind === 'deck' || norm?.kind === 'hook' || norm?.kind === 'stakes' || norm?.kind === 'dragSort' || norm?.kind === 'vocab' || norm?.kind === 'progressiveCalc' || norm?.kind === 'calc' || norm?.kind === 'reveal' || norm?.kind === 'line';
+  const selfAdvancing = norm?.kind === 'deck' || norm?.kind === 'hook' || norm?.kind === 'dragSort' || norm?.kind === 'vocab' || norm?.kind === 'progressiveCalc' || norm?.kind === 'calc' || norm?.kind === 'reveal' || norm?.kind === 'line';
   const ownsItsCta = OWN_CTA_STEPS.has(norm?.kind ?? '') && (selfAdvancing || !solved);
 
   const gated = norm ? gates(norm) && !solved : false;
@@ -1368,6 +1386,9 @@ export default function Lesson() {
     <LessonDesignProvider>
     <SafeAreaView style={styles.safe}>
       <AmbientBackground starCount={40} />
+      {/* The lesson's own backdrop, where it has one: behind every screen of the lesson, under the
+          stars' layer order but over the canvas, and never in the way of a touch. */}
+      {lessonArt?.backdrop ? <LessonBackdrop art={lessonArt.backdrop} hidden={checkBarH > 0} /> : null}
 
       <KeyboardAvoidingView
         style={styles.safe}
@@ -1674,10 +1695,6 @@ export default function Lesson() {
                 }}
               />
             )}
-            {norm.kind === 'stakes' && (
-              <StakesCard spec={norm.spec} onComplete={advance} />
-            )}
-
             {/*
               THE EXPLANATION PAGE, opened by Why? on the check bar (owner decision 4, 2026-09-22).
               It used to replace the question automatically on every graded answer with words
@@ -1856,6 +1873,8 @@ export default function Lesson() {
                 perfect={isPerfect(firstTryLog)}
                 stats={lessonStats(firstTryLog)}
               />
+              {/* The lesson's keepsake arrives after Atlas's line, the last beat of the finish. */}
+              {lessonArt?.finish ? <LessonKeepsake art={lessonArt.finish} /> : null}
             </ScrollView>
           </SemanticMotion>
         )}
@@ -2079,7 +2098,7 @@ const CHECK_BAR_GAP = 16;
 
 /** Step kinds that render their OWN validate control. The footer must not stack a second CTA on
  *  top of these — see `ownsItsCta`. */
-const OWN_CTA_STEPS = new Set(['deck', 'hook', 'stakes', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
+const OWN_CTA_STEPS = new Set(['deck', 'hook', 'teaching', 'graph', 'dragSort', 'match', 'multi', 'trueFalse', 'line', 'tree', 'vocab', 'progressiveCalc', 'calc', 'reveal']);
 
 /** Close (40) + gap (4) + back (40): the left slot, mirrored by the count on the right. */
 const NAV_SLOT = 84;

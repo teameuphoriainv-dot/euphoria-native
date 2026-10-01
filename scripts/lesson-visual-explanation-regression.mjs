@@ -10,15 +10,22 @@ const source = await readFile(join(ROOT, 'src/components/lesson-visual.tsx'), 'u
 const { COURSES, loadCourseLessons } = await import(pathToFileURL(join(ROOT, 'src/lib/curriculum/courseIndex.ts')).href);
 const { visualRows } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-steps.ts')).href);
 
-const VISUAL_KEYS = ['visual', 'diagramVisual', 'withVisual', 'withoutVisual'];
+/*
+ * `stakesVisual` ADDED, and every count below RE-MEASURED, on 2026-09-30: the `stakesCard` step
+ * was retired at the loader (courseIndex.ts) and its "with" visual folded onto the next teaching
+ * slide under that key, where the phone shows it as a chart card. Its "without" visual is gone by
+ * the owner's decision, so the corpus lost those 300 (and the two stakes cards with no visual at
+ * all): header sprites 491 -> 390, interactive visuals 822 -> 692, explanation targets 3322 -> 2846.
+ */
+const VISUAL_KEYS = ['visual', 'diagramVisual', 'withVisual', 'withoutVisual', 'stakesVisual'];
 const expectedHeadersByType = {
-  bars: 55,
+  bars: 48,
   pie: 2,
-  flow: 317,
+  flow: 230,
   comparison: 6,
   stack: 1,
-  grid: 106,
-  line: 4,
+  grid: 100,
+  line: 3,
 };
 const headersByType = Object.fromEntries(Object.keys(expectedHeadersByType).map((type) => [type, 0]));
 let interactiveVisuals = 0;
@@ -43,10 +50,10 @@ for (const course of COURSES) {
 }
 
 deepStrictEqual(headersByType, expectedHeadersByType, 'live-49e visual header-sprite corpus drifted');
-strictEqual(Object.values(headersByType).reduce((sum, count) => sum + count, 0), 491, 'supported header-sprite total drifted');
-strictEqual(headersByType.pie + headersByType.comparison + headersByType.stack + headersByType.line, 13, 'newly recovered header-sprite total drifted');
-strictEqual(interactiveVisuals, 822, 'interactive visual count drifted');
-strictEqual(explanationTargets, 3322, 'visual explanation target count drifted');
+strictEqual(Object.values(headersByType).reduce((sum, count) => sum + count, 0), 390, 'supported header-sprite total drifted');
+strictEqual(headersByType.pie + headersByType.comparison + headersByType.stack + headersByType.line, 12, 'newly recovered header-sprite total drifted');
+strictEqual(interactiveVisuals, 692, 'interactive visual count drifted');
+strictEqual(explanationTargets, 2846, 'visual explanation target count drifted');
 
 match(
   source,

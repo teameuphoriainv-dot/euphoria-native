@@ -146,9 +146,9 @@ check('every tier is at least 44pt', cells.every((c) => c * T.CELL_PT >= 44), ce
 
 // 5. Placements, raw and wrapped. Keys are `course:lessonNum:stepIndex`, the applyPlacement key.
 const PLACED = {
-  'investing-fundamentals:6:2': { mode: 'flow', labels: ['Investor buys ETF shares', 'ETF holds every stock in the index', 'Index tracks the market'] },
-  'personal-finance:13:2': { mode: 'flow', labels: ['Grants & scholarships', 'Subsidized federal', 'Unsubsidized federal', 'Private loans'] },
-  'corporate-finance:15:2': { mode: 'stack', labels: ['Secured Creditors', 'Unsecured Creditors', 'Preferred Stock', 'Common Stock'] },
+  'investing-fundamentals:6:1': { mode: 'flow', labels: ['Investor buys ETF shares', 'ETF holds every stock in the index', 'Index tracks the market'] },
+  'personal-finance:13:1': { mode: 'flow', labels: ['Grants & scholarships', 'Subsidized federal', 'Unsubsidized federal', 'Private loans'] },
+  'corporate-finance:15:1': { mode: 'stack', labels: ['Secured Creditors', 'Unsecured Creditors', 'Preferred Stock', 'Common Stock'] },
 };
 const at = async (loader, key) => {
   const [course, num, idx] = key.split(':');
@@ -173,14 +173,16 @@ for (const [key, want] of Object.entries(PLACED)) {
   const chart = deck?.cards?.find((c) => c.kind === 'chart');
   const placed = kinds.includes('interactive:build');
   check(`${key} WRAPPED deck has the chart slot or the build card`, deck?.type === 'mobileDeck' && (!!chart || placed), kinds.join(','));
-  if (chart) check(`${key} keeps the chart card's heading`, chart.title === spec.title, `${chart.title} vs ${spec.title}`);
+  // Only while the slot is still a chart: once the build is placed, the chart left on the deck is the
+  // retired stakes card's (a 2nd chart card since 2026-09-30), with its own heading.
+  if (chart && !placed) check(`${key} keeps the chart card's heading`, chart.title === spec.title, `${chart.title} vs ${spec.title}`);
   status.push(`${key} ${placed ? 'placed' : 'chart slot open'} (${spec.pieces.length} ${spec.mode}, ${B.buildDurationMs(spec)}ms)`);
 }
 {
-  const { lesson, step } = await at(R, 'personal-finance:10:2');
+  const { lesson, step } = await at(R, 'personal-finance:10:1');
   const n = step?.diagramVisual?.nodes?.length;
-  check('personal-finance:10:2 is the authored 7-node flow', n === 7, String(n));
-  check('personal-finance:10:2 builds null (over the cap)', B.buildBuildup(step, lesson?.steps) === null);
+  check('personal-finance:10:1 is the authored 7-node flow', n === 7, String(n));
+  check('personal-finance:10:1 builds null (over the cap)', B.buildBuildup(step, lesson?.steps) === null);
 }
 
 // 6. The card source.

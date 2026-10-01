@@ -93,10 +93,15 @@ const place = (step: LessonStep) => placeBuilder(step);
  *   a teaching slide with no interactive; investing-fundamentals:20:4 replaces a "Tap through it"
  *   timeline, the weakest derived interactive, with the same insights acted out.
  */
+/*
+ * POSITIONS ARE NATIVE STEP INDICES, one lower than they were before 2026-09-30: the `stakesCard`
+ * step (position 1 in every lesson) was retired at the loader (courseIndex.ts), so every key here
+ * and every "step N" in the notes above moved up by one. The notes keep their original numbering.
+ */
 export const PLACEMENTS: Record<string, Placement> = {
-  'corporate-finance:6:2': { kind: 'dial', slot: 'chart', build: dial },
-  'personal-finance:14:4': { kind: 'dial', slot: 'interactive', build: dial },
-  'alternative-investments:2:4': { kind: 'lever', slot: 'interactive', build: lever },
+  'corporate-finance:6:1': { kind: 'dial', slot: 'chart', build: dial },
+  'personal-finance:14:3': { kind: 'dial', slot: 'interactive', build: dial },
+  'alternative-investments:2:3': { kind: 'lever', slot: 'interactive', build: lever },
   ...Object.fromEntries(
     Object.entries(SCENES).map(([key, script]): [string, Placement] => [
       key,
@@ -116,17 +121,17 @@ export const PLACEMENTS: Record<string, Placement> = {
    *   place   personal-finance:2:2 50/30/20 waffle; investing-fundamentals:8:2 dollar-cost shares;
    *           personal-finance:4:2 emergency-fund coins; corporate-finance:24:2 70/20/10 stack.
    */
-  'personal-finance:3:2': { kind: 'stage', slot: 'chart', build: stage },
-  'personal-finance:12:2': { kind: 'stage', slot: 'chart', build: stage },
-  'personal-finance:15:2': { kind: 'predict', slot: 'chart', build: predict },
-  'investing-fundamentals:4:3': { kind: 'predict', slot: 'chart', build: predict },
-  'investing-fundamentals:6:2': { kind: 'build', slot: 'chart', build },
-  'personal-finance:13:2': { kind: 'build', slot: 'chart', build },
-  'corporate-finance:15:2': { kind: 'build', slot: 'chart', build },
-  'personal-finance:2:2': { kind: 'place', slot: 'chart', build: place },
-  'investing-fundamentals:8:2': { kind: 'place', slot: 'chart', build: place },
-  'personal-finance:4:2': { kind: 'place', slot: 'chart', build: place },
-  'corporate-finance:24:2': { kind: 'place', slot: 'chart', build: place },
+  'personal-finance:3:1': { kind: 'stage', slot: 'chart', build: stage },
+  'personal-finance:12:1': { kind: 'stage', slot: 'chart', build: stage },
+  'personal-finance:15:1': { kind: 'predict', slot: 'chart', build: predict },
+  'investing-fundamentals:4:2': { kind: 'predict', slot: 'chart', build: predict },
+  'investing-fundamentals:6:1': { kind: 'build', slot: 'chart', build },
+  'personal-finance:13:1': { kind: 'build', slot: 'chart', build },
+  'corporate-finance:15:1': { kind: 'build', slot: 'chart', build },
+  'personal-finance:2:1': { kind: 'place', slot: 'chart', build: place },
+  'investing-fundamentals:8:1': { kind: 'place', slot: 'chart', build: place },
+  'personal-finance:4:1': { kind: 'place', slot: 'chart', build: place },
+  'corporate-finance:24:1': { kind: 'place', slot: 'chart', build: place },
 };
 
 /**

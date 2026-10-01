@@ -307,6 +307,19 @@ export function sentences(text: string): string[] {
  * Returns an empty string when there is nothing usable, which the caller treats as "this card does
  * not exist" rather than rendering an empty frame.
  */
+/**
+ * A short opener that is mostly figures leans on the paragraph that follows for its meaning.
+ * Found 2026-09-30 on quantitative-analysis:1: the recap opens "Keep hold of 66 against 10." and
+ * the sentence after it says what 66 and 10 are. Alone on a takeaway card the opener read as
+ * nonsense (owner: "that completely makes no sense"). Fewer than seven words with two or more
+ * numbers is shorthand, so the pass moves on to the sentence that carries the claim.
+ */
+function isFigureShorthand(sentence: string): boolean {
+  const words = sentence.trim().split(/\s+/).length;
+  const figures = (sentence.match(/\d+(?:[.,]\d+)?%?/g) ?? []).length;
+  return words < 7 && figures >= 2;
+}
+
 export function compress(source: string | string[], budget: number, opts: CompressOpts = {}): string {
   const pool = Array.isArray(source) ? source.flatMap(sentences) : sentences(source);
   if (pool.length === 0) return '';
@@ -331,6 +344,7 @@ export function compress(source: string | string[], budget: number, opts: Compre
     // A sentence that opens by pointing backwards is useless once its antecedent is cut, unless it
     // is all there is.
     if (DANGLING_REFERENCE.test(base) && i < pool.length - 1) continue;
+    if (isFigureShorthand(base) && i < pool.length - 1) continue;
     if (COMPARATIVE_ORPHAN.test(base) && i > 0) continue;
 
     const safe = safeReductions(base).filter(

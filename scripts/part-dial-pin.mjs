@@ -20,7 +20,7 @@
 //   4. The card text fits CARD_BUDGET (prompt, verdict; labels and goal against detail).
 //   5. applyPlacement composes with the builder: placed over the chart slot, the deck carries a dial.
 //   6. THE WRAPPED LOADER (src/lib/curriculum/index.ts, what the app renders) shows a dial on
-//      corporate-finance:6:2 and on personal-finance lesson 14. This one fails until integration
+//      corporate-finance:6:1 and on personal-finance lesson 14. This one fails until integration
 //      fills PLACEMENTS and wires applyPlacement into the loader; that is intended, and
 //      `--builder-only` skips only this block so 1-5 can run before then.
 // ============================================================================
@@ -70,8 +70,9 @@ check(dollars(Math.round(evaluate({ formula: 'rentRule' }, [350000]))) === '$1,4
 
 // ---- 2. the builders, on the real corpus ---------------------------------------------------------
 const cf6 = await authoredLesson('corporate-finance', 6);
-const ccc = buildDial(cf6[2], cf6);
-check(ccc?.formula === 'ccc', `corporate-finance:6:2 must build a ccc dial, got ${ccc?.formula ?? 'null'}`);
+// Native index 1 since 2026-09-30: the stakesCard at position 1 was retired at the loader.
+const ccc = buildDial(cf6[1], cf6);
+check(ccc?.formula === 'ccc', `corporate-finance:6:1 must build a ccc dial, got ${ccc?.formula ?? 'null'}`);
 if (ccc) {
   check(ccc.inputs.map((i) => i.value).join('/') === '45/30/60', `ccc must start on 45/30/60, got ${ccc.inputs.map((i) => i.value).join('/')}`);
   check(evaluate(ccc, ccc.inputs.map((i) => i.value)) === 15, 'ccc at its starting values must equal the authored 15');
@@ -123,10 +124,10 @@ for (const [name, spec] of [['ccc', ccc], ['rent', rent]]) {
 }
 
 // ---- 5. composes with the placement hook ----------------------------------------------------------
-const table = { 'corporate-finance:6:2': { kind: 'dial', slot: 'chart', build: (s, all) => { const spec = buildDial(s, all); return spec ? { spec, text: textOf(spec) } : null; } } };
-const derived = deriveDeck(cf6[2], stepId('corporate-finance', 6, 2, cf6[2]));
+const table = { 'corporate-finance:6:1': { kind: 'dial', slot: 'chart', build: (s, all) => { const spec = buildDial(s, all); return spec ? { spec, text: textOf(spec) } : null; } } };
+const derived = deriveDeck(cf6[1], stepId('corporate-finance', 6, 1, cf6[1]));
 const placed = derived ? applyPlacement(derived, derived.sourceId, cf6, table) : null;
-check(placed?.cards.some((c) => c.kind === 'interactive' && c.spec?.kind === 'dial'), 'applyPlacement did not put the dial into corporate-finance:6:2');
+check(placed?.cards.some((c) => c.kind === 'interactive' && c.spec?.kind === 'dial'), 'applyPlacement did not put the dial into corporate-finance:6:1');
 
 // ---- 6. the wrapped loader ------------------------------------------------------------------------
 if (!BUILDER_ONLY) {
@@ -135,8 +136,8 @@ if (!BUILDER_ONLY) {
     ? s.cards.filter((c) => c.kind === 'interactive' && c.spec?.kind === 'dial').map((c) => ({ i, formula: c.spec.formula }))
     : []));
   const cfDials = dialsIn(await getMobileLesson('corporate-finance', 6));
-  check(cfDials.some((d) => d.i === 2 && d.formula === 'ccc'),
-    `WRAPPED corporate-finance:6:2 renders no ccc dial (found ${JSON.stringify(cfDials)}); integration has not placed it`);
+  check(cfDials.some((d) => d.i === 1 && d.formula === 'ccc'),
+    `WRAPPED corporate-finance:6:1 renders no ccc dial (found ${JSON.stringify(cfDials)}); integration has not placed it`);
   const pfDials = dialsIn(await getMobileLesson('personal-finance', 14));
   check(pfDials.some((d) => d.formula === 'rentRule'),
     `WRAPPED personal-finance:14 renders no rentRule dial (found ${JSON.stringify(pfDials)}); integration has not placed it`);

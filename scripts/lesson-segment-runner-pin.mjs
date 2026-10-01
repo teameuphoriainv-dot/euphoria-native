@@ -136,7 +136,9 @@ export function findings(lessonRaw, storeRaw, driverRaw) {
   const doneForNow = bodyOf(src, 'const doneForNow = () => {');
   check(doneForNow !== null, 'lesson.tsx: the Done for now handler is gone');
   if (doneForNow) {
-    check(/leave\(\);/.test(doneForNow) && !/exitLesson\(\)/.test(doneForNow),
+    // `leave(false)` since 2026-09-30: a part credit leaves without the Up next beat a FINISHED
+    // lesson gets, but still through leave(), so a queued reward is shown, never dropped.
+    check(/leave\((?:false)?\);/.test(doneForNow) && !/exitLesson\(\)/.test(doneForNow),
       'lesson.tsx: Done for now exits directly instead of through leave(), so any reward the '
       + 'credit queued is dropped rather than shown');
     check(!/completeLesson\(/.test(doneForNow) && !/completeLessonSegment\(/.test(doneForNow),
@@ -266,7 +268,7 @@ const MUTATIONS = [
     (s) => s.replace('    if (segmentHasScreens(next)) openLessonScreen(next.first);', '    if (segmentHasScreens(next)) openLessonScreen(DONE);'),
     'routes into DONE'],
   ['Done for now exits directly', 'lesson',
-    (s) => s.replace('  const doneForNow = () => {\n    setSegmentBreak(null);\n    leave();', '  const doneForNow = () => {\n    setSegmentBreak(null);\n    exitLesson();'),
+    (s) => s.replace('  const doneForNow = () => {\n    setSegmentBreak(null);\n    leave(false);', '  const doneForNow = () => {\n    setSegmentBreak(null);\n    exitLesson();'),
     'exits directly instead of through leave()'],
   ['the trail celebration fires for a part too', 'lesson',
     (s) => s.replace('        queueLessonTrailCelebration(lessonKey(courseId, lessonNum), { segment: seg.kind });', '        queueLessonTrailCelebration(completedId);'),

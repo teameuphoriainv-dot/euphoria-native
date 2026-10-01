@@ -77,7 +77,9 @@ requires(
 );
 requires(
   lesson,
-  /function leave\(\) \{[\s\S]*?else exitLesson\(\);/,
+  // `leave(finished = true)` since 2026-10-01: a finished lesson routes to /up-next (which falls
+  // back through router.canGoBack the same way), a mid-lesson leave still ends in exitLesson().
+  /function leave\([^)]*\) \{[\s\S]*?exitLesson\(\);/,
   'repeat completion must use the safe lesson exit instead of a bare router.back()',
 );
 requires(

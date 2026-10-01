@@ -42,10 +42,14 @@ assert.match(hero, /avatarFor\(stored\)\s*\?\?\s*FIRST_GRID/, 'heroAvatar no lon
 assert.match(hero, /FIRST_GRID\s*=\s*CHARACTER_AVATARS\[0\]/, 'the hero fallback is no longer the first grid character');
 
 /*
- * Onboarding: Atlas guides every screen (owner decision 2, 2026-09-22) and is still drawn ONCE.
- * The guide bubble sits under the persistent AtlasStage with showAtlas={false}; the paywall swaps
- * the stage for the compact row, which draws the only Atlas there. A guide with its own Atlas under
- * the stage, or the stage kept on the paywall beside the compact row, is two mascots on one screen.
+ * Onboarding: Atlas is drawn ONCE per screen, and his line is drawn only where it says something.
+ * Owner decision 2 (2026-09-22) had the guide bubble head every step; on 2026-09-30 the owner cut
+ * that ("the double text boxes are annoying and Atlas's lines don't even matter"): a question step
+ * stacked the reaction bubble over the question bubble. The line survives on the try step (its
+ * verdict slot), the reveal (under the body) and the paywall (the compact row). The guide bubble
+ * still sits under the persistent AtlasStage with showAtlas={false}; the paywall swaps the stage
+ * for the compact row, which draws the only Atlas there. A guide with its own Atlas under the
+ * stage, or the stage kept on the paywall beside the compact row, is two mascots on one screen.
  */
 const ob = strip(readFileSync(new URL('../src/app/onboarding.tsx', import.meta.url), 'utf8'));
 assert.match(ob, /const guide = <AtlasGuide line=\{guideLine\} showAtlas=\{false\}/,
@@ -55,8 +59,10 @@ assert.match(paywallBranch, /<AtlasGuide[^>]*variant="compact"/,
   'onboarding: the paywall must show the compact guide where the AtlasStage was');
 assert.ok(!/<Atlas(?:Stage)?[\s/>]/.test(paywallBranch),
   'onboarding: the paywall draws another Atlas beside the compact guide, which already draws him');
-assert.match(ob, /def\.kind !== 'try' && def\.kind !== 'paywall' && def\.kind !== 'reveal' \? guide : null/,
-  'onboarding: the guide no longer heads every ordinary step');
+assert.ok(!/def\.kind !== 'try' && def\.kind !== 'paywall' && def\.kind !== 'reveal' \? guide : null/.test(ob),
+  'onboarding: the guide bubble heads ordinary steps again, stacking two text boxes on every question (owner, 2026-09-30)');
+assert.match(ob, /def\?\.kind === 'reveal' \? guide : null/, 'onboarding: the reveal lost its guide line under the body');
+assert.match(ob, /<DoubleItStep ctl=\{tryCtl\} atlas=\{guide\}/, 'onboarding: the try step lost its verdict guide');
 assert.match(ob, /case 'try':\s*return <DoubleItStep ctl=\{tryCtl\} atlas=\{guide\}/, 'onboarding: the try step lost its guide slot');
 assert.match(ob, /def\?\.kind === 'reveal' \? guide : null/, 'onboarding: the reveal lost its guide');
 

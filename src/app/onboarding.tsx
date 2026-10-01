@@ -1209,10 +1209,12 @@ export default function Onboarding() {
   const bodyStyle = useAnimatedStyle(() => ({ opacity: bodyOpacity.get() }));
 
   /*
-   * ATLAS GUIDES EVERY SCREEN (owner decision 2, 2026-09-22): one short line per step, reacting to
-   * the answer just given (atlas-lines.ts, pinned by onboarding-atlas-guide-pin). The bubble alone
-   * (showAtlas={false}) under the AtlasStage, so Atlas is drawn once per screen (CONSTITUTION 5.6).
-   * On the try step the line follows the verdict once there is one, never repeating the bar's words.
+   * ATLAS'S LINE, computed for every step (atlas-lines.ts, pinned by onboarding-atlas-guide-pin) but
+   * DRAWN on three: the try step's verdict, the reveal and the paywall. Owner decision 2
+   * (2026-09-22) had him react on every screen; on 2026-09-30 the owner cut that: the reaction
+   * bubble stacked over the question bubble read as two text boxes, and the lines carried nothing.
+   * The bubble alone (showAtlas={false}) under the AtlasStage, so Atlas is drawn once per screen
+   * (CONSTITUTION 5.6). On the try step the line follows the verdict once there is one.
    */
   const guideLine = !def
     ? null
@@ -1593,12 +1595,16 @@ export default function Onboarding() {
             accessibilityLabel="Maybe later">
             <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1}>Maybe later</ThemedText>
           </SpringPressable>
+          {/* THE LINKS' SLOP REACHES DOWN, NEVER UP. They used to carry top 13, and the legal row
+              renders after the dismiss, so the lower half of "Maybe later" was Privacy's hit box:
+              the owner reported taps on Maybe later opening the privacy policy (2026-09-30). The
+              44pt target is bought below the row instead, into the footer's bottom padding. */}
           <View style={[styles.legalRow, paywallTight && styles.legalRowTight]}>
             <SpringPressable
               haptic={false}
               onPress={() => openLegal(LEGAL.terms)}
               style={styles.legalAction}
-              hitSlop={{ top: 13, bottom: 13 }}
+              hitSlop={{ top: 4, bottom: 22 }}
               accessibilityRole="link"
               accessibilityLabel="Terms">
               <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Terms</ThemedText>
@@ -1608,7 +1614,7 @@ export default function Onboarding() {
               haptic={false}
               onPress={() => openLegal(LEGAL.privacy)}
               style={styles.legalAction}
-              hitSlop={{ top: 13, bottom: 13 }}
+              hitSlop={{ top: 4, bottom: 22 }}
               accessibilityRole="link"
               accessibilityLabel="Privacy">
               <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Privacy</ThemedText>
@@ -1618,7 +1624,7 @@ export default function Onboarding() {
               haptic={false}
               onPress={restore}
               style={styles.legalAction}
-              hitSlop={{ top: 13, bottom: 13 }}
+              hitSlop={{ top: 4, bottom: 22 }}
               accessibilityRole="button"
               accessibilityLabel="Restore purchases">
               <ThemedText type="small" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={1} style={styles.legalLink}>Restore</ThemedText>
@@ -1692,11 +1698,12 @@ export default function Onboarding() {
             key={renderStep}
             pointerEvents={renderStep === step ? 'auto' : 'none'}
             style={fillsViewport ? styles.grow : undefined}>
-            {/* The guide heads every step except three that place it themselves: the try step
-                takes it in its own slot, the paywall shows the compact row where the stage was,
-                and the reveal puts it UNDER its body, because the reveal's pixel beam has to run
-                from node 1 straight up into Atlas and a bubble between them would cut it (O3). */}
-            {def && def.kind !== 'try' && def.kind !== 'paywall' && def.kind !== 'reveal' ? guide : null}
+            {/* NO GUIDE BUBBLE AT THE HEAD OF A STEP (owner, 2026-09-30: "the double text boxes
+                are annoying and Atlas's lines don't even matter"). A question step used to stack
+                Atlas's reaction bubble over the question bubble, two boxes with two tails, and the
+                reaction said nothing the learner needed. The line survives only where it carries
+                information: the try step's verdict (its own slot), the paywall's compact row, and
+                the reveal, where it sits UNDER the body so the beam runs from node 1 into Atlas. */}
             {body()}
             {def?.kind === 'reveal' ? guide : null}
           </View>

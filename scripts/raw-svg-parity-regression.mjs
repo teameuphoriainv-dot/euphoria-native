@@ -20,7 +20,13 @@ import { COURSES, loadCourseLessons } from '../src/lib/curriculum/index.ts';
 import { loadCourseLessons as loadWebLessons } from '../src/lib/curriculum/courseIndex.ts';
 import { expandSteps, normalizeStep } from '../src/lib/lesson-steps.ts';
 
-const RAW_FIELDS = ['chartSvg', 'diagramSvg', 'withoutSvg', 'withSvg'];
+/*
+ * `stakesSvg` ADDED and the census RE-TAKEN on 2026-09-30: the `stakesCard` step was retired at the
+ * loader (courseIndex.ts). Its "with" SVG is folded onto the next teaching slide as `stakesSvg`
+ * and reaches the phone as a deck chart card; its "without" SVG is gone by the owner's decision.
+ * The two SVG-bearing stakes cards therefore give up one each: 11 -> 9.
+ */
+const RAW_FIELDS = ['chartSvg', 'diagramSvg', 'withoutSvg', 'withSvg', 'stakesSvg'];
 let authored = 0;
 let rendered = 0;
 const missing = [];
@@ -78,7 +84,7 @@ for (const course of COURSES) {
   }
 }
 
-assert.equal(authored, 11, 'the canonical raw-SVG census changed; inspect the new authored family before updating');
+assert.equal(authored, 9, 'the canonical raw-SVG census changed; inspect the new authored family before updating');
 assert.deepEqual(missing, [], `raw SVGs disappeared during normalization:\n${missing.join('\n')}`);
 assert.equal(rendered, authored, 'every authored raw SVG must reach a native renderable shape');
 

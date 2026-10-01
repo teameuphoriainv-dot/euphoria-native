@@ -444,7 +444,13 @@ assert.deepEqual(
   'the set of lessons with a one screen practice changed',
 );
 
-assert.ok(Math.min(...learnSizes) >= 3, 'a learn part dropped below 3 screens');
+/*
+ * FLOOR LOWERED 3 -> 2 on 2026-09-30. The `stakesCard` step, one per lesson and always at position
+ * 1, was retired at the loader (courseIndex.ts), so every learn part lost a screen. Measured after:
+ * learn parts are 2 screens in 2 lessons, 3 in 6, 4 in 158, 5 in 119, 6 in 12, 7 in 1, 8 in 2. Two
+ * screens is a hook and a teaching deck, which is still a lesson's opening, not an empty part.
+ */
+assert.ok(Math.min(...learnSizes) >= 2, 'a learn part dropped below 2 screens');
 assert.equal(minShare, 5, 'the smallest part payout moved off the 5 XP floor');
 
 /*

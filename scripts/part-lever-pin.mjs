@@ -36,7 +36,7 @@ const W = await imported('src/lib/curriculum/index.ts');
 
 const COURSE = 'alternative-investments';
 const LESSON = 2;
-const STEP = 4;
+const STEP = 3; // was 4 until 2026-09-30: the stakesCard at position 1 was retired at the loader
 const WHERE = `${COURSE}:${LESSON}:${STEP}`;
 
 const failures = [];

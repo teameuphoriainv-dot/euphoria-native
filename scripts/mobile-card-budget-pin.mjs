@@ -79,8 +79,11 @@ const LIMITS = {
    * those through whole would put a paragraph on the screen.
    */
   maxPromptsLosingNumbers: 40,
-  /** Measured 4. A deck longer than this is a scroll view wearing a costume. */
-  maxCardsPerDeck: 4,
+  /** Measured 4. A deck longer than this is a scroll view wearing a costume. RAISED to 5 on
+   *  2026-09-30, deliberately: the retired `stakesCard` step's visual now rides on the teaching
+   *  deck after it as a second chart card (courseIndex.ts, withStakesFolded), and 147 of those 300
+   *  decks were already at four. The same value as DECK_MAX_CARDS in mobile-lesson/types.ts. */
+  maxCardsPerDeck: 5,
   /** Measured 2. Below this a deck is not teaching anything. */
   minCardsPerDeck: 2,
   /** Measured 0. A card with no text is a blank screen mid-lesson. */

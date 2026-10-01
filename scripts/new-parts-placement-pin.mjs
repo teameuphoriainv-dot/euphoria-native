@@ -47,33 +47,33 @@ const { textOf: placeText } = await imported('src/lib/mobile-lesson/clickthrough
  * is where their slot is authored; the pin still requires each one to be placed and to render.
  */
 const EXPECTED = {
-  'corporate-finance:6:2': { kind: 'dial', formula: 'ccc', slot: 'chart' },
-  'personal-finance:14:4': { kind: 'dial', formula: 'rentRule', slot: 'interactive' },
-  'alternative-investments:2:4': { kind: 'lever', slot: 'interactive' },
+  'corporate-finance:6:1': { kind: 'dial', formula: 'ccc', slot: 'chart' },
+  'personal-finance:14:3': { kind: 'dial', formula: 'rentRule', slot: 'interactive' },
+  'alternative-investments:2:3': { kind: 'lever', slot: 'interactive' },
   /*
    * Scene keys are WRITTEN OUT (2026-09-22 integration) rather than spread from SCENES: spreading
    * meant a scene deleted from scene.ts vanished from this table too and the pin agreed with itself.
    * The slot is still read from SCENES, where it is authored.
    */
   ...Object.fromEntries([
-    'investing-fundamentals:3:2', 'investing-fundamentals:5:2', 'personal-finance:20:2',
-    'investing-fundamentals:20:4', 'corporate-finance:9:2', 'financial-analytics:23:2',
+    'investing-fundamentals:3:1', 'investing-fundamentals:5:1', 'personal-finance:20:1',
+    'investing-fundamentals:20:3', 'corporate-finance:9:1', 'financial-analytics:23:1',
     // S2's eight new scenes.
-    'personal-finance:7:2', 'behavioral-finance:19:2', 'business-strategy:20:2', 'personal-finance:23:2',
-    'global-economics:21:2', 'corporate-finance:4:4', 'behavioral-finance:23:2', 'personal-finance:6:2',
+    'personal-finance:7:1', 'behavioral-finance:19:1', 'business-strategy:20:1', 'personal-finance:23:1',
+    'global-economics:21:1', 'corporate-finance:4:3', 'behavioral-finance:23:1', 'personal-finance:6:1',
   ].map((key) => [key, { kind: 'scene', slot: SCENES[key]?.slot ?? 'idea' }])),
   // The Atlas clips (clickthrough/*), all over the chart card.
-  'personal-finance:3:2': { kind: 'stage', slot: 'chart' },
-  'personal-finance:12:2': { kind: 'stage', slot: 'chart' },
-  'personal-finance:15:2': { kind: 'predict', slot: 'chart' },
-  'investing-fundamentals:4:3': { kind: 'predict', slot: 'chart' },
-  'investing-fundamentals:6:2': { kind: 'build', slot: 'chart' },
-  'personal-finance:13:2': { kind: 'build', slot: 'chart' },
-  'corporate-finance:15:2': { kind: 'build', slot: 'chart' },
-  'personal-finance:2:2': { kind: 'place', slot: 'chart' },
-  'investing-fundamentals:8:2': { kind: 'place', slot: 'chart' },
-  'personal-finance:4:2': { kind: 'place', slot: 'chart' },
-  'corporate-finance:24:2': { kind: 'place', slot: 'chart' },
+  'personal-finance:3:1': { kind: 'stage', slot: 'chart' },
+  'personal-finance:12:1': { kind: 'stage', slot: 'chart' },
+  'personal-finance:15:1': { kind: 'predict', slot: 'chart' },
+  'investing-fundamentals:4:2': { kind: 'predict', slot: 'chart' },
+  'investing-fundamentals:6:1': { kind: 'build', slot: 'chart' },
+  'personal-finance:13:1': { kind: 'build', slot: 'chart' },
+  'corporate-finance:15:1': { kind: 'build', slot: 'chart' },
+  'personal-finance:2:1': { kind: 'place', slot: 'chart' },
+  'investing-fundamentals:8:1': { kind: 'place', slot: 'chart' },
+  'personal-finance:4:1': { kind: 'place', slot: 'chart' },
+  'corporate-finance:24:1': { kind: 'place', slot: 'chart' },
 };
 
 const failures = [];
@@ -132,7 +132,8 @@ for (const [key, want] of Object.entries(EXPECTED)) {
     });
   }
 
-  if (deck.cards.length < 3 || deck.cards.length > 4) fail(`${key} deck has ${deck.cards.length} cards`);
+  // 5, not 4, since 2026-09-30: the retired stakes card's visual rides on teaching decks as a 2nd chart card (DECK_MAX_CARDS).
+  if (deck.cards.length < 3 || deck.cards.length > 5) fail(`${key} deck has ${deck.cards.length} cards`);
   const takeawayAt = deck.cards.findIndex((c) => c.kind === 'takeaway');
   if (takeawayAt >= 0 && takeawayAt !== deck.cards.length - 1) fail(`${key} puts the takeaway before the part`);
 
