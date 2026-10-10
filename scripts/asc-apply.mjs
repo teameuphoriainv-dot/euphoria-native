@@ -29,6 +29,13 @@ const cfg = JSON.parse(readFileSync(path.join(ROOT, 'eas.json'), 'utf8'))?.submi
 const privateKey = readFileSync(path.resolve(ROOT, cfg.ascApiKeyPath), 'utf8');
 const APP_ID = cfg.ascAppId;
 const APPLY = process.argv.includes('--apply');
+/*
+ * REPLACING WHAT'S NEW is a separate, explicit decision. The default refuses to overwrite a populated
+ * field, because the first round found copy written for one release sitting on another. With this
+ * flag the owner has read the before and the after (both are printed) and chosen the replacement:
+ * 2026-10-09, the September 14 text described the card rebuild only and 150 commits had landed since.
+ */
+const REPLACE_WHATS_NEW = process.argv.includes('--replace-whats-new');
 
 /** Fields this script may ever write on a staged version localization. Nothing else is reachable. */
 const ALLOWED_VERSION_FIELDS = new Set(['promotionalText', 'whatsNew']);
@@ -134,8 +141,8 @@ if (!whatsNew) {
       continue;
     }
     // Never silently overwrite copy someone else wrote. Filling an EMPTY field is the approved job.
-    if (before) {
-      console.log(`  skip: ${locale} whatsNew is already populated (${String(chars(before))} chars); not overwriting someone else's copy`);
+    if (before && !REPLACE_WHATS_NEW) {
+      console.log(`  skip: ${locale} whatsNew is already populated (${String(chars(before))} chars); pass --replace-whats-new to overwrite it`);
       continue;
     }
     plan.push({ kind: 'versionLocalization', id: loc.id, locale, field: 'whatsNew', before, after: text });
