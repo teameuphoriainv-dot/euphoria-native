@@ -4,7 +4,7 @@
  * WHY THIS EXISTS. The app has FIVE independent art systems and no surface that shows them
  * together, so nothing enforces consistency and drift is invisible. Measured before building this:
  *
- *   Digest cover composer   LIT #C89CF5   DARK #5B21B6   <- neither value exists in theme.ts
+ *   Digest cover composer   LIT #C89CF5   DARK #5B21B6   <- retired 2026-09-28, photos replaced it
  *   Atlas mark              LIT #DEA5F5   DARK #A855EB   <- matches theme
  *   theme.ts                #A451E6 #A78BFA #B57BEF #7C3AED #A855EB   <- five violets
  *   lesson-art              #241C33 plus amber #FBBF24 #FDE68A        <- a non-violet hue
@@ -28,7 +28,6 @@ import { LeagueCrest } from '@/components/league-crest';
 import { LessonArt } from '@/components/lesson-art';
 import { ThemedText } from '@/components/themed-text';
 import { Spacing, FontSize } from '@/constants/theme';
-import { DIGEST_HEROES } from '@/lib/digest-heroes';
 import { EUPHORIA_ICONS, type EuphoriaIconName } from '@/lib/euphoria-icons';
 import { TIERS } from '@/lib/league';
 import { useTheme } from '@/hooks/use-theme';
@@ -64,7 +63,6 @@ function Cell({ label, children }: { label: string; children: React.ReactNode })
 export default function DevGallery() {
   if (!__DEV__) return null;
 
-  const heroKeys = Object.keys(DIGEST_HEROES);
   const iconNames = Object.keys(EUPHORIA_ICONS) as EuphoriaIconName[];
 
   return (
@@ -74,18 +72,11 @@ export default function DevGallery() {
           Art gallery
         </ThemedText>
         <ThemedText type="small" themeColor="mutedForeground" style={{ marginTop: 2 }}>
-          {heroKeys.length} digest figures · {iconNames.length} icons · {TIERS.length} crests · Atlas · lesson art
+          {iconNames.length} icons · {TIERS.length} crests · Atlas · lesson art
         </ThemedText>
 
-        <Section
-          title="Digest figures"
-          note="gen-digest-covers.mjs. Violet default; teal Markets, rose Credit, emerald Investing. Structure stays violet in every figure.">
-          {heroKeys.map((k) => (
-            <Cell key={k} label={k}>
-              <SvgXml xml={DIGEST_HEROES[k]} width={96} height={60} />
-            </Cell>
-          ))}
-        </Section>
+        {/* The Digest figures section went on 2026-09-28 with the art itself: synced guides carry
+            photos now, and the SVG registry it listed (digest-heroes.ts) no longer exists. */}
 
         <Section title="Euphoria icons" note="Multicolour by design. `name` is now a narrow union of all 107 keys, so a typo is a compile error. Names arriving from the AUTO-SYNCED curriculum still cannot be checked at build time — those go through asEuphoriaIcon(), which logs in dev.">
           {iconNames.map((n) => (

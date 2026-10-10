@@ -4,7 +4,13 @@ import assert from 'node:assert/strict';
 
 import { COURSES, loadCourseLessons } from '../src/lib/curriculum/courseIndex.ts';
 
-const visualKeys = ['visual', 'diagramVisual', 'withVisual', 'withoutVisual'];
+/*
+ * `stakesVisual` ADDED and the coverage RE-MEASURED on 2026-09-30: the `stakesCard` step was retired
+ * at the loader (courseIndex.ts); its "with" visual is folded onto the next teaching slide under that
+ * key and reaches the phone as a deck chart card, and its "without" visual is gone by the owner's
+ * decision. Stakes cards were mostly flow and metric pairs, hence the large drop below.
+ */
+const visualKeys = ['visual', 'diagramVisual', 'withVisual', 'withoutVisual', 'stakesVisual'];
 const coverage = {
   flows: 0,
   flowNodes: 0,
@@ -34,7 +40,7 @@ for (const course of COURSES) {
 
 assert.deepEqual(
   coverage,
-  { flows: 403, flowNodes: 1824, maxFlowNodes: 27, metrics: 277, metricSprites: 228 },
+  { flows: 308, flowNodes: 1445, maxFlowNodes: 27, metrics: 149, metricSprites: 120 },
   'live-49e flow/metric corpus coverage drifted',
 );
 

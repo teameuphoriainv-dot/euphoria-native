@@ -171,4 +171,4 @@ export function textOf(spec: StageClipSpec): string[] {
  * Only 12 steps in the corpus build a stage at all, and 5 of those sit on a deck with a chart card;
  * two of the five already hold a scene, and one is the predict slide.
  */
-export const STAGE_PLACEMENTS = ['personal-finance:3:2', 'personal-finance:12:2'] as const;
+export const STAGE_PLACEMENTS = ['personal-finance:3:1', 'personal-finance:12:1'] as const;

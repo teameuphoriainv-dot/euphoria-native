@@ -110,6 +110,15 @@ export interface TeachingSlideStep {
    * sentence nobody wrote is worse than no sentence.
    */
   atlas?: { hint?: string; recap?: string };
+  /**
+   * NATIVE ONLY, never authored. The lesson's retired `stakesCard` step folds its "with" visual
+   * onto the teaching slide that follows it (courseIndex.ts, withoutRetiredSteps), and the mobile
+   * deck shows it as a second chart card. The web copy of this file has no such field; a re-sync
+   * that drops it fails tsc in derive.ts rather than silently losing the art.
+   */
+  stakesVisual?: AnimatedVisual;
+  /** NATIVE ONLY, as above: the retired stakes card's "with" side when it was a raw SVG, not a visual. */
+  stakesSvg?: string;
 }
 
 export interface MicroCheckStep {

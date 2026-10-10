@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { FadeInDown, useReducedMotion } from 'react-native-reanimated';
 
 import { SlabButton } from '@/components/ui/button';
 import { Atlas } from '@/components/atlas';
+import { PixelSceneView } from '@/components/pixel-scene-view';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
+import { lessonArtFor } from '@/lib/pixel/scenes';
 import {
   buildRecallQuiz,
   completedLessonNumbers,
@@ -33,6 +35,13 @@ export function LessonWarmup({
 }: LessonWarmupProps) {
   const theme = useTheme();
   const reduced = useReducedMotion();
+  const { width } = useWindowDimensions();
+  /* THE LESSON'S OWN OPENING SCENE, where it has one (lib/pixel/scenes). Every lesson used to open
+     on the same flame; a lesson with art opens on a picture of what it teaches. Whole-number scale
+     only, so art pixels stay on whole points: 4 on every current iPhone, 3 if the 24pt gutters
+     would not leave room for the scene's width. */
+  const opener = lessonArtFor(courseId, lessonNumber)?.opener ?? null;
+  const openerScale = opener && width - 48 >= opener.width * 4 ? 4 : 3;
   const [questions, setQuestions] = useState<RecallQuestion[] | null>(null);
   const [beat, setBeat] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
@@ -67,9 +76,15 @@ export function LessonWarmup({
     <View style={styles.root}>
       {beat === 0 ? (
         <Animated.View key="warmup-intro" entering={enter} style={styles.intro}>
-          <View style={styles.flameStage}>
-            <PixelSpriteView sprite={flameSprite} scale={9} play="loop" />
-          </View>
+          {opener ? (
+            <View style={styles.sceneStage}>
+              <PixelSceneView art={opener} scale={openerScale} />
+            </View>
+          ) : (
+            <View style={styles.flameStage}>
+              <PixelSpriteView sprite={flameSprite} scale={9} play="loop" />
+            </View>
+          )}
           <ThemedText type="title" style={styles.title}>{title}</ThemedText>
           {questions !== null && available.length > 0 ? (
             <ThemedText type="small" themeColor="mutedForeground" style={styles.subtitle}>
@@ -149,16 +164,14 @@ export function LessonWarmup({
                   <AtlasSpeech text={`It was “${current.options[current.correct]}”.`} maxWidth={300} />
                 </View>
               ) : null}
-              <SpringPressable
-                scaleTo={0.97}
+              {/* The same slab as the intro beat's Start lesson. This was a bare pressable with
+                  only a minWidth, which rendered as a flat purple rectangle (owner, 2026-09-30). */}
+              <SlabButton
+                label={beat < available.length ? 'Next' : 'Start lesson'}
                 onPress={next}
-                style={[styles.primaryButton, { backgroundColor: theme.primary }]}
-                accessibilityRole="button"
-                accessibilityLabel={beat < available.length ? 'Next warmup question' : 'Start lesson'}>
-                <ThemedText type="bodyMedium" style={styles.buttonText}>
-                  {beat < available.length ? 'Next' : 'Start lesson'}
-                </ThemedText>
-              </SpringPressable>
+                style={styles.primaryButton}
+                accessibilityLabel={beat < available.length ? 'Next warmup question' : 'Start lesson'}
+              />
             </View>
           ) : null}
         </Animated.View>
@@ -171,6 +184,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24, paddingVertical: 40 },
   intro: { width: '100%', maxWidth: 448, alignItems: 'center' },
   flameStage: { alignItems: 'center', justifyContent: 'center', padding: 40, marginBottom: 16 },
+  sceneStage: { alignItems: 'center', justifyContent: 'center', marginBottom: 24 },
   title: { textAlign: 'center', lineHeight: 32 },
   subtitle: { textAlign: 'center', lineHeight: 20, marginTop: 12 },
   primaryButton: { marginTop: 32, alignSelf: 'center', minWidth: 200 },

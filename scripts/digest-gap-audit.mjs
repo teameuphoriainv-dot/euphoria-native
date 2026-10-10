@@ -24,7 +24,10 @@ const guides = [...read("src/lib/digest-lessons.ts").matchAll(/'([a-z0-9-]+)':\s
 
 // --- course id -> module file, straight out of the loader switch --------------
 const files = Object.fromEntries(
-  [...read("src/lib/curriculum/courseIndex.ts").matchAll(/case '([a-z-]+)':\s*\n\s*return \(await import\('\.\/courses\/(\w+)'\)\)/g)]
+  // Same pattern as check-digest-lessons.mjs. The old `return (await import(...))` form stopped
+  // matching when the loader started wrapping the import in transforms, and this audit then
+  // crashed on an empty table (String.repeat(-Infinity)) instead of reporting anything.
+  [...read("src/lib/curriculum/courseIndex.ts").matchAll(/case '([a-z-]+)':[^]*?import\('\.\/courses\/(\w+)'\)/g)]
     .map((m) => [m[1], m[2]]),
 );
 

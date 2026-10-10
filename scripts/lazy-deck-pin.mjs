@@ -108,12 +108,13 @@ if (typeof shorten === 'function') {
     for (const rawLesson of rawLessons) {
       // The eager path includes applyPlacement over the RAW steps, as index.ts does, or the 9
       // lessons carrying a dial, lever or scene would differ for a reason that is not laziness.
-      const eager = rawLesson.steps.map((step, index) => {
+      // Capped like the loader caps it (withCappedPractice, 2026-10-01): practice runs five screens on the phone.
+      const eager = native.withCappedPractice(rawLesson.steps.map((step, index) => {
         if (!isHeavyStep(step)) return shorten(step);
         const id = stepId(course.id, rawLesson.num, index, step);
         const deck = deriveDeck(step, id);
         return deck ? applyPlacement(deck, id, rawLesson.steps) : step;
-      });
+      }));
       const lazy = nativeLessons.find((l) => l.num === rawLesson.num);
       compared += 1;
       if (!lazy) { failures.push(`${course.id}:${rawLesson.num} missing from the wrapped loader`); continue; }

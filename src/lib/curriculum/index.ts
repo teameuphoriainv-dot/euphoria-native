@@ -25,6 +25,8 @@ import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
 import { applyPlacement } from '../mobile-lesson/parts/placements';
 import { STEP_TEXT_BUDGET, shortenField, shortenHookFact, shortenOptions, shortenPrompt } from '../mobile-lesson/question';
 import { stepId } from '../mobile-lesson/stepId';
+import { segmentsOf } from '../lesson-segments';
+import { expandSteps } from '../lesson-steps';
 import type { LessonStep, PathwayLesson } from './types';
 
 // ─── Course catalogue + loader ──────────────────────────────────────────────
@@ -231,6 +233,60 @@ function mobileSteps(authored: LessonStep[], courseId: string, lessonNum: number
  * SCRIPTS THAT CHECK PARITY AGAINST WEB MUST IMPORT `./courseIndex` DIRECTLY, not this module, or
  * they will compare native decks against web steps and fail for the wrong reason.
  */
+/*
+ * PRACTICE IS CAPPED AT FIVE SCREENS ON THE PHONE (owner, 2026-10-01: "the quizzing is a bit
+ * excessive"; chose "cap at 5, keep the variety"). Measured before: 261 of 300 lessons ran more
+ * than five practice screens after the vocab part, median eight, and quantitative-analysis:1 ran
+ * nine (fill-in, quiz, tap reveal, drag sort, scenario, slider, true or false, match, quiz).
+ *
+ * VARIETY FIRST. One screen of each KIND is kept before any kind gets a second, taken in the
+ * priority below (the kinds where the learner does something with the idea lead, the reveal and
+ * fill-in kinds trail), then any room left fills in authored order. Kept steps stay in authored
+ * order. Budget is in SCREENS, so a progressiveCalc that expands to four screens costs four.
+ *
+ * ONLY QUESTIONS ARE CUT. A step whose kind is not in PRACTICE_PRIORITY (a teaching deck, a
+ * concept, an explorable that happens to sit after the vocab part) is always kept and costs
+ * nothing: the cap is on quizzing, never on teaching.
+ *
+ * Applied here, after the decks, so the web corpus (courseIndex.ts) and every parity check against
+ * it are untouched: this is a phone-only cut, like the decks themselves. Every placement key and
+ * stepId sits in the learn part, before practice, so none of them move.
+ */
+export const PRACTICE_SCREEN_CAP = 5;
+const PRACTICE_PRIORITY = [
+  'scenario', 'slider', 'dragSort', 'match', 'quiz', 'trueFalse', 'buildIt', 'decisionTree',
+  'calculator', 'matchingPairs', 'sorting', 'budgetBuilder', 'scenarioSim', 'visualInteractive',
+  'microCheck', 'fillBlank', 'tapReveal', 'progressiveCalc',
+];
+
+export function withCappedPractice(steps: LessonStep[]): LessonStep[] {
+  const types = steps.map((s) => (s as { type?: string }).type ?? '');
+  const practice = segmentsOf(types, false).find((seg) => seg.kind === 'practice');
+  if (!practice) return steps;
+  const start = practice.first - 1;
+  const all = steps.slice(start).map((step, i) => ({ step, i, type: types[start + i], screens: Math.max(1, expandSteps([step]).length) }));
+  const pool = all.filter((p) => PRACTICE_PRIORITY.includes(p.type));
+  if (pool.reduce((n, p) => n + p.screens, 0) <= PRACTICE_SCREEN_CAP) return steps;
+
+  const rank = (t: string) => { const r = PRACTICE_PRIORITY.indexOf(t); return r < 0 ? PRACTICE_PRIORITY.length : r; };
+  const firstOfKind: typeof pool = [];
+  for (const p of pool) if (!firstOfKind.some((q) => q.type === p.type)) firstOfKind.push(p);
+  firstOfKind.sort((a, b) => rank(a.type) - rank(b.type) || a.i - b.i);
+
+  const keep = new Set<number>();
+  let used = 0;
+  const take = (p: (typeof pool)[number]) => {
+    if (keep.has(p.i) || used + p.screens > PRACTICE_SCREEN_CAP) return;
+    keep.add(p.i);
+    used += p.screens;
+  };
+  firstOfKind.forEach(take);
+  pool.forEach(take);
+  // Never an empty practice part: a step bigger than the whole budget is still better than none.
+  if (keep.size === 0 && pool[0]) keep.add(pool[0].i);
+  return [...steps.slice(0, start), ...all.filter((p) => keep.has(p.i) || !PRACTICE_PRIORITY.includes(p.type)).map((p) => p.step)];
+}
+
 function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLesson[] {
   return lessons.map((lesson) => {
     const authored = lesson.steps;
@@ -239,7 +295,7 @@ function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLes
       enumerable: true,
       configurable: true,
       get() {
-        const steps = mobileSteps(authored, courseId, lesson.num);
+        const steps = withCappedPractice(mobileSteps(authored, courseId, lesson.num));
         // Redefined on `out`, not `this`, so a read through a prototype or proxy still memoizes
         // on the lesson itself instead of deriving again on every read.
         Object.defineProperty(out, 'steps', { value: steps, enumerable: true, configurable: true, writable: true });

@@ -5,7 +5,7 @@
  * WHAT THE LEARNER SEES.
  *   1. On mount the diagram builds: piece k's connector grows down from piece k-1's edge, then its
  *      row fills left to right in whole cells, then its label fades in. The whole build lands
- *      inside BUILD_MAX_MS (2.5s, Hilbert's budget); the timing is pieceTiming() in buildup.ts,
+ *      inside BUILD_MAX_MS (5s, Hilbert's budget at CLIP_TEMPO); the timing is pieceTiming() in buildup.ts,
  *      which the pin checks, not numbers typed here.
  *   2. The clip then runs one beat per piece: that piece is outlined in accent and its authored
  *      `explain` is the caption beside Atlas. Back / Play / Next and the dots are the shared
@@ -151,7 +151,7 @@ export function BuildupCard({ spec, onWorked }: { spec: BuildSpec; onWorked: () 
   }, []);
 
   /*
-   * The timeline clamps beat 0's motion to BEAT_MAX_MS (1500ms), but a 4-piece build runs 1830ms,
+   * The timeline clamps beat 0's motion to BEAT_MAX_MS (3500ms), but a 4-piece build runs 3660ms,
    * so its own `busy` let Next go live mid-build and caption a row that had no label on it yet.
    * The controls wait on the build as well.
    */

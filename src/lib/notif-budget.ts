@@ -112,6 +112,16 @@ export function prune(ledger: readonly NotifEntry[], now: number): NotifEntry[] 
   return ledger.filter((e) => e.at > now - WEEK_MS);
 }
 
+/**
+ * The ledger after a kind's queued notifications were CANCELLED. Past entries stay (they were
+ * delivered); future ones go (they now never will be). Without this, every re-arm left its
+ * cancelled win-backs spending the weekly budget, and by the third active day nothing fit: a user
+ * who then lapsed got no win-back at all.
+ */
+export function dropQueued(ledger: readonly NotifEntry[], kind: NotifKind, now: number): NotifEntry[] {
+  return prune(ledger.filter((e) => !(e.kind === kind && e.at > now)), now);
+}
+
 /* ── SELF-CHECK ────────────────────────────────────────────────────────────────────────────────
  * Run with: node --experimental-strip-types src/lib/notif-budget.ts
  * Also runs inside scripts/notif-budget-pin.mjs, which is wired into `npm run check`.
@@ -172,6 +182,15 @@ export function selfCheck(): void {
   // Pruning keeps the ledger bounded.
   ok(prune([{ at: at - 8 * DAY_MS, kind: 'market' }], at).length === 0, 'stale entries must prune');
   ok(prune([{ at: at - 1 * DAY_MS, kind: 'market' }], at).length === 1, 'fresh entries must survive');
+
+  // A cancelled queue gives its slots back; delivered history and other kinds keep theirs.
+  const requeued = dropQueued(
+    [{ at: at - DAY_MS, kind: 'winback' }, { at: at + 3 * DAY_MS, kind: 'winback' }, { at: at + DAY_MS, kind: 'market' }],
+    'winback',
+    at,
+  );
+  ok(requeued.length === 2, 'dropQueued must remove only the future entries of the cancelled kind');
+  ok(canSpend('winback', requeued.filter((e) => e.kind === 'winback'), at + 3 * DAY_MS, true), 'a re-armed win-back must fit where its cancelled self was');
 
   // Priority is a total order over the app-initiated kinds, billing first.
   ok(PRIORITY[0] === 'billing', 'billing must outrank everything: missing it costs the user money');

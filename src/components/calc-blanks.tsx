@@ -14,7 +14,7 @@
  * "in dollars" types "$751". Stripping punctuation the prompt itself invites is not the same as
  * guessing what a wrong answer meant — anything that does not parse to a finite number stays wrong.
  */
-import * as Haptics from '@/lib/haptics';
+import { feedback } from '@/lib/feedback';
 import { useMemo } from 'react';
 import { InputAccessoryView, Keyboard, Platform, StyleSheet, TextInput, View } from 'react-native';
 
@@ -24,7 +24,6 @@ import { useLessonStepState } from '@/components/lesson-step-session';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Fonts, FontSize, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { playSfx } from '@/lib/sfx';
 
 export type CalcSpec = {
   title: string;
@@ -108,10 +107,7 @@ export function CalcBlanks({ spec, onComplete }: { spec: CalcSpec; onComplete: (
             Keyboard.dismiss();
             setChecked(true);
             const allCorrect = results.every((r) => r.ok);
-            void Haptics.notificationAsync(
-              allCorrect ? Haptics.NotificationFeedbackType.Success : Haptics.NotificationFeedbackType.Error,
-            );
-            playSfx(allCorrect ? 'correct' : 'wrong');
+            feedback(allCorrect ? 'correct' : 'wrong');
             setTimeout(() => onComplete(allCorrect), 1400);
           }}
           style={[styles.check, { backgroundColor: canCheck ? theme.primary : theme.primary + '3D' }]}

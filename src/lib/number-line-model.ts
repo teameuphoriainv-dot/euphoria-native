@@ -44,11 +44,6 @@ export function numberLinePassed(value: number, spec: NumberLineSpec) {
   return Math.abs(value - spec.target) <= spec.tolerance;
 }
 
-/** Production snaps the visible thumb and readout to the authored answer after reveal. */
-export function numberLineDisplayValue(value: number, revealed: boolean, spec: NumberLineSpec) {
-  return revealed ? spec.target : value;
-}
-
 /** Claims intentional horizontal drags without stealing the lesson's vertical ScrollView. */
 export function shouldNumberLineClaimGesture(dx: number, dy: number, submitted: boolean) {
   return !submitted && Math.abs(dx) >= 6 && Math.abs(dx) > Math.abs(dy);

@@ -136,7 +136,9 @@ export function findings(lessonRaw, storeRaw, driverRaw) {
   const doneForNow = bodyOf(src, 'const doneForNow = () => {');
   check(doneForNow !== null, 'lesson.tsx: the Done for now handler is gone');
   if (doneForNow) {
-    check(/leave\(\);/.test(doneForNow) && !/exitLesson\(\)/.test(doneForNow),
+    // `leave(false)` since 2026-09-30: a part credit leaves without the Up next beat a FINISHED
+    // lesson gets, but still through leave(), so a queued reward is shown, never dropped.
+    check(/leave\((?:false)?\);/.test(doneForNow) && !/exitLesson\(\)/.test(doneForNow),
       'lesson.tsx: Done for now exits directly instead of through leave(), so any reward the '
       + 'credit queued is dropped rather than shown');
     check(!/completeLesson\(/.test(doneForNow) && !/completeLessonSegment\(/.test(doneForNow),
@@ -178,7 +180,9 @@ export function findings(lessonRaw, storeRaw, driverRaw) {
   // a second mascot there too (photographed 2026-09-22, personal-finance:9 part 2). Matched loosely
   // between !deckAtlas and segmentBreak so a new exclusion does not read as the part card's guard
   // going missing, but segmentBreak === null itself is still required.
-  check(/atlasContext && !deckAtlas &&[^;{}]{0,90}segmentBreak === null \?/.test(src),
+  // Since 2026-09-28 the float stays MOUNTED (its tutor sheet is what an in-content Atlas opens)
+  // and the same guard drives `hidden={!(...)}` instead of a ternary; either form satisfies this.
+  check(/atlasContext && !deckAtlas &&[^;{}]{0,110}segmentBreak === null(?: \?|\)\})/.test(src),
     'lesson.tsx: the floating Ask Atlas is not hidden by the part card, so two mascots share the '
     + 'screen (CONSTITUTION 5.6) and one of them sits on Keep going');
   check(/<SegmentFinishCard/.test(src) && /onKeepGoing=\{keepGoing\}/.test(src) && /onDoneForNow=\{doneForNow\}/.test(src),
@@ -264,7 +268,7 @@ const MUTATIONS = [
     (s) => s.replace('    if (segmentHasScreens(next)) openLessonScreen(next.first);', '    if (segmentHasScreens(next)) openLessonScreen(DONE);'),
     'routes into DONE'],
   ['Done for now exits directly', 'lesson',
-    (s) => s.replace('  const doneForNow = () => {\n    setSegmentBreak(null);\n    leave();', '  const doneForNow = () => {\n    setSegmentBreak(null);\n    exitLesson();'),
+    (s) => s.replace('  const doneForNow = () => {\n    setSegmentBreak(null);\n    leave(false);', '  const doneForNow = () => {\n    setSegmentBreak(null);\n    exitLesson();'),
     'exits directly instead of through leave()'],
   ['the trail celebration fires for a part too', 'lesson',
     (s) => s.replace('        queueLessonTrailCelebration(lessonKey(courseId, lessonNum), { segment: seg.kind });', '        queueLessonTrailCelebration(completedId);'),

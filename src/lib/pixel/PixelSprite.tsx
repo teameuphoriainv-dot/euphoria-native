@@ -173,9 +173,15 @@ function PixelSpriteViewInner({
 
   const shown = animated ? frames[frame] : still;
   const px = scale ? shown.width * scale : (size ?? 48);
+  /* A SCALED sprite is as tall as its own rows. The box used to be px by px whatever the art's
+     shape, which is right for the 16x16 catalogue and wrong for scene art: an 80x60 scene at scale
+     4 got a 320x320 box, was letterboxed 40pt down inside it, and its layers (placed from the
+     scene's true top-left) landed 40pt above the picture they belong to. `size` keeps the square
+     box, so every existing call site renders exactly as before. */
+  const pxHigh = scale ? shown.height * scale : px;
 
   return (
-    <Svg width={px} height={px} viewBox={`0 0 ${String(shown.width)} ${String(shown.height)}`}>
+    <Svg width={px} height={pxHigh} viewBox={`0 0 ${String(shown.width)} ${String(shown.height)}`}>
       {pathsFor(shown).map((p) => (
         <Path key={p.fill} d={p.d} fill={p.fill} />
       ))}

@@ -42,10 +42,14 @@ assert.match(hero, /avatarFor\(stored\)\s*\?\?\s*FIRST_GRID/, 'heroAvatar no lon
 assert.match(hero, /FIRST_GRID\s*=\s*CHARACTER_AVATARS\[0\]/, 'the hero fallback is no longer the first grid character');
 
 /*
- * Onboarding: Atlas guides every screen (owner decision 2, 2026-09-22) and is still drawn ONCE.
- * The guide bubble sits under the persistent AtlasStage with showAtlas={false}; the paywall swaps
- * the stage for the compact row, which draws the only Atlas there. A guide with its own Atlas under
- * the stage, or the stage kept on the paywall beside the compact row, is two mascots on one screen.
+ * Onboarding: Atlas is drawn ONCE per screen, and his line is drawn only where it says something.
+ * Owner decision 2 (2026-09-22) had the guide bubble head every step; on 2026-09-30 the owner cut
+ * that ("the double text boxes are annoying and Atlas's lines don't even matter"): a question step
+ * stacked the reaction bubble over the question bubble. The line survives on the try step (its
+ * verdict slot), the reveal (under the body) and the paywall (the compact row). The guide bubble
+ * still sits under the persistent AtlasStage with showAtlas={false}; the paywall swaps the stage
+ * for the compact row, which draws the only Atlas there. A guide with its own Atlas under the
+ * stage, or the stage kept on the paywall beside the compact row, is two mascots on one screen.
  */
 const ob = strip(readFileSync(new URL('../src/app/onboarding.tsx', import.meta.url), 'utf8'));
 assert.match(ob, /const guide = <AtlasGuide line=\{guideLine\} showAtlas=\{false\}/,
@@ -55,8 +59,10 @@ assert.match(paywallBranch, /<AtlasGuide[^>]*variant="compact"/,
   'onboarding: the paywall must show the compact guide where the AtlasStage was');
 assert.ok(!/<Atlas(?:Stage)?[\s/>]/.test(paywallBranch),
   'onboarding: the paywall draws another Atlas beside the compact guide, which already draws him');
-assert.match(ob, /def\.kind !== 'try' && def\.kind !== 'paywall' && def\.kind !== 'reveal' \? guide : null/,
-  'onboarding: the guide no longer heads every ordinary step');
+assert.ok(!/def\.kind !== 'try' && def\.kind !== 'paywall' && def\.kind !== 'reveal' \? guide : null/.test(ob),
+  'onboarding: the guide bubble heads ordinary steps again, stacking two text boxes on every question (owner, 2026-09-30)');
+assert.match(ob, /def\?\.kind === 'reveal' \? guide : null/, 'onboarding: the reveal lost its guide line under the body');
+assert.match(ob, /<DoubleItStep ctl=\{tryCtl\} atlas=\{guide\}/, 'onboarding: the try step lost its verdict guide');
 assert.match(ob, /case 'try':\s*return <DoubleItStep ctl=\{tryCtl\} atlas=\{guide\}/, 'onboarding: the try step lost its guide slot');
 assert.match(ob, /def\?\.kind === 'reveal' \? guide : null/, 'onboarding: the reveal lost its guide');
 
@@ -99,6 +105,16 @@ const lessonSrc = strip(readFileSync(new URL('../src/app/lesson.tsx', import.met
   .replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
 assert.match(lessonSrc, /onAtlasCard=\{setDeckAtlas\}/, 'lesson.tsx never asks the deck which card owns the mascot');
 assert.match(lessonSrc, /atlasContext && !deckAtlas/, 'lesson.tsx floats Ask-Atlas without checking deckAtlas, so a scene or clip card shows two Atlases');
+/*
+ * RULE 6, generalised (owner, 2026-09-28): the slider showed THREE Atlases (its prompt, the wrong-
+ * answer correction, the float). Per-kind exemptions kept missing new step kinds, so every <Atlas>
+ * inside the lesson body now claims presence and the float hides; a tap on that Atlas opens the
+ * same tutor. These three links are the whole mechanism.
+ */
+const atlasSrc = readFileSync(new URL('../src/components/atlas.tsx', import.meta.url), 'utf8');
+assert.match(atlasSrc, /useLayoutEffect\(\(\) => presence\?\.claim\(\)/, 'atlas.tsx no longer claims lesson presence, so the float draws a second mascot beside it');
+assert.match(lessonSrc, /<LessonAtlasPresenceProvider[\s\S]*?styles\.body[\s\S]*?<\/LessonAtlasPresenceProvider>/, 'lesson.tsx no longer wraps the step body in LessonAtlasPresenceProvider');
+assert.match(lessonSrc, /!contentAtlas/, 'the lesson float ignores an Atlas drawn by the step itself');
 
 /* ── RULE 2: no half-finished rows ────────────────────────────────────────────────────────────
  * Two of the three Pro benefits carried a one-line sub and the third carried none, so it rendered
@@ -169,7 +185,21 @@ for (const f of [...walk('src/app'), ...walk('src/components')]) {
  * (#A855EB twice, #C89CF5) became the stepped PixelBeam in theme tokens. Measured 99 after the
  * batch, the lowest it can be set without failing today.
  */
-const HEX_CEILING = 99;
+/*
+ * RAISED 2026-09-28 to 101 for src/components/correct-confetti.tsx. The owner asked for "the
+ * confetti thing from webapp" on a right answer, and the web burst's colours are fixed literals
+ * (fireSmallConfetti: #22c55e, #3b82f6, #b862ed), not theme tokens. The blue and the violet have
+ * no token here; matching the web burst is the point, so they stay literal and commented at the
+ * site. The green equals theme.success but stays with its two siblings as one palette.
+ */
+/*
+ * RAISED 2026-09-28 to 105 for src/components/digest-chart.tsx. The Digest now renders the web's
+ * data charts, and the web's four series colours (#AE4EFE #0BA3B1 #BE8802 #4D7FFF) were solved AS
+ * A SET by its palette validator for colour-blind separation and contrast. Swapping any one for a
+ * nearby app token would break the separation the set exists for, so they stay literal, in fixed
+ * order, commented at the site as a parity contract with the web chart.
+ */
+const HEX_CEILING = 105;
 assert.ok(
   hex <= HEX_CEILING,
   `${String(hex)} hardcoded hex literals outside the art files, ceiling is ${String(HEX_CEILING)}. ` +

@@ -219,4 +219,4 @@ export function textOf(spec: PredictSpec): string[] {
  *   corporate-finance:4:4 and behavioral-finance:19:2: already carry a scene interactive, and a deck
  *     holds one interactive (placements.ts). corporate-finance:4:4's scene also says "the 15%".
  */
-export const PREDICT_PLACEMENTS = ['personal-finance:15:2', 'investing-fundamentals:4:3'] as const;
+export const PREDICT_PLACEMENTS = ['personal-finance:15:1', 'investing-fundamentals:4:2'] as const;

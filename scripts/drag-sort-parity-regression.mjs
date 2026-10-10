@@ -88,8 +88,8 @@ for (const [needle, message] of [
   ['The order that matters', 'full authored-order payoff disappeared'],
   ['AtlasCorrection', 'wrong answers must use the same Atlas correction treatment as production web'],
   ['SparkBurst', 'correct-answer reaction disappeared'],
-  ['NotificationFeedbackType.Success', 'correct haptic feedback disappeared'],
-  ['NotificationFeedbackType.Error', 'wrong haptic feedback disappeared'],
+  // Both verdicts go through lib/feedback: haptic, sound and (on a right answer) the confetti.
+  ["feedback(side === round?.correct ? 'correct' : 'wrong')", 'right/wrong haptic and sound feedback disappeared'],
   ['accessibilityLiveRegion="polite"', 'round feedback is not announced'],
   ['accessibilityRole="progressbar"', 'round progress is not exposed to assistive technology'],
   ['accessibilityState={{ selected: chosen, disabled: answered }}', 'answer state is not exposed to assistive technology'],

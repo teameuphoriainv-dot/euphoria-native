@@ -24,14 +24,23 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   'what-is-an-etf': { course: 'investing-fundamentals', num: 6 },
   'dollar-cost-averaging-explained': { course: 'investing-fundamentals', num: 8 },
   'build-your-first-investment-portfolio': { course: 'investing-fundamentals', num: 9 },
-  'employer-401k-match': { course: 'investing-fundamentals', num: 10 },
+  'what-is-a-401k-and-employer-match': { course: 'investing-fundamentals', num: 10 },
   'how-to-read-a-stock-quote': { course: 'investing-fundamentals', num: 11 },
-  'bull-vs-bear-markets': { course: 'investing-fundamentals', num: 16 },
+  'bull-and-bear-markets-explained': { course: 'investing-fundamentals', num: 16 },
   'capital-gains-tax-basics': { course: 'investing-fundamentals', num: 18 },
   'market-crashes-what-history-teaches': { course: 'investing-fundamentals', num: 23 },
   'investment-fees-explained': { course: 'investing-fundamentals', num: 20 },
   'target-date-funds-explained': { course: 'investing-fundamentals', num: 7 },
   'what-moves-a-stock-price': { course: 'investing-fundamentals', num: 22 },
+  'how-earnings-season-works': { course: 'investing-fundamentals', num: 22 },
+  'how-to-open-your-first-brokerage-account': { course: 'investing-fundamentals', num: 10 },
+  'mutual-funds-vs-etfs': { course: 'investing-fundamentals', num: 7 },
+  'what-are-dividends': { course: 'investing-fundamentals', num: 13 },
+  'the-behavior-gap': { course: 'investing-fundamentals', num: 19 },
+  'time-horizon-and-asset-allocation': { course: 'investing-fundamentals', num: 9 },
+  'apr-vs-apy-explained': { course: 'investing-fundamentals', num: 3 },
+  'what-is-market-cap': { course: 'investing-fundamentals', num: 1 },
+  'why-bond-yields-matter': { course: 'investing-fundamentals', num: 4 },
 
   // Personal Finance
   'first-paycheck-guide': { course: 'personal-finance', num: 1 },
@@ -45,18 +54,45 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   // balance, and there is no closer lesson. A duplicate target is better than no target, which
   // falls back to the demo lesson.
   'how-credit-cards-work': { course: 'personal-finance', num: 6 },
+  'traditional-vs-roth-explained': { course: 'personal-finance', num: 16 },
+  'bank-fees-and-how-to-avoid-them': { course: 'personal-finance', num: 9 },
+  'checking-vs-savings-accounts': { course: 'personal-finance', num: 9 },
+  'high-yield-savings-accounts-explained': { course: 'personal-finance', num: 9 },
+  'credit-utilization-explained': { course: 'personal-finance', num: 5 },
+  'how-to-build-credit-at-18': { course: 'personal-finance', num: 5 },
+  'how-to-read-your-credit-report': { course: 'personal-finance', num: 5 },
+  'car-loans-and-why-the-term-matters': { course: 'personal-finance', num: 6 },
+  'how-income-tax-actually-works': { course: 'personal-finance', num: 7 },
+  'how-to-read-a-pay-stub': { course: 'personal-finance', num: 7 },
+  'sinking-funds-explained': { course: 'personal-finance', num: 2 },
+  'why-your-subscriptions-keep-getting-more-expensive': { course: 'personal-finance', num: 3 },
+  'student-loan-repayment-explained': { course: 'personal-finance', num: 13 },
+  'the-student-loan-machine': { course: 'personal-finance', num: 13 },
+  'why-college-tuition-costs-what-it-does': { course: 'personal-finance', num: 13 },
+  'why-a-starter-home-costs-so-much': { course: 'personal-finance', num: 14 },
+  'w2-vs-1099-explained': { course: 'personal-finance', num: 17 },
+  'what-a-1099-job-really-pays': { course: 'personal-finance', num: 17 },
 
   // Global Economics
   'inflation-explained': { course: 'global-economics', num: 5 },
+  'what-the-federal-reserve-actually-does': { course: 'global-economics', num: 3 },
+  // both are demand meeting a supply that cannot grow fast enough, which is lesson 2's whole idea
+  'ai-data-centers-and-your-power-bill': { course: 'global-economics', num: 2 },
+  'the-used-car-price-shock': { course: 'global-economics', num: 2 },
+
+  // Corporate Finance
+  'what-is-an-ipo': { course: 'corporate-finance', num: 14 },
+
+  // Alternative Investments
+  'inside-the-sneaker-resale-market': { course: 'alternative-investments', num: 7 },
 
   /*
-   * APP-ONLY guides (web repo content/posts-app/). They exist in the app and not on the web
-   * site, so these four mappings have no counterpart there. Each targets a lesson that an
+   * APP-ONLY guides (`appOnly: true` in the web repo; they lived in content/posts-app/ until
+   * 2026-09-28). They exist in the app and not on the web site. Each targets a lesson that an
    * existing entry already points at, so the course/num pairs are known-good.
    */
   'carrying-a-balance-myth': { course: 'personal-finance', num: 5 },
   'the-cost-of-waiting-five-years': { course: 'investing-fundamentals', num: 3 },
-  'roth-vs-traditional': { course: 'personal-finance', num: 16 },
   'the-month-maya-did-nothing': { course: 'investing-fundamentals', num: 23 },
   'avalanche-vs-snowball': { course: 'personal-finance', num: 6 },
   'picking-stocks-myth': { course: 'investing-fundamentals', num: 5 },
@@ -64,6 +100,16 @@ export const GUIDE_LESSONS: Record<string, GuideLesson> = {
   'buy-now-pay-later': { course: 'personal-finance', num: 6 },
   'the-money-order-of-operations': { course: 'personal-finance', num: 4 },
   'lump-sum-vs-dca': { course: 'investing-fundamentals', num: 8 },
+};
+
+/**
+ * Guides with DELIBERATELY no lesson, each with the reason. The reader's closing CTA then reads
+ * "Keep learning" and opens the pathway (see digest/[slug].tsx), which is the honest answer for a
+ * post with no concept to practise. check-digest-lessons.mjs accepts a post listed here and
+ * fails any other post with no mapping, so "no lesson" is a decision, never an omission.
+ */
+export const NO_LESSON: Record<string, string> = {
+  'introducing-euphoria-mobile': 'A product announcement. There is no money concept in it to practise.',
 };
 
 export const lessonForGuide = (slug: string): GuideLesson | undefined => GUIDE_LESSONS[slug];

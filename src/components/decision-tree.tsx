@@ -4,7 +4,7 @@
  * The authored `next` index determines the branch. Feedback is shown before the learner moves,
  * then the finished result holds for production's 800ms before reporting path correctness.
  */
-import * as Haptics from '@/lib/haptics';
+import { feedback } from '@/lib/feedback';
 import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -31,7 +31,6 @@ import {
 } from '@/lib/decision-tree-model';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
-import { playSfx } from '@/lib/sfx';
 
 export type { DecisionTreeSpec } from '@/lib/decision-tree-model';
 
@@ -57,12 +56,7 @@ export function DecisionTree({ spec, onComplete }: { spec: DecisionTreeSpec; onC
     const option = decision.options[index];
     setChosen(index);
     if (!option.correct) setAllCorrect(false);
-    Haptics.notificationAsync(
-      option.correct
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Error,
-    );
-    playSfx(option.correct ? 'correct' : 'wrong');
+    feedback(option.correct ? 'correct' : 'wrong');
   };
 
   const move = () => {

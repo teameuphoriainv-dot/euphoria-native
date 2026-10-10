@@ -142,31 +142,46 @@ export const CAPTION_MAX_CHARS = 125;
 export const READ_MS_PER_CHAR = 50;
 
 /*
- * MOTION, MEASURED FROM THE BRILLIANT RECORDING (research2/brilliant-lessons.md M2, M3, M7; frames
- * in research2/frames/timing/). Literals, not imports from shared/motion/tokens.ts, because the pins
- * load this file under plain node where Reanimated cannot.
- *   ACTOR_ENTER_MS 280  one element arriving. Hilbert's pieces take 200-400ms each (hilbert.jpg);
- *                       280 is the app's Duration.base, so a scene and a card enter share a tempo.
- *   ACTOR_SLIDE_MS 400  a move across the stage, the top of that 200-400ms band because it travels.
- *   ACTOR_EXIT_MS  100  leaving. Their content exit is ~100ms (next.jpg f4, page_a.jpg f3).
- *   CAPTION_OUT/GAP/IN  100 / 100 / 200: the words swap the way their screens do, exit, a beat of
+ * MOTION. The first tempo was measured off the Brilliant recording (research2/brilliant-lessons.md
+ * M2, M3, M7; frames in research2/frames/timing/): 280ms entrances, 400ms slides, beats capped at
+ * 1.5s. On device that read as a flicker: most beats were over in one to three seconds and a teen
+ * saw a prop arrive rather than watched it act. Owner ruling 2026-09-24: the learn-part visuals
+ * run longer and animate more. So every value below is roughly twice the measured one, the cue
+ * offsets authored in SCENES are stretched by CUE_DELAY_SCALE instead of being rewritten one by
+ * one, and a `play` sprite runs its frames PLAY_FRAME_SCALE slower. The ratios between them are
+ * the measured ones, so the clip keeps Brilliant's rhythm at a calmer tempo. Literals, not imports
+ * from shared/motion/tokens.ts, because the pins load this file under plain node where Reanimated
+ * cannot.
+ *   ACTOR_ENTER_MS 600  one element arriving, with room to rise and settle onto its mark.
+ *   ACTOR_SLIDE_MS 1000 a move across the stage; the eye can follow it the whole way.
+ *   ACTOR_EXIT_MS  260  leaving. Still the quickest motion on stage: an exit is not the news.
+ *   CAPTION_OUT/GAP/IN  200 / 150 / 450: the words swap the way their screens do, exit, a beat of
  *                       empty, then fade in (M7, next.jpg f4-f8). Without the gap the old and new
  *                       sentence overlap for a frame and read as one garbled line.
- *   COPY_STAGGER_MS 100 one copy of a pile or tally after another. 160 (the first version) put a
- *                       ten-coin tally at 1.9s, past the clip budget; Brilliant stamps marks 40ms
- *                       apart, and 100 is the slowest rate that still lets the eye count to ten
- *                       inside a beat.
- *   BEAT_MOTION_MAX_MS 1500  equal to the clip kit's BEAT_MAX_MS (part-scene-pin asserts it): Koch's
- *                       steps sweep for 1.2-1.6s; longer and the learner waits on the picture.
+ *   COPY_STAGGER_MS 200 one copy of a pile or tally after another, slow enough to count along.
+ *   BEAT_MOTION_MAX_MS 3500  equal to the clip kit's BEAT_MAX_MS (part-scene-pin asserts it). Past
+ *                       this a beat stops being a picture the learner drives and becomes a video
+ *                       they wait on; Next is disabled for the whole of it.
  */
-export const ACTOR_ENTER_MS = 280;
-export const ACTOR_SLIDE_MS = 400;
-export const ACTOR_EXIT_MS = 100;
-export const CAPTION_OUT_MS = 100;
-export const CAPTION_GAP_MS = 100;
-export const CAPTION_IN_MS = 200;
-export const COPY_STAGGER_MS = 100;
-export const BEAT_MOTION_MAX_MS = 1500;
+export const ACTOR_ENTER_MS = 600;
+export const ACTOR_SLIDE_MS = 1000;
+export const ACTOR_EXIT_MS = 260;
+export const CAPTION_OUT_MS = 200;
+export const CAPTION_GAP_MS = 150;
+export const CAPTION_IN_MS = 450;
+export const COPY_STAGGER_MS = 200;
+export const BEAT_MOTION_MAX_MS = 3500;
+/** Authored `atMs` offsets were written against the first tempo; stretch them with the rest. */
+export const CUE_DELAY_SCALE = 2;
+/** A `play` sprite runs each frame this many times its authored length, so the action reads. */
+export const PLAY_FRAME_SCALE = 2;
+/**
+ * After a beat's cues land, the props they moved give one small swell (up to ACCENT_SCALE and back
+ * over ACCENT_MS) so the eye goes to what just changed. Each half is a monotonic timing, never a
+ * spring: a prop is not a character, so it gets no overshoot (AGENTS.md).
+ */
+export const ACCENT_MS = 700;
+export const ACCENT_SCALE = 1.08;
 /** A sprite's frames default to 120ms each (pixel/types.ts `frameMs`). */
 const DEFAULT_FRAME_MS = 120;
 
@@ -190,7 +205,7 @@ const DEFAULT_FRAME_MS = 120;
  */
 export const SCENES: Record<string, SceneScript> = {
   /* investingFundamentals.ts:782-796, "How Compound Interest Works". */
-  'investing-fundamentals:3:2': {
+  'investing-fundamentals:3:1': {
     slot: 'idea',
     guards: ['earning returns on your returns', 'doubles every 9 years', 'it is the mechanism'],
     beats: [
@@ -238,7 +253,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* investingFundamentals.ts:1257-1271, "Don't Put All Your Eggs in One Basket". */
-  'investing-fundamentals:5:2': {
+  'investing-fundamentals:5:1': {
     slot: 'idea',
     guards: ['one failure cannot sink you', 'move opposite', 'strangest thing in the world'],
     beats: [
@@ -281,7 +296,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts:4690-4708, inflation. */
-  'personal-finance:20:2': {
+  'personal-finance:20:1': {
     slot: 'idea',
     guards: ['Inflation is rising prices.', '72/3=24', '$41 worth of goods'],
     beats: [
@@ -331,7 +346,7 @@ export const SCENES: Record<string, SceneScript> = {
    * timeline interactive; the 92% fact that timeline carried is also on step 2 of the same lesson,
    * so nothing is lost from the lesson.
    */
-  'investing-fundamentals:20:4': {
+  'investing-fundamentals:20:3': {
     slot: 'interactive',
     guards: ['compound growth you lose', '$10,063 over 30 years', '$208,000 over 30 years'],
     beats: [
@@ -382,7 +397,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* corporateFinance.ts:2135-2136, hedging. The lesson has no hands-on step at all. */
-  'corporate-finance:9:2': {
+  'corporate-finance:9:1': {
     slot: 'idea',
     guards: ['spotting and reducing financial dangers', 'lock in a future price', 'fixed for floating'],
     beats: [
@@ -433,7 +448,7 @@ export const SCENES: Record<string, SceneScript> = {
    * first drew beat 4 as a count of 3; nothing authored says 3, so it is three different sprites
    * falling together instead.
    */
-  'financial-analytics:23:2': {
+  'financial-analytics:23:1': {
     slot: 'idea',
     guards: ['worst loss expected at a set confidence', '$25M ES', 'LTCM $4.6 billion'],
     beats: [
@@ -478,7 +493,7 @@ export const SCENES: Record<string, SceneScript> = {
    * (that a raise can lower take-home pay). The takeaway card already says "A raise moves only the
    * new dollars ...", so the last beat is the sentence after it instead.
    */
-  'personal-finance:7:2': {
+  'personal-finance:7:1': {
     slot: 'idea',
     guards: ['Brackets are marginal', 'a 12.1% effective rate', 'earning more takes home less'],
     beats: [
@@ -524,7 +539,7 @@ export const SCENES: Record<string, SceneScript> = {
    * version kept only the second half, which opened the clip on a lowercase "people want ..." and
    * never named the effect the scene is about (the term card naming it comes after the scene).
    */
-  'behavioral-finance:19:2': {
+  'behavioral-finance:19:1': {
     slot: 'idea',
     guards: ['endowment effect in 1980', 'losses hurt 2-2.5x', 'own what you happen to have'],
     beats: [
@@ -569,7 +584,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* businessStrategy.ts, "Platform Business Models". The lesson has no hands-on step. */
-  'business-strategy:20:2': {
+  'business-strategy:20:1': {
     slot: 'idea',
     guards: ['connect two sides and take a cut', 'Uber needed riders and drivers', 'Rivals only win by being different'],
     beats: [
@@ -614,7 +629,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts, "Financial Independence & Early Retirement: Annual Expenses x 25". */
-  'personal-finance:23:2': {
+  'personal-finance:23:1': {
     slot: 'idea',
     guards: ['Trinity Study', 'expenses × 25 = your number', 'two things at once'],
     beats: [
@@ -667,7 +682,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* globalEconomics.ts, "Economic Bubbles & Financial Crises". One hands-on step in the lesson. */
-  'global-economics:21:2': {
+  'global-economics:21:1': {
     slot: 'idea',
     guards: ['tulips 1637', "Hyman Minsky's cycle", 'owing more than the house was worth'],
     beats: [
@@ -719,7 +734,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* corporateFinance.ts, "Capital Structure: Debt vs. Equity". The lesson has no hands-on step. */
-  'corporate-finance:4:4': {
+  'corporate-finance:4:3': {
     slot: 'idea',
     guards: ['Debt is the cheaper option.', 'is called dilution', 'the 5% is still due when sales collapse'],
     beats: [
@@ -766,7 +781,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* behavioralFinance.ts, "Behavioral Economics in Everyday Life". No hands-on step. */
-  'behavioral-finance:23:2': {
+  'behavioral-finance:23:1': {
     slot: 'idea',
     guards: ['the first price you see sets what feels normal', 'J.C. Penney scrapped fake sales', 'naming the first number'],
     beats: [
@@ -815,7 +830,7 @@ export const SCENES: Record<string, SceneScript> = {
   },
 
   /* personalFinance.ts, "Managing Debt Wisely: Good Debt vs. Bad Debt". */
-  'personal-finance:6:2': {
+  'personal-finance:6:1': {
     slot: 'idea',
     guards: ['Good debt buys assets', 'Payday loans hit 400% APR', 'grows faster than the interest eats'],
     beats: [
@@ -900,6 +915,16 @@ export function resolveActorSprite(key: string): PixelSprite | null {
 
 /* ── TIMING ──────────────────────────────────────────────────────────────────────────────────── */
 
+/** When a cue starts inside its beat: the authored offset at the current tempo. */
+export function cueDelayMs(cue: SceneCue): number {
+  return (cue.atMs ?? 0) * CUE_DELAY_SCALE;
+}
+
+/** One frame of a `play` cue's sprite, slowed by PLAY_FRAME_SCALE. */
+export function playFrameMs(sprite: PixelSprite | undefined | null): number {
+  return (sprite?.frameMs ?? DEFAULT_FRAME_MS) * PLAY_FRAME_SCALE;
+}
+
 /** How long one cue moves, from its own start. `play` runs every frame of the sprite once. */
 export function cueMotionMs(cue: SceneCue): number {
   switch (cue.do) {
@@ -913,7 +938,7 @@ export function cueMotionMs(cue: SceneCue): number {
     case 'play': {
       const sprite = resolveActorSprite(cue.actor);
       const frames = sprite?.frames?.length ?? 0;
-      return Math.max(ACTOR_ENTER_MS, frames * (sprite?.frameMs ?? DEFAULT_FRAME_MS));
+      return Math.max(ACTOR_ENTER_MS, frames * playFrameMs(sprite));
     }
     default:
       return ACTOR_ENTER_MS;
@@ -926,7 +951,7 @@ export function cueMotionMs(cue: SceneCue): number {
  * beat for this plus a gap, or the caption's reading time, whichever is longer.
  */
 export function sceneMotionMs(beat: SceneBeat): number {
-  return beat.cast.reduce((m, c) => Math.max(m, (c.atMs ?? 0) + cueMotionMs(c)), 0);
+  return beat.cast.reduce((m, c) => Math.max(m, cueDelayMs(c) + cueMotionMs(c)), 0);
 }
 
 /**

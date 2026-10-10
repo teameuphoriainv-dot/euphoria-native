@@ -115,9 +115,15 @@ for (const consumer of ['<PremiumBenefits tight={paywallTight} />', 'tight={payw
 // would push the legal links off a screen that is not allowed to scroll (5.3). So the target is
 // bought with `hitSlop`, upwards, into the renewal-terms line, which takes no taps.
 //
-// UPWARDS IS THE WHOLE POINT and this pin holds that too: each legal link carries hitSlop top 13
-// and the legal row renders after the dismiss, so a downward slop would hand taps in the shared
-// band to Terms. A `bottom` here is therefore a defect, not a bonus.
+// UPWARDS IS THE WHOLE POINT and this pin holds that too: the legal row renders after the dismiss,
+// so a downward slop here would hand taps in the shared band to the links. A `bottom` here is
+// therefore a defect, not a bonus.
+//
+// AND THE LINKS MAY NOT REACH UP. Each legal link used to carry hitSlop top 13, which put the lower
+// half of "Maybe later" inside Privacy's hit box (the centre link, directly under the centred
+// dismiss). The owner reported taps on Maybe later opening the privacy policy (2026-09-30). The
+// links buy their 44pt below the row instead; a `top` over 4 here is the same defect from the
+// other side.
 const dismiss = /<SpringPressable\b[^>]*accessibilityLabel="Maybe later">/s.exec(
   onboarding.slice(onboarding.indexOf('onPress={dismissPaywall}') - 400, onboarding.indexOf('styles.legalRow')),
 );
@@ -135,5 +141,13 @@ assert.doesNotMatch(
   /\bbottom\b/,
   'Maybe later\'s hitSlop reaches DOWN into the legal row, whose links render later and carry hitSlop top 13; taps in that band would open Terms instead of dismissing',
 );
+
+const legalRow = onboarding.slice(onboarding.indexOf('styles.legalRow'), onboarding.indexOf('styles.legalRow') + 2400);
+const linkSlops = [...legalRow.matchAll(/hitSlop=\{\{([^}]*)\}\}/g)].map((m) => m[1]);
+assert.equal(linkSlops.length, 3, `expected the three legal links (Terms, Privacy, Restore) to carry a hitSlop, found ${String(linkSlops.length)}`);
+for (const l of linkSlops) {
+  const top = /(?:^|[,{\s])top:\s*(\d+)/.exec(l);
+  assert.ok(!top || Number(top[1]) <= 4, `a legal link's hitSlop top is ${top?.[1] ?? '?'}pt; over 4 it reaches into "Maybe later" and a dismiss tap opens a legal page`);
+}
 
 console.log(`PASS - paywall body is content-sized, the CTA follows it, every text is capped at ${String(cap)}x, and the dismiss is a 44pt target.`);

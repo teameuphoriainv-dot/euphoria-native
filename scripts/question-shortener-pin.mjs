@@ -171,7 +171,8 @@ const byId = new Map();
 
 for (const course of wrapped.COURSES) {
   const W = await wrapped.loadCourseLessons(course.id);
-  const R = await raw.loadCourseLessons(course.id);
+  // Capped like the phone (withCappedPractice, 2026-10-01) so W and R stay index-aligned.
+  const R = (await raw.loadCourseLessons(course.id)).map((l) => ({ ...l, steps: wrapped.withCappedPractice(l.steps) }));
   W.forEach((lesson, li) => lesson.steps.forEach((step, si) => {
     const id = `${course.id}:L${lesson.num}:s${si}`;
     const rs = R[li]?.steps?.[si];
@@ -216,20 +217,26 @@ for (const course of wrapped.COURSES) {
   }));
 }
 
-/* The named cases from the A1 acceptance, checked by id so a corpus edit cannot hide them. */
+/* The named cases from the A1 acceptance, checked by id so a corpus edit cannot hide them.
+ * Step indices are NATIVE positions: one lower than at acceptance since 2026-09-30, when the
+ * `stakesCard` step (position 1 in every lesson) was retired at the loader (courseIndex.ts). */
 const named = [];
 const at = (id) => byId.get(id);
 {
-  const q = at('investing-fundamentals:L3:s13');
-  if (!q || q.opts[q.correct] !== q.ropts[q.correct]) named.push(`investing-fundamentals:L3:s13 correct option is not the authored text: "${q?.opts[q?.correct]}"`);
+  // Checked on the SHORTENER, not by id: the phone's practice cap (2026-10-01) cuts this question
+  // (the lesson's second quiz), but the acceptance is about shortenOptions and still holds for it.
+  const rl = (await raw.loadCourseLessons('investing-fundamentals')).find((l) => l.num === 3);
+  const rs = rl?.steps?.find((st) => typeof st.question === 'string' && st.question.startsWith('Your friend Sarah is 28.'));
+  const shown = rs ? question.shortenOptions(rs.options, rs.correct ?? 0) : null;
+  if (!rs || !shown || shown[rs.correct ?? 0] !== rs.options[rs.correct ?? 0]) named.push(`investing-fundamentals:L3 Sarah question: correct option is not the authored text: "${shown?.[rs?.correct ?? 0]}"`);
 }
 {
-  const q = at('investing-fundamentals:L6:s3');
-  if (!q || !q.prompt.includes('1.0%') || !q.prompt.includes('0.03%')) named.push(`investing-fundamentals:L6:s3 prompt lost an expense ratio: "${q?.prompt}"`);
+  const q = at('investing-fundamentals:L6:s2');
+  if (!q || !q.prompt.includes('1.0%') || !q.prompt.includes('0.03%')) named.push(`investing-fundamentals:L6:s2 prompt lost an expense ratio: "${q?.prompt}"`);
 }
 {
-  const q = at('corporate-finance:L2:s7');
-  if (!q || !q.prompt.includes('$350')) named.push(`corporate-finance:L2:s7 prompt lost the $350 price: "${q?.prompt}"`);
+  const q = at('corporate-finance:L2:s6');
+  if (!q || !q.prompt.includes('$350')) named.push(`corporate-finance:L2:s6 prompt lost the $350 price: "${q?.prompt}"`);
 }
 {
   const lessons = await raw.loadCourseLessons('investing-fundamentals');

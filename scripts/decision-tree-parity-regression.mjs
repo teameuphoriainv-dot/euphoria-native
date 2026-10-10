@@ -18,7 +18,9 @@ const {
 
 const [lesson] = await loadCourseLessons('investing-fundamentals');
 const screenIndex = lesson.steps.findIndex((step) => step.type === 'decisionTree');
-assert.equal(screenIndex, 16, 'IF1 decision tree must remain authored screen 17');
+// Authored screen 17 on web; 16 here since 2026-09-30, when `stakesCard` (authored screen 2) was
+// retired at the loader (courseIndex.ts). Every lesson's screens after position 1 shifted by one.
+assert.equal(screenIndex, 15, 'IF1 decision tree must remain authored screen 17, i.e. native screen 16 with the stakes card retired');
 
 const tree = lesson.steps[screenIndex];
 assert.equal(tree.type, 'decisionTree');
@@ -50,7 +52,8 @@ for (const required of [
   'translateX: -30',
   'scale: 0.9',
   'scale: 0.6',
-  "Haptics.NotificationFeedbackType.Error",
+  // Right and wrong now go through the shared lib/feedback vocabulary (haptic + sound + confetti).
+  "feedback(option.correct ? 'correct' : 'wrong')",
   "Good effort. Review the feedback you saw along the way.",
   'DECISION_TREE_RESULT_HOLD_MS',
   'decisionTreeCompletion(allCorrect, selected)',

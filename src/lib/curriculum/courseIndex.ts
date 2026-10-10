@@ -52,7 +52,38 @@ export function getCourseById(id: string): CourseMeta | undefined {
  * through, so the lesson viewer, the dev preview's step counter and saved
  * progress all agree on how long a lesson is.
  */
-const RETIRED_STEP_TYPES = new Set(['caseStudy', 'misconceptions', 'simulationFinale', 'summaryCards', 'whatsNext']);
+const RETIRED_STEP_TYPES = new Set(['caseStudy', 'misconceptions', 'simulationFinale', 'summaryCards', 'whatsNext', 'stakesCard']);
+
+/*
+ * `stakesCard` RETIRED 2026-09-30, its art kept. The owner, on the "Why This Matters" screen of a
+ * first lesson: "so confusing for someone's first lesson, this step doesn't even add any value,
+ * drop it", then "use the visuals for other stuff". Measured over the corpus before the change:
+ * 300 stakes cards, every one at position 1, 298 carrying a `withVisual`, and every one followed
+ * by a teaching slide. So the fold below hands each card's "with" visual (its point, the positive
+ * side) to the teaching slide after it as `stakesVisual`, and the mobile deck for that slide
+ * (mobile-lesson/derive.ts) shows it as one more chart card. The "without" visual is the fallback
+ * for a card with no "with"; a card with neither has nothing to keep.
+ *
+ * Folded here, before the retire filter, because this is the same choke point: every consumer
+ * sees the slide already carrying the visual, and the retired step count stays honest.
+ */
+const withStakesFolded = (steps: PathwayLesson['steps']): PathwayLesson['steps'] => {
+  const out = [...steps];
+  steps.forEach((s, i) => {
+    if (s.type !== 'stakesCard') return;
+    const visual = s.withVisual ?? s.withoutVisual;
+    // Two of the 300 carry raw SVG art instead of a visual; the "with" side is kept the same way.
+    const svg = !visual && typeof s.withSvg === 'string' && s.withSvg.trim() ? s.withSvg : undefined;
+    if (!visual && !svg) return;
+    let at = out.findIndex((x, j) => j > i && x.type === 'teachingSlide');
+    if (at < 0) at = out.findLastIndex((x, j) => j < i && x.type === 'teachingSlide');
+    if (at < 0) return;
+    const slide = out[at];
+    if (slide.type !== 'teachingSlide' || slide.stakesVisual || slide.stakesSvg) return;
+    out[at] = visual ? { ...slide, stakesVisual: visual } : { ...slide, stakesSvg: svg };
+  });
+  return out;
+};
 
 /**
  * Drop a match step that is really just the vocabulary again.
@@ -88,7 +119,7 @@ const withoutDuplicateMatch = (lessons: PathwayLesson[]): PathwayLesson[] =>
 
 const withoutRetiredSteps = (lessons: PathwayLesson[]): PathwayLesson[] =>
   lessons.map((l) => {
-    const steps = l.steps.filter((s) => !RETIRED_STEP_TYPES.has(s.type));
+    const steps = withStakesFolded(l.steps).filter((s) => !RETIRED_STEP_TYPES.has(s.type));
     return steps.length === l.steps.length ? l : { ...l, steps };
   });
 

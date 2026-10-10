@@ -98,14 +98,33 @@ export function AskAtlasButton({ topic, context }: { topic?: string; context?: A
 /** The web lesson mascot is a floating tutor, not another item squeezed into the progress header.
  * It speaks only at the same three useful moments, after the step has had 1.2s to settle. Reusing
  * AtlasSpeech keeps the verified pop and typewriter behavior consistent with onboarding. */
-export function LessonAtlasButton({ context }: { topic: string; context: AtlasLessonContext }) {
+export function LessonAtlasButton({
+  context,
+  hidden = false,
+  openKey = 0,
+}: {
+  topic: string;
+  context: AtlasLessonContext;
+  /** The step already shows Atlas (lesson-atlas-presence), so the float draws nothing. It stays
+   *  mounted so that Atlas can still open this sheet: one mascot, same tutor. */
+  hidden?: boolean;
+  /** Bump to open the tutor sheet from outside, i.e. a tap on the in-content Atlas. */
+  openKey?: number;
+}) {
   const [sheetOpen, setSheetOpen] = useState(false);
+  // A new openKey opens the sheet. Adjusted during render (React's "storing information from
+  // previous renders" pattern), not in an effect, so the sheet opens on the same commit as the tap.
+  const [seenOpenKey, setSeenOpenKey] = useState(openKey);
+  if (openKey !== seenOpenKey) {
+    setSeenOpenKey(openKey);
+    setSheetOpen(true);
+  }
   const [speechCycle, setSpeechCycle] = useState(0);
   const [hiddenPromptKey, setHiddenPromptKey] = useState<string | null>(null);
   const says = lessonAtlasProactivePrompt(context);
   const contextKey = lessonAtlasContextKey(context);
   const promptKey = `${contextKey}:${String(context.attempt.attempted)}:${String(context.attempt.wasCorrect)}:${String(context.recentMistakes.length)}:${String(speechCycle)}`;
-  const promptVisible = Boolean(says) && !sheetOpen && hiddenPromptKey !== promptKey;
+  const promptVisible = !hidden && Boolean(says) && !sheetOpen && hiddenPromptKey !== promptKey;
 
   useEffect(() => {
     if (!promptVisible) return;
@@ -133,14 +152,16 @@ export function LessonAtlasButton({ context }: { topic: string; context: AtlasLe
           />
         </View>
       ) : null}
-      <Atlas
-        size={52}
-        expression={promptVisible ? 'happy' : 'watching'}
-        interactive
-        onPress={() => setSheetOpen(true)}
-        accessibilityLabel={`Ask Atlas about step ${String(context.step.index + 1)} of ${context.lessonTitle}`}
-        accessibilityHint="Opens a tutor grounded in the current lesson step"
-      />
+      {hidden ? null : (
+        <Atlas
+          size={52}
+          expression={promptVisible ? 'happy' : 'watching'}
+          interactive
+          onPress={() => setSheetOpen(true)}
+          accessibilityLabel={`Ask Atlas about step ${String(context.step.index + 1)} of ${context.lessonTitle}`}
+          accessibilityHint="Opens a tutor grounded in the current lesson step"
+        />
+      )}
       <LessonAtlasSheet
         key={contextKey}
         context={context}

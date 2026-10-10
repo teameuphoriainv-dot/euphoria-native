@@ -37,9 +37,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
-import { AtlasSpeech } from '@/components/atlas-speech';
 import { LessonArt } from '@/components/lesson-art';
 import { PathNode } from '@/components/path-node';
+import { PixelBeam } from '@/components/pixel-beam';
 import { ThemedText } from '@/components/themed-text';
 import { SlabButton } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -119,58 +119,67 @@ export default function Start() {
     router.replace('/(tabs)/home');
   };
 
+  const guide = lesson === null;
+
   return (
     <SafeAreaView style={styles.safe}>
       <AmbientBackground starCount={40} />
       <View style={styles.content}>
+        {/*
+         * REBUILT 2026-09-30 (owner: "this page needs UI work"). It was Atlas, a bubble, a card and
+         * a button, four things in a column with nothing joining them. Now it is the path itself:
+         * the same node-beam-Atlas composition the reveal and lesson-complete use, node 1 lit in
+         * the course accent with the beam rising out of it into Atlas, so "this is where your
+         * path starts" is DRAWN rather than typed in a bubble. The bubble is gone (one text block,
+         * not two, per the owner on the onboarding screens); the title says it.
+         */}
         <RiseIn>
-          <View style={styles.head}>
-            <Atlas size={92} expression="happy" interactive={false} entrance="bounce" idle />
+          <View style={styles.stage} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+            {lesson ? (
+              <View style={styles.beam}>
+                <PixelBeam bands={5} baseWidth={28} step={8} height={BEAM_H} order="up" delay={150} stagger={50} />
+              </View>
+            ) : null}
+            {lesson ? (
+              <View style={styles.node}>
+                <PathNode state="done" size={NODE} label={String(lesson.num)} doneColor={accent} accessibilityLabel={`Lesson ${String(lesson.num)}`} />
+              </View>
+            ) : null}
+            <View style={styles.atlas}>
+              <Atlas size={ATLAS} expression="happy" interactive={false} entrance="bounce" idle />
+            </View>
           </View>
         </RiseIn>
 
         <RiseIn delay={120}>
-          <View style={styles.bubble}>
-            {/* WAS "Your plan is ready. Start the first lesson, ..." The reveal two screens back
-                already said "Your path is ready" and the paywall sat between them, so the learner
-                heard the same sentence twice in one flow (CONSTITUTION 5.1, say a thing once).
-                This line points at the node below instead of announcing the plan again. */}
-            <AtlasSpeech
-              text={lesson === null ? "Here's a guide to start with. Atlas will show you what to practice after." : 'This is where your path starts. Atlas will show you what to practice after.'}
-              delay={260}
-              tail="top"
-            />
-          </View>
+          <ThemedText type="display" style={styles.headline}>
+            {guide ? "Start with today's guide" : 'Your path starts here'}
+          </ThemedText>
+          <ThemedText type="body" themeColor="mutedForeground" style={styles.sub}>
+            {guide
+              ? 'Atlas will show you what to practice after.'
+              : 'Atlas walks you through it, one idea at a time.'}
+          </ThemedText>
         </RiseIn>
 
         <RiseIn delay={320}>
           {lesson ? (
             /*
-             * THE SAME OBJECTS AS THE REVEAL, not a plain Card. The reveal drew node 1 in this
-             * course's accent with Atlas rising out of it, and the lead course row with its
-             * LessonArt mark (onboarding-parts.tsx, RevealPedestal and PlanRevealStep). A grey
-             * Card here was a third, unrelated shape for the same course, so the path the learner
-             * was just shown stopped being visibly the path they are now starting. The node label
-             * is the real lesson number, which for a new learner is the '1' the reveal showed.
-             * LessonArt is keyed by COURSE title, exactly as the reveal keys it, so the mark
-             * matches; keying it by lesson title would draw a different sprite for the same row.
+             * THE SAME OBJECTS AS THE REVEAL, not a plain Card: the course accent tint and border
+             * (planRowLead), the LessonArt mark keyed by COURSE title exactly as the reveal keys
+             * it, so the row the learner was just shown is visibly the row they are starting.
              */
             <View style={[styles.lead, { backgroundColor: `${accent}14`, borderColor: `${accent}59` }]}>
-              <View style={styles.leadTop}>
-                <View accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-                  <PathNode state="done" size={56} label={String(lesson.num)} doneColor={accent} accessibilityLabel={`Lesson ${String(lesson.num)}`} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <ThemedText type="label" style={{ color: accent }}>
-                    {`LESSON ${String(lesson.num)} · ${(course?.title ?? '').toUpperCase()}`}
-                  </ThemedText>
-                  <ThemedText type="title" style={styles.title}>{lesson.title}</ThemedText>
-                </View>
-                <LessonArt courseId={activeCourseId} title={course?.title ?? lesson.title} index={0} size={48} />
+              <LessonArt courseId={activeCourseId} title={course?.title ?? lesson.title} index={0} size={56} />
+              <View style={styles.leadText}>
+                <ThemedText type="label" style={{ color: accent }}>
+                  {`LESSON ${String(lesson.num)} · ${(course?.title ?? '').toUpperCase()}`}
+                </ThemedText>
+                <ThemedText type="title" style={styles.title}>{lesson.title}</ThemedText>
+                <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
+                  {`${String(lesson.xp)} XP`}
+                </ThemedText>
               </View>
-              <ThemedText type="small" themeColor="mutedForeground" style={styles.mins}>
-                {`${String(lesson.xp)} XP`}
-              </ThemedText>
             </View>
           ) : lesson === undefined ? null : (
             // Fallback only (course failed to load or every lesson is done): a guide is not a
@@ -193,8 +202,8 @@ export default function Start() {
 
       <View style={styles.footer}>
         <RiseIn delay={420}>
-          <SlabButton label={lesson === null ? "Read today's guide" : 'Start your first lesson'} loading={lesson === undefined} full onPress={begin} />
-          <SpringPressable haptic={false} onPress={later} style={styles.later}>
+          <SlabButton label={guide ? "Read today's guide" : 'Start your first lesson'} loading={lesson === undefined} full onPress={begin} />
+          <SpringPressable haptic={false} onPress={later} style={styles.later} accessibilityRole="button" accessibilityLabel="Maybe later">
             <ThemedText type="bodyMedium" themeColor="mutedForeground">Maybe later</ThemedText>
           </SpringPressable>
         </RiseIn>
@@ -203,19 +212,33 @@ export default function Start() {
   );
 }
 
+/* ── stage geometry: Atlas, the beam whose top tucks behind his base, the node its bottom tucks
+ * behind. Fixed numbers, as on lesson-complete, so the beam always touches both ends. ── */
+const ATLAS = 96;
+const ATLAS_H = Math.round(ATLAS * 1.04);
+const BEAM_H = 64;
+const NODE = 52;
+const BEAM_TOP = ATLAS_H - 22;
+const NODE_TOP = BEAM_TOP + BEAM_H - 26;
+const STAGE_H = NODE_TOP + NODE + 6;
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
-  content: { flex: 1, justifyContent: 'center', paddingHorizontal: Spacing.four, gap: Spacing.two },
-  head: { alignItems: 'center' },
-  bubble: { alignItems: 'center', marginTop: Spacing.three, marginBottom: Spacing.three },
+  content: { flex: 1, justifyContent: 'center', paddingHorizontal: Spacing.four, gap: Spacing.three },
+  stage: { height: STAGE_H, width: '100%', alignItems: 'center' },
+  beam: { position: 'absolute', top: BEAM_TOP, alignItems: 'center' },
+  node: { position: 'absolute', top: NODE_TOP },
+  atlas: { position: 'absolute', top: 0 },
+  headline: { textAlign: 'center' },
+  sub: { textAlign: 'center', marginTop: Spacing.two, paddingHorizontal: Spacing.four, lineHeight: 22 },
   card: { gap: 6 },
   // Same tint and border alphas as the reveal's lead row (planRowLead), so it reads as that row.
-  lead: { padding: Spacing.three, borderRadius: Radius.lg, borderWidth: 1, gap: 6 },
-  // 6pt of bottom room: PathNode draws its 4pt lip below the face, outside its own box.
-  leadTop: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, paddingBottom: 6 },
+  lead: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, padding: Spacing.three, borderRadius: Radius.lg, borderWidth: 1 },
+  leadText: { flex: 1 },
   title: { fontSize: FontSize.titleSm, marginTop: 2 },
   excerpt: { lineHeight: 22 },
-  mins: { marginTop: Spacing.two },
+  mins: { marginTop: Spacing.one },
   footer: { paddingHorizontal: Spacing.four, paddingBottom: Spacing.four },
-  later: { alignItems: 'center', paddingVertical: Spacing.three },
+  // 44pt target: 22 of line plus 11 each side.
+  later: { alignItems: 'center', paddingVertical: 11, marginTop: Spacing.one },
 });

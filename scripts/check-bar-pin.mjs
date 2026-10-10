@@ -42,7 +42,11 @@ const failures = [];
 const check = (ok, msg) => { if (!ok) failures.push(msg); };
 
 const L = await imported('src/lib/answer-layout.ts');
-const { loadCourseLessons } = await imported('src/lib/curriculum/index.ts');
+// The named fixtures are looked up in the corpus with the phone's question shortening applied, not
+// in the wrapped loader: the phone caps practice at five screens (withCappedPractice, 2026-10-01)
+// and two of these questions are now cut there. Their layout is still the contract under test.
+const { loadCourseLessons } = await imported('src/lib/curriculum/courseIndex.ts');
+const { withShorterQuestions } = await imported('src/lib/curriculum/index.ts');
 const { normalizeStep } = await imported('src/lib/lesson-steps.ts');
 
 // ---- 1. layout fixtures, on the wrapped loader -----------------------------------------------------
@@ -51,8 +55,8 @@ const { normalizeStep } = await imported('src/lib/lesson-steps.ts');
 async function choicesIn(courseId) {
   const out = [];
   for (const lesson of await loadCourseLessons(courseId)) {
-    lesson.steps.forEach((step, i) => {
-      if (step.type === 'mobileDeck') return;
+    lesson.steps.map((s) => (s.type === 'teachingSlide' || s.type === 'interactiveGraph' ? s : withShorterQuestions(s))).forEach((step, i) => {
+      if (step.type === 'mobileDeck' || step.type === 'teachingSlide' || step.type === 'interactiveGraph') return;
       let norm;
       try { norm = normalizeStep(step); } catch { return; }
       if (norm.kind === 'choice') out.push({ at: `${courseId}:${lesson.num}:${i}`, prompt: norm.prompt, options: norm.options });

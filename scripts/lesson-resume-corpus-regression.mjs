@@ -39,8 +39,10 @@ import assert from 'node:assert/strict';
  * pointer is written by lesson.tsx, which loads `@/lib/curriculum`. Testing the web shape here
  * would have been testing a lesson the runner never sees.
  */
+// The phone caps practice at five screens (curriculum/index.ts, withCappedPractice, 2026-10-01),
+// so the web shape is compared WITH the same cap; everything else here is unchanged.
 import { COURSES, loadCourseLessons as loadWebShape } from '../src/lib/curriculum/courseIndex.ts';
-import { loadCourseLessons } from '../src/lib/curriculum/index.ts';
+import { loadCourseLessons, withCappedPractice } from '../src/lib/curriculum/index.ts';
 import { expandSteps, expandedStepIdentities } from '../src/lib/lesson-steps.ts';
 import { hasMasteryChallenge } from '../src/lib/mastery-challenge-model.ts';
 import {
@@ -144,7 +146,7 @@ const lengthDrift = [];
 
 for (const course of COURSES) {
   const native = await loadCourseLessons(course.id);
-  const web = await loadWebShape(course.id);
+  const web = (await loadWebShape(course.id)).map((l) => ({ ...l, steps: withCappedPractice(l.steps) }));
   for (const lesson of native) {
     lessons += 1;
     const key = `${course.id}:${String(lesson.num)}`;

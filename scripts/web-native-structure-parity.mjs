@@ -26,11 +26,15 @@ import assert from 'node:assert/strict';
 /** The authored corpus, exactly as the web player receives it. */
 import { COURSES, loadCourseLessons as loadWeb } from '../src/lib/curriculum/courseIndex.ts';
 /** What the iOS app receives, decks and all. */
-import { loadCourseLessons as loadNative } from '../src/lib/curriculum/index.ts';
+// The phone caps practice at five screens (curriculum/index.ts, withCappedPractice, 2026-10-01),
+// so the web shape is compared WITH the same cap; everything else here is unchanged.
+import { loadCourseLessons as loadNative, withCappedPractice } from '../src/lib/curriculum/index.ts';
 import { expandSteps } from '../src/lib/lesson-steps.ts';
 
 const EXPECTED_LESSONS = 300;
-const EXPECTED_SCREENS = 4050;
+/** 4050 authored, less the 300 `stakesCard` steps retired at the loader on 2026-09-30 (one per lesson),
+ *  less the 842 practice screens the phone's five-screen cap removes (withCappedPractice, 2026-10-01). */
+const EXPECTED_SCREENS = 2908;
 /** teachingSlide 432 + interactiveGraph 289, measured over the 12 synced courses. */
 const EXPECTED_SUBSTITUTIONS = 721;
 const SUBSTITUTED = new Set(['teachingSlide', 'interactiveGraph']);
@@ -57,7 +61,7 @@ for (const course of COURSES) {
 
   for (let li = 0; li < webLessons.length; li += 1) {
     lessons += 1;
-    const web = expandSteps(webLessons[li].steps ?? []);
+    const web = expandSteps(withCappedPractice(webLessons[li].steps ?? []));
     const native = expandSteps(nativeLessons[li].steps ?? []);
     const title = webLessons[li].title;
 

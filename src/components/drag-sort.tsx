@@ -1,5 +1,5 @@
 /** Production 49e dragSort: adjacent head-to-head calls, then the authored full order. */
-import * as Haptics from '@/lib/haptics';
+import { feedback } from '@/lib/feedback';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeInDown, FadeInRight, useReducedMotion } from 'react-native-reanimated';
 
@@ -23,7 +23,6 @@ import {
 } from '@/lib/drag-sort-model';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { Duration } from '@/shared/motion/tokens';
-import { playSfx } from '@/lib/sfx';
 
 export function DragSort({ spec, onComplete }: { spec: DragSortSpec; onComplete: (passed: boolean) => void }) {
   const theme = useTheme();
@@ -38,12 +37,7 @@ export function DragSort({ spec, onComplete }: { spec: DragSortSpec; onComplete:
     const next = answerDragSort(flow, rounds, side);
     if (next === flow) return;
     setFlow(next);
-    Haptics.notificationAsync(
-      side === round?.correct
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Error,
-    );
-    playSfx(side === round?.correct ? 'correct' : 'wrong');
+    feedback(side === round?.correct ? 'correct' : 'wrong');
   };
 
   const nextRound = () => setFlow((current) => advanceDragSort(current, rounds.length));

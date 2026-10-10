@@ -1,4 +1,4 @@
-import * as Haptics from '@/lib/haptics';
+import { feedback as answerFeedback } from '@/lib/feedback';
 import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
@@ -68,11 +68,7 @@ export function TrueFalseSequence({
     const next = answerTrueFalse(flow, spec.statements, { visibleIndex: flow.index, value });
     if (next === flow) return;
     setFlow(next);
-    Haptics.notificationAsync(
-      next.lastCorrect
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Error,
-    );
+    answerFeedback(next.lastCorrect ? 'correct' : 'wrong');
   };
 
   const nextStatement = () => {

@@ -27,7 +27,8 @@ for (const course of COURSES) {
       assert.equal(normalized.spec.unit, step.unit, `${course.id} L${String(lesson.num)} S${String(index + 1)} lost its unit`);
       assert.equal(normalized.spec.explanation, step.explanation, `${course.id} L${String(lesson.num)} S${String(index + 1)} lost authored feedback`);
 
-      if (course.id === 'investing-fundamentals' && lesson.num === 1 && index === 14) {
+      // Native index 13 since 2026-09-30 (authored slide 15): the stakesCard at position 1 was retired at the loader.
+      if (course.id === 'investing-fundamentals' && lesson.num === 1 && index === 13) {
         investingLessonOneSlider = normalized.spec;
       }
     }
@@ -68,8 +69,17 @@ assert.equal(lockedValue, 8, 'a submitted slider can still change');
 assert.equal(model.changeNumberLineValue(8, 15, false, investingLessonOneSlider), 15, 'an unsubmitted slider cannot change continuously');
 assert.equal(model.numberLinePassed(11, investingLessonOneSlider), true, 'the production 15% band rejected a close IF1 answer');
 assert.equal(model.numberLinePassed(12, investingLessonOneSlider), false, 'the production 15% band accepted a distant IF1 answer');
-assert.equal(model.numberLineDisplayValue(12, false, investingLessonOneSlider), 12, 'the pre-reveal answer changed unexpectedly');
-assert.equal(model.numberLineDisplayValue(12, true, investingLessonOneSlider), 9, 'the reveal did not snap to the authored answer');
+// DIVERGES FROM WEB ON PURPOSE (owner, 2026-09-28): the reveal no longer snaps the thumb and the
+// readout to the authored answer. Snapping erased the learner's guess and made a wrong $25 read as
+// a right $37 marked wrong. The submission stays on screen; the answer gets its own marker.
+assert.equal(model.numberLineDisplayValue, undefined, 'the reveal-snap helper came back');
+{
+  const { readFileSync } = await import('node:fs');
+  const lineSource = readFileSync(new URL('../src/components/number-line.tsx', import.meta.url), 'utf8');
+  assert.ok(/const percentStyle = toPercent\(value\)/.test(lineSource), 'the slider thumb no longer shows the submitted value after reveal');
+  assert.ok(/\{fmt\(value\)\}/.test(lineSource), 'the slider readout no longer shows the submitted value');
+  assert.ok(lineSource.includes('left: toPercent(spec.target)'), 'the revealed answer lost its own marker on the track');
+}
 assert.equal(model.NUMBER_LINE_REVEAL_MS, 300, 'the production reveal delay drifted');
 assert.equal(typeof model.shouldNumberLineClaimGesture, 'function', 'the shared slider model is missing scroll-safe drag ownership');
 assert.equal(typeof model.numberLinePhase, 'function', 'the shared slider model is missing its Submit/reveal/Continue phases');

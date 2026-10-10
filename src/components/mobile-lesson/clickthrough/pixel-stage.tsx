@@ -46,7 +46,7 @@ import { Atlas, type AtlasExpression } from '@/components/atlas';
 import { ThemedText } from '@/components/themed-text';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { Colors, Radius } from '@/constants/theme';
-import { beatHoldMs, beatMotionMs, CELL_PT, DRAW_MS, reactionFor } from '@/lib/mobile-lesson/clickthrough/timing';
+import { beatHoldMs, beatMotionMs, CELL_PT, CLIP_TEMPO, DRAW_MS, reactionFor } from '@/lib/mobile-lesson/clickthrough/timing';
 import type { AtlasReaction, ClipBeat } from '@/lib/mobile-lesson/clickthrough/types';
 import { Duration, Ease } from '@/shared/motion/tokens';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -54,10 +54,10 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 /** A clip card mounting AtlasCue is the screen's Atlas; the lesson's floating one must hide. */
 export const CLIP_DRAWS_ATLAS = true;
 
-// timing.ts mirrors Duration.base as a literal (it loads under plain node); without this, retuning
-// Duration.base would silently leave clip beats on the old tempo.
-if (__DEV__ && DRAW_MS !== Duration.base) {
-  throw new Error(`clickthrough DRAW_MS ${DRAW_MS} drifted from Duration.base ${Duration.base}`);
+// timing.ts mirrors Duration.base x CLIP_TEMPO as a literal (it loads under plain node); without
+// this, retuning Duration.base would silently leave clip beats on the old tempo.
+if (__DEV__ && DRAW_MS !== Duration.base * CLIP_TEMPO) {
+  throw new Error(`clickthrough DRAW_MS ${DRAW_MS} drifted from Duration.base ${Duration.base} x ${CLIP_TEMPO}`);
 }
 
 const AnimatedRect = Animated.createAnimatedComponent(Rect);
@@ -262,7 +262,7 @@ export function ClipControls({ timeline, showPlay = true }: { timeline: ClipTime
 export function ClipCaption({ text, beatKey }: { text: string; beatKey: number }) {
   const reduced = !!useReducedMotion();
   return (
-    <Animated.View key={beatKey} entering={reduced ? undefined : FadeIn.duration(Duration.base)} style={styles.captionBox}>
+    <Animated.View key={beatKey} entering={reduced ? undefined : FadeIn.duration(DRAW_MS)} style={styles.captionBox}>
       <ThemedText style={styles.caption}>{text}</ThemedText>
     </Animated.View>
   );

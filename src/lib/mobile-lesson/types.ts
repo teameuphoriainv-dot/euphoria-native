@@ -217,7 +217,11 @@ export const CARD_BUDGET = {
 } as const;
 
 /**
- * Cards per deck. Four at most, which is the whole point of the rebuild.
+ * Cards per deck. Four at most was the whole point of the rebuild; FIVE since 2026-09-30, and only
+ * because the retired `stakesCard` step's visual now rides on the teaching deck that follows it
+ * as a second chart card (courseIndex.ts, withStakesFolded). Measured before the change: 147 of
+ * the 300 decks that inherit one were already at four cards. One swipe more in a deck is far
+ * lighter than the full-screen comparison with a six second dwell it replaces.
  *
  * The floor is TWO, not three, even though the corpus currently produces none.
  *
@@ -228,4 +232,4 @@ export const CARD_BUDGET = {
  * card. An invented card is exactly what this layer refuses to do.
  */
 export const DECK_MIN_CARDS = 2;
-export const DECK_MAX_CARDS = 4;
+export const DECK_MAX_CARDS = 5;

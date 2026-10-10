@@ -19,17 +19,17 @@
  *     no share destination, and a button that pays nothing is the dead control this app is purging.
  */
 import * as Haptics from '@/lib/haptics';
-import { router } from 'expo-router';
-import { useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
+import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withTiming } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AmbientBackground } from '@/components/ambient-background';
 import { Atlas } from '@/components/atlas';
-import { CelebrationRays } from '@/components/celebration-burst';
 import { Confetti } from '@/components/confetti';
 import { ThemedText } from '@/components/themed-text';
+import { TickerLogo } from '@/components/ticker-logo';
 import { SlabButton } from '@/components/ui/button';
 import { AtlasSpeech } from '@/components/atlas-speech';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
@@ -37,12 +37,21 @@ import { useTheme } from '@/hooks/use-theme';
 import { money, STOCKS } from '@/lib/stocks';
 import { playSfx } from '@/lib/sfx';
 import { useApp } from '@/lib/store';
-import { RewardPop } from '@/shared/motion/reward-pop';
 import { RiseIn } from '@/shared/motion/rise-in';
+import { Duration } from '@/shared/motion/tokens';
 
 export default function Reward() {
   const theme = useTheme();
+  /* The lesson just finished, when the lesson sent us: its last card hands over to Up next. */
+  const params = useLocalSearchParams<{ course?: string; num?: string; seed?: string }>();
   const pending = useApp((s) => s.pendingRewards);
+  /* DEV ONLY: `?seed=1` queues three cards so the reveal can be checked without finishing a lesson.
+     Tickers with a bundled logo, so the flip shows the real mark. */
+  const seed = __DEV__ && params.seed === '1';
+  useEffect(() => {
+    if (!seed || useApp.getState().pendingRewards.length > 0) return;
+    useApp.setState({ pendingRewards: [{ sym: 'AAPL', value: 1.24 }, { sym: 'MSFT', value: 0.93 }, { sym: 'NVDA', value: 1.67 }] });
+  }, [seed]);
   const claim = useApp((s) => s.claimReward);
   // The card most recently revealed. Held locally because the store drops it from `pending` the
   // instant it is claimed — this screen is the only place it is ever shown.
@@ -82,7 +91,14 @@ export default function Reward() {
           />
         </ScrollView>
         <View style={styles.footer}>
-          <SlabButton label="Back to learning" full onPress={() => router.back()} />
+          <SlabButton
+            label={params.course ? 'Continue' : 'Back to learning'}
+            full
+            onPress={() => {
+              if (params.course) router.replace({ pathname: '/up-next', params: { course: params.course, num: params.num ?? '0' } } as never);
+              else router.back();
+            }}
+          />
         </View>
       </SafeAreaView>
     );
@@ -93,33 +109,13 @@ export default function Reward() {
       <AmbientBackground starCount={30} />
 
       {revealed ? (
-        <Animated.View key={`r-${revealed.sym}-${remaining}`} entering={FadeIn} exiting={FadeOut} style={styles.centre}>
+        <View key={`r-${revealed.sym}-${remaining}`} style={styles.centre}>
           <Confetti />
-          <CelebrationRays size={320} delay={80} />
-          <RewardPop>
-            <ThemedText type="label" themeColor="mutedForeground" style={styles.centreText}>
-              CONGRATS, YOU GOT
-            </ThemedText>
-          </RewardPop>
-          <RewardPop delay={140}>
-            {/* The tilted card is Bloom's exact treatment — a physical object you just turned over. */}
-            <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              {/* A TICKER MUST NOT SPLIT, for the same reason a price must not: "AAPL" breaking as
-                  "AA" / "PL" reads as a different symbol. `ticker` is displaySm (28pt), which
-                  reaches ~87pt at AX5 inside a card fixed at width 220, so even a 4-character
-                  symbol wrapped. Capped and held to one line.
-                  The VALUE beside it is deliberately left at its 1.6 cap: rewards are generated
-                  between REWARD_MIN 0.25 and REWARD_MAX 2, so the longest real string is "$2.00"
-                  and it fits. A seeded $1,234.56 ellipsised during testing, but that value cannot
-                  occur, and tightening the cap for it would shrink every real reward for nothing. */}
-              <ThemedText type="title" maxFontSizeMultiplier={1.6} numberOfLines={1} style={styles.ticker}>{revealed.sym}</ThemedText>
-              <ThemedText type="body" themeColor="mutedForeground">{STOCKS[revealed.sym]?.name ?? revealed.sym}</ThemedText>
-              {/* Missed when this file's TITLES were capped earlier — the sweep caught it. A reward
-                  value that wraps mid-figure misstates what the user just earned. */}
-              <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={{ fontSize: FontSize.displayLg, marginTop: Spacing.two }}>{money(revealed.value)}</ThemedText>
-            </View>
-          </RewardPop>
-        </Animated.View>
+          <ThemedText type="label" themeColor="mutedForeground" style={styles.centreText}>
+            CONGRATS, YOU GOT
+          </ThemedText>
+          <FlipCard sym={revealed.sym} value={revealed.value} />
+        </View>
       ) : (
         <View style={styles.centre}>
           <RiseIn>
@@ -170,6 +166,51 @@ export default function Reward() {
   );
 }
 
+/**
+ * THE CARD TURNS OVER. Face down (the "?" back the stack shows), then one rotation on the Y axis
+ * into the face: the company's own mark (assets/logos, bundled, no network), the ticker, the name
+ * and the value. REBUILT 2026-09-30 (owner: "these card animations can be way nicer with the
+ * company logos; it's a bit glitchy"): the reveal used to be a cross-fade keyed on the symbol with
+ * two RewardPop springs and a ray burst stacked on it, three motions starting at once. Now it is
+ * one physical move. Reduce Motion lands on the face at once.
+ */
+function FlipCard({ sym, value }: { sym: string; value: number }) {
+  const theme = useTheme();
+  const reduced = useReducedMotion();
+  const flip = useSharedValue(reduced ? 1 : 0);
+  useEffect(() => {
+    if (reduced) return;
+    flip.set(withTiming(1, { duration: Duration.earned / 4, easing: Easing.inOut(Easing.cubic) }));
+  }, [flip, reduced]);
+  const back = useAnimatedStyle(() => ({
+    transform: [{ perspective: 900 }, { rotateY: `${String(flip.get() * 180)}deg` }],
+    opacity: flip.get() < 0.5 ? 1 : 0,
+  }));
+  const face = useAnimatedStyle(() => ({
+    transform: [{ perspective: 900 }, { rotateY: `${String(180 + flip.get() * 180)}deg` }],
+    opacity: flip.get() < 0.5 ? 0 : 1,
+  }));
+  return (
+    <View style={styles.flipBox}>
+      <Animated.View style={[styles.card, styles.cardFace, { backgroundColor: theme.primary + '22', borderColor: theme.primary + '55' }, back]}>
+        <ThemedText type="display" style={{ fontSize: FontSize.displayLg, color: theme.iconLilac }}>?</ThemedText>
+      </Animated.View>
+      <Animated.View
+        style={[styles.card, styles.cardFace, { backgroundColor: theme.card, borderColor: theme.border }, face]}
+        accessible
+        accessibilityRole="text"
+        accessibilityLabel={`${STOCKS[sym]?.name ?? sym}, ${money(value)} of stock`}>
+        <TickerLogo sym={sym} size={64} />
+        {/* A TICKER MUST NOT SPLIT: "AAPL" breaking as "AA" / "PL" reads as a different symbol. */}
+        <ThemedText type="title" maxFontSizeMultiplier={1.6} numberOfLines={1} style={styles.ticker}>{sym}</ThemedText>
+        <ThemedText type="body" themeColor="mutedForeground" numberOfLines={1}>{STOCKS[sym]?.name ?? sym}</ThemedText>
+        {/* Rewards run REWARD_MIN 0.25 to REWARD_MAX 2, so "$2.00" is the longest real string. */}
+        <ThemedText type="display" maxFontSizeMultiplier={1.6} numberOfLines={1} style={styles.value}>{money(value)}</ThemedText>
+      </Animated.View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   safe: { flex: 1 },
   // flexGrow, not flex, because this is now a ScrollView contentContainer: it still centres
@@ -188,15 +229,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     transform: [{ rotate: '-4deg' }],
   },
+  flipBox: { width: 236, height: 300, alignItems: 'center', justifyContent: 'center' },
   card: {
     width: 220,
+    height: 280,
     borderRadius: Radius.lg,
     borderWidth: StyleSheet.hairlineWidth,
     paddingVertical: Spacing.four,
     paddingHorizontal: Spacing.three,
     alignItems: 'center',
-    transform: [{ rotate: '-3deg' }],
+    justifyContent: 'center',
+    gap: Spacing.one,
   },
-  ticker: { fontSize: FontSize.displaySm },
+  cardFace: { position: 'absolute', backfaceVisibility: 'hidden' },
+  ticker: { fontSize: FontSize.displaySm, marginTop: Spacing.two },
+  value: { fontSize: FontSize.displayLg, marginTop: Spacing.two },
   footer: { padding: Spacing.four, gap: Spacing.two },
 });

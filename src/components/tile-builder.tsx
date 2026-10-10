@@ -4,8 +4,9 @@
  * green + lock; wrong turn amber (tap to clear + retry). onSolvedChange(true) when all correct.
  * // ponytail: tap-to-place now; upgrade to gesture-handler drag when a lesson needs it.
  */
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated';
 
@@ -26,9 +27,12 @@ export function TileBuilder({ spec, onSolvedChange }: { spec: TileSpec; onSolved
   const correctness = placed.map((v, i) => (v == null ? null : v === spec.slots[i].correct));
   const allCorrect = full && correctness.every(Boolean);
 
+  const wasSolved = useRef(allCorrect);
   useEffect(() => {
     onSolvedChange(allCorrect);
-    if (allCorrect) Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    // Celebrate the moment it becomes solved, not a solved step restored by Previous.
+    if (allCorrect && !wasSolved.current) feedback('correct');
+    wasSolved.current = allCorrect;
   }, [allCorrect, onSolvedChange]);
 
   const place = (tile: string) => {

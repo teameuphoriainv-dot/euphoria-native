@@ -1,6 +1,6 @@
 /**
  * CLICKTHROUGH BUILD-UP PIN: the build-up card (design M3) shows only authored text, in authored
- * order, inside Hilbert's 2.5s budget, refuses to build without every figure, and never passes an
+ * order, inside Hilbert's budget (BUILD_MAX_MS), refuses to build without every figure, and never passes an
  * authored hex to the renderer.
  *
  *   node --import ./scripts/ts-resolve-hooks.mjs scripts/clickthrough-buildup-pin.mjs
@@ -146,9 +146,9 @@ check('every tier is at least 44pt', cells.every((c) => c * T.CELL_PT >= 44), ce
 
 // 5. Placements, raw and wrapped. Keys are `course:lessonNum:stepIndex`, the applyPlacement key.
 const PLACED = {
-  'investing-fundamentals:6:2': { mode: 'flow', labels: ['Investor buys ETF shares', 'ETF holds every stock in the index', 'Index tracks the market'] },
-  'personal-finance:13:2': { mode: 'flow', labels: ['Grants & scholarships', 'Subsidized federal', 'Unsubsidized federal', 'Private loans'] },
-  'corporate-finance:15:2': { mode: 'stack', labels: ['Secured Creditors', 'Unsecured Creditors', 'Preferred Stock', 'Common Stock'] },
+  'investing-fundamentals:6:1': { mode: 'flow', labels: ['Investor buys ETF shares', 'ETF holds every stock in the index', 'Index tracks the market'] },
+  'personal-finance:13:1': { mode: 'flow', labels: ['Grants & scholarships', 'Subsidized federal', 'Unsubsidized federal', 'Private loans'] },
+  'corporate-finance:15:1': { mode: 'stack', labels: ['Secured Creditors', 'Unsecured Creditors', 'Preferred Stock', 'Common Stock'] },
 };
 const at = async (loader, key) => {
   const [course, num, idx] = key.split(':');
@@ -173,14 +173,16 @@ for (const [key, want] of Object.entries(PLACED)) {
   const chart = deck?.cards?.find((c) => c.kind === 'chart');
   const placed = kinds.includes('interactive:build');
   check(`${key} WRAPPED deck has the chart slot or the build card`, deck?.type === 'mobileDeck' && (!!chart || placed), kinds.join(','));
-  if (chart) check(`${key} keeps the chart card's heading`, chart.title === spec.title, `${chart.title} vs ${spec.title}`);
+  // Only while the slot is still a chart: once the build is placed, the chart left on the deck is the
+  // retired stakes card's (a 2nd chart card since 2026-09-30), with its own heading.
+  if (chart && !placed) check(`${key} keeps the chart card's heading`, chart.title === spec.title, `${chart.title} vs ${spec.title}`);
   status.push(`${key} ${placed ? 'placed' : 'chart slot open'} (${spec.pieces.length} ${spec.mode}, ${B.buildDurationMs(spec)}ms)`);
 }
 {
-  const { lesson, step } = await at(R, 'personal-finance:10:2');
+  const { lesson, step } = await at(R, 'personal-finance:10:1');
   const n = step?.diagramVisual?.nodes?.length;
-  check('personal-finance:10:2 is the authored 7-node flow', n === 7, String(n));
-  check('personal-finance:10:2 builds null (over the cap)', B.buildBuildup(step, lesson?.steps) === null);
+  check('personal-finance:10:1 is the authored 7-node flow', n === 7, String(n));
+  check('personal-finance:10:1 builds null (over the cap)', B.buildBuildup(step, lesson?.steps) === null);
 }
 
 // 6. The card source.
@@ -195,7 +197,7 @@ for (const kit of ['useClipTimeline', 'ClipControls', 'AtlasCue', 'CellRect', 'S
 check('card has no hex literal', !/#[0-9A-Fa-f]{6}\b/.test(code));
 check('card never reads an authored colour', !/\.color\b|segments|\.nodes\b/.test(code));
 check('reduced motion builds on the first frame', /const built = reduced \|\|/.test(code));
-// The timeline clamps beat 0's motion to BEAT_MAX_MS (1500), but a 4-piece build runs 1830ms, so
+// The timeline clamps beat 0's motion to BEAT_MAX_MS (3500), but a 4-piece build runs 3660ms, so
 // with the timeline's own `busy` Next went live mid-build on personal-finance:13:2 and
 // corporate-finance:15:2 and captioned a row that had no label yet. Controls must wait on `built`.
 check('Next waits for the build to land', /busy:\s*timeline\.busy\s*\|\|\s*!built/.test(code));

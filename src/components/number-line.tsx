@@ -2,9 +2,17 @@
  * Production-parity slider lesson step.
  *
  * The learner can tap or drag continuously until Submit. Submission freezes the chosen value,
- * grades it against the authored tolerance, then reveals and snaps to the exact answer after the
- * same 300ms beat as web. The learner advances explicitly with Continue, even after a close guess.
+ * grades it against the authored tolerance, then reveals the exact answer after the same 300ms
+ * beat as web. The learner advances explicitly with Continue, even after a close guess.
+ *
+ * THE GUESS STAYS WHERE THE LEARNER PUT IT (owner, 2026-09-28). The reveal used to snap the thumb
+ * and the big readout to the authored answer, as web does. A $25 guess on a $37 question then
+ * showed "$37", "The actual answer is ~$37" and Atlas's "It is about $37" under a frown: a screen
+ * that reads as a right answer being marked wrong, and the learner's own answer gone from it. Now
+ * the thumb and readout keep the submission, the answer gets its own marker on the track, and a
+ * right answer says so in green.
  */
+import { feedback } from '@/lib/feedback';
 import * as Haptics from '@/lib/haptics';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -17,17 +25,15 @@ import Animated, { FadeIn, FadeInDown, useReducedMotion } from 'react-native-rea
 
 import { Atlas } from '@/components/atlas';
 import { AtlasCorrection } from '@/components/atlas-correction';
-import { SparkBurst } from '@/components/lesson-feedback';
 import { useLessonStepState } from '@/components/lesson-step-session';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
-import { Radius, Spacing } from '@/constants/theme';
+import { Radius } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import {
   changeNumberLineValue,
   initialNumberLineValue,
   NUMBER_LINE_REVEAL_MS,
-  numberLineDisplayValue,
   numberLinePassed,
   numberLinePhase,
   numberLineValueAtX,
@@ -55,10 +61,10 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
   const phase = numberLinePhase(submitted, showReveal);
 
   const isClose = numberLinePassed(value, spec);
-  const shownValue = numberLineDisplayValue(value, showReveal, spec);
   const span = Math.max(spec.max - spec.min, Number.EPSILON);
-  const percent = Math.max(0, Math.min(1, (shownValue - spec.min) / span));
-  const percentStyle = `${percent * 100}%` as `${number}%`;
+  const toPercent = (n: number) => `${Math.max(0, Math.min(1, (n - spec.min) / span)) * 100}%` as `${number}%`;
+  const percentStyle = toPercent(value);
+  const verdictColor = isClose ? theme.success : theme.destructive;
 
   useEffect(() => {
     onSolvedChange(phase === 'revealed');
@@ -107,11 +113,8 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
   const submit = () => {
     if (submitted) return;
     setSubmitted(true);
-    void Haptics.notificationAsync(
-      isClose
-        ? Haptics.NotificationFeedbackType.Success
-        : Haptics.NotificationFeedbackType.Error,
-    );
+    // The shared vocabulary: a right answer gets the web chime, the soft buzz and the confetti.
+    feedback(isClose ? 'correct' : 'wrong');
   };
 
   const enter = reduced
@@ -149,14 +152,25 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
           accessibilityValue={{
             min: spec.min,
             max: spec.max,
-            now: shownValue,
-            text: fmt(shownValue),
+            now: value,
+            text: fmt(value),
           }}
           accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
           onAccessibilityAction={(event) => nudge(event.nativeEvent.actionName === 'decrement' ? -1 : 1)}>
           <View style={[styles.track, { backgroundColor: theme.muted }]} pointerEvents="none">
             <View style={[styles.trackFill, { width: percentStyle, backgroundColor: theme.primary }]} />
-            <View style={[styles.marker, { left: percentStyle, backgroundColor: theme.primary }]} />
+            {showReveal ? (
+              <Animated.View
+                entering={revealEnter}
+                style={[styles.answerMarker, { left: toPercent(spec.target), backgroundColor: theme.success }]}
+              />
+            ) : null}
+            <View
+              style={[
+                styles.marker,
+                { left: percentStyle, backgroundColor: showReveal ? verdictColor : theme.primary },
+              ]}
+            />
           </View>
         </View>
 
@@ -178,20 +192,33 @@ export function NumberLine({ spec, onSolvedChange, onComplete }: NumberLineProps
         ) : null}
       </View>
 
-      <ThemedText type="display" style={[styles.value, { color: theme.primary }]}> 
-        {fmt(shownValue)}
-      </ThemedText>
-
-      {submitted && isClose ? <SparkBurst size={150} /> : null}
+      <View style={styles.readout}>
+        {showReveal ? (
+          <ThemedText type="small" themeColor="mutedForeground">Your answer</ThemedText>
+        ) : null}
+        <ThemedText type="display" style={[styles.value, { color: showReveal ? verdictColor : theme.primary }]}>
+          {fmt(value)}
+        </ThemedText>
+      </View>
 
       {phase === 'revealed' ? (
         <>
           <Animated.View
             entering={revealEnter}
-            style={[styles.reveal, { backgroundColor: theme.primary + '14', borderColor: theme.primary + '33' }]}
+            style={[
+              styles.reveal,
+              isClose
+                ? { backgroundColor: theme.success + '14', borderColor: theme.success + '55' }
+                : { backgroundColor: theme.primary + '14', borderColor: theme.primary + '33' },
+            ]}
             accessibilityRole="summary">
-            <ThemedText type="small" themeColor="mutedForeground">The actual answer is</ThemedText>
-            <ThemedText type="title" style={{ color: theme.primary }}>~{fmt(spec.target)}</ThemedText>
+            {isClose ? (
+              <ThemedText type="heading" style={{ color: theme.success }}>Correct!</ThemedText>
+            ) : null}
+            <ThemedText type="small" themeColor="mutedForeground">
+              {isClose && value !== spec.target ? 'Close enough. The exact answer is' : 'The answer is'}
+            </ThemedText>
+            <ThemedText type="title" style={{ color: isClose ? theme.success : theme.primary }}>{fmt(spec.target)}</ThemedText>
           </Animated.View>
           <AtlasCorrection
             show={!isClose}
@@ -220,8 +247,13 @@ const styles = StyleSheet.create({
   marker: { position: 'absolute', width: 22, height: 22, borderRadius: 11, top: -7, transform: [{ translateX: -11 }], borderWidth: 3, borderColor: '#fff' },
   ticks: { height: 18, position: 'relative', marginTop: 2 },
   tick: { position: 'absolute', transform: [{ translateX: -12 }] },
+  answerMarker: { position: 'absolute', width: 4, height: 22, borderRadius: 2, top: -7, transform: [{ translateX: -2 }] },
+  readout: { alignItems: 'center', gap: 2 },
   value: { textAlign: 'center', fontSize: 30, lineHeight: 36 },
   reveal: { width: '100%', maxWidth: 680, alignItems: 'center', gap: 4, padding: 20, borderRadius: 16, borderWidth: 1 },
-  submitButton: { minWidth: 112, paddingHorizontal: Spacing.four },
+  /* NO paddingHorizontal here. SlabButton applies `style` to its outer wrapper, and the dark slab
+     is absolutely positioned across that wrapper, so outer padding made the slab wider than the
+     face: two buttons, one behind the other. The face already carries its own padding. */
+  submitButton: { minWidth: 160 },
   continueButton: { width: '100%', maxWidth: 600 },
 });

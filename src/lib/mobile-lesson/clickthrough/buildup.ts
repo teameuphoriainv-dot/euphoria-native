@@ -20,7 +20,7 @@
  * the renderer; tiers use the theme ramp in buildup-card.tsx. The pin checks the built JSON.
  *
  * THE CAP IS THE TIME BUDGET. At most BUILDUP_MAX_PIECES pieces, because the whole build must
- * finish inside BUILD_MAX_MS (Hilbert's 2.5s). personal-finance:10:2's 7-node "Wealth-Building
+ * finish inside BUILD_MAX_MS (Hilbert's 2.5s budget at CLIP_TEMPO, 5s). personal-finance:10:2's 7-node "Wealth-Building
  * Order of Operations" would take 3,180ms, so it returns null and stays on LessonVisual.
  *
  * Pure: the pin imports this under plain node (scripts/ts-resolve-hooks.mjs).
@@ -47,7 +47,7 @@ export const BUILDUP_MIN_FLOW = 3;
 export const BUILDUP_MIN_STACK = 2;
 
 /** The label fades in over this once its fill has landed. Opacity only, no geometry. */
-export const LABEL_FADE_MS = 120;
+export const LABEL_FADE_MS = 300;
 
 type FlowVisual = Extract<AnimatedVisual, { type: 'flow' }>;
 type StackVisual = Extract<AnimatedVisual, { type: 'stack' }>;
