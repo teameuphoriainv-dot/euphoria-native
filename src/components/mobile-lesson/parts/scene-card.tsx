@@ -13,11 +13,14 @@
  *     green clip does not look like Personal Finance's orchid one.
  *   - A thin progress line in the caption bar that fills for exactly as long as autoplay holds the
  *     beat, so the learner can see a beat is timed and when it will move on.
- *   - Captions swap the way Brilliant's screens do: out in 100ms with a small leftward drift, 100ms
- *     of nothing, then in over 200ms (M7, timing/next.jpg f4-f8). Crossfading the two sentences
+ *   - Captions swap the way Brilliant's screens do: out with a small leftward drift, a beat of
+ *     nothing, then in (M7, timing/next.jpg f4-f8; the durations are in parts/scene.ts). Crossfading the two sentences
  *     directly overlaps them for a frame and reads as one garbled line.
  *   - Props stack by dropping onto the pile and tallies stamp in one by one, so a count is watched
  *     happening rather than appearing finished.
+ *   - Props rise and grow onto their mark, then give one small swell once they land (the accent),
+ *     and Atlas leans toward them on every beat, so each beat has a visible action to follow
+ *     (owner ruling 2026-09-24: longer, more animated learn visuals).
  *
  * WHAT CARRIED OVER FROM THE FIRST VERSION, and still holds:
  *   - It plays once on arrival and then stops: no withRepeat anywhere. PixelSprite.tsx records idle
@@ -51,6 +54,7 @@ import Animated, {
   useReducedMotion,
   useSharedValue,
   withDelay,
+  withSequence,
   withSpring,
   withTiming,
 } from 'react-native-reanimated';
@@ -64,6 +68,8 @@ import { courseAccent } from '@/lib/course-accents';
 import { beatHoldMs } from '@/lib/mobile-lesson/clickthrough/timing';
 import { PixelSpriteView } from '@/lib/pixel/PixelSprite';
 import {
+  ACCENT_MS,
+  ACCENT_SCALE,
   ACTOR_ENTER_MS,
   ACTOR_EXIT_MS,
   ACTOR_SLIDE_MS,
@@ -74,7 +80,10 @@ import {
   COPY_STAGGER_MS,
   copyOffsets,
   COUNT_PT,
+  cueDelayMs,
+  cueMotionMs,
   markPoint,
+  playFrameMs,
   resolveActorSprite,
   sceneMotionMs,
   sceneReaction,
@@ -92,7 +101,13 @@ import {
 import { Ease, Spring } from '@/shared/motion/tokens';
 
 /** An entrance rises this far. Small on purpose: the motion says "arrived", not "flew in". */
-const ENTER_RISE = 12;
+const ENTER_RISE = 20;
+/** An entrance also grows from this scale to full size, on the same monotonic curve as the rise. */
+const ENTER_SCALE = 0.8;
+/** Atlas leans this far toward the props on each beat, then eases back: he is watching them. */
+const ATLAS_LEAN = 8;
+const ATLAS_LEAN_IN_MS = 350;
+const ATLAS_LEAN_OUT_MS = 650;
 /** The caption drifts this far left on its way out, the "few percent" of Brilliant's exit (M7). */
 const CAPTION_DRIFT = 8;
 /** The floor's top edge, one pixel-art cell tall so the band reads as a step, not a gradient. */
@@ -139,6 +154,7 @@ function Actor({
   const x = useSharedValue(0);
   const y = useSharedValue(0);
   const opacity = useSharedValue(0);
+  const scale = useSharedValue(1);
 
   useEffect(() => {
     if (!area.w) return;
@@ -150,13 +166,33 @@ function Actor({
       // A cut: Back, a jump, reduced motion, or an actor this beat does not touch.
       x.set(tx);
       y.set(ty);
+      scale.set(1);
       opacity.set(state.visible ? 1 : 0);
       return;
     }
-    const delay = cue.atMs ?? 0;
+    const delay = cueDelayMs(cue);
+    /*
+     * The accent: once this cue has landed, a prop still on stage swells to ACCENT_SCALE and back,
+     * so the eye lands on what this beat changed. Two monotonic halves, no spring (a prop never
+     * overshoots), and it runs once per beat: nothing loops.
+     */
+    const accentAt = delay + cueMotionMs(cue);
+    const accent = () => {
+      if (!state.visible) return;
+      scale.set(
+        withDelay(
+          accentAt,
+          withSequence(
+            withTiming(ACCENT_SCALE, { duration: ACCENT_MS / 2, easing: Ease.enter }),
+            withTiming(1, { duration: ACCENT_MS / 2, easing: Ease.enter }),
+          ),
+        ),
+      );
+    };
     // Ease.enter is a bezier whose y-controls stay inside 0..1: props never overshoot their mark.
     const move = { duration: ACTOR_SLIDE_MS, easing: Ease.enter };
     if (cue.do === 'exit') {
+      scale.set(1);
       opacity.set(withDelay(delay, withTiming(0, { duration: ACTOR_EXIT_MS, easing: Ease.exitCurve })));
       return;
     }
@@ -175,6 +211,8 @@ function Actor({
       y.set(withDelay(delay, withTiming(ty, move)));
       // An actor sliding off stage leaves it; stageAt already counts it hidden.
       if (!state.visible) opacity.set(withDelay(delay + ACTOR_SLIDE_MS, withTiming(0, { duration: ACTOR_EXIT_MS })));
+      scale.set(1);
+      accent();
       return;
     }
     // enter / play / stack / count
@@ -182,6 +220,8 @@ function Actor({
       x.set(tx);
       y.set(ty);
       opacity.set(1);
+      scale.set(1);
+      accent();
       return;
     }
     if (prev?.visible) {
@@ -193,6 +233,8 @@ function Actor({
       opacity.set(1);
       x.set(withDelay(delay, withTiming(tx, move)));
       y.set(withDelay(delay, withTiming(ty, move)));
+      scale.set(1);
+      accent();
       return;
     }
     x.set(tx);
@@ -200,13 +242,25 @@ function Actor({
     opacity.set(0);
     y.set(withDelay(delay, withTiming(ty, { duration: ACTOR_ENTER_MS, easing: Ease.enter })));
     opacity.set(withDelay(delay, withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter })));
+    // Grows in on the same curve as the rise, then gives the beat's accent from full size.
+    scale.set(ENTER_SCALE);
+    scale.set(
+      withDelay(
+        delay,
+        withSequence(
+          withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter }),
+          withTiming(ACCENT_SCALE, { duration: ACCENT_MS / 2, easing: Ease.enter }),
+          withTiming(1, { duration: ACCENT_MS / 2, easing: Ease.enter }),
+        ),
+      ),
+    );
     // `change` is the trigger; the rest are read fresh for that change.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [change, area.w, area.h, reduced]);
 
   const style = useAnimatedStyle(() => ({
     opacity: opacity.get(),
-    transform: [{ translateX: x.get() }, { translateY: y.get() }],
+    transform: [{ translateX: x.get() }, { translateY: y.get() }, { scale: scale.get() }],
   }));
 
   if (!sprite) return null;
@@ -224,7 +278,7 @@ function Actor({
         <Animated.View
           // Keyed on the change so a new tally re-runs its stagger instead of reusing mounted copies.
           key={`${change.seq}:${i}`}
-          entering={tally && i > 0 ? copyIn.delay((cue?.atMs ?? 0) + i * COPY_STAGGER_MS).duration(ACTOR_ENTER_MS) : undefined}
+          entering={tally && i > 0 ? copyIn.delay((cue ? cueDelayMs(cue) : 0) + i * COPY_STAGGER_MS).duration(ACTOR_ENTER_MS) : undefined}
           style={[styles.copy, { left: o.x, top: o.y }]}
         >
           <PixelSpriteView
@@ -233,6 +287,7 @@ function Actor({
             canvas="dark"
             play={playing && i === 0 ? 'once' : 'none'}
             playKey={change.seq}
+            frameMs={playFrameMs(sprite)}
           />
         </Animated.View>
       ))}
@@ -260,6 +315,7 @@ function AtlasOnFloor({
 }) {
   const rise = useSharedValue(reduced ? 0 : size / 2);
   const shown = useSharedValue(reduced ? 1 : 0);
+  const lean = useSharedValue(0);
   useEffect(() => {
     if (reduced) {
       rise.set(0);
@@ -269,8 +325,27 @@ function AtlasOnFloor({
     rise.set(withSpring(0, Spring.bouncy));
     shown.set(withTiming(1, { duration: ACTOR_ENTER_MS, easing: Ease.enter }));
   }, [reduced, rise, shown]);
-  const style = useAnimatedStyle(() => ({ opacity: shown.get(), transform: [{ translateY: rise.get() }] }));
   const acts = change.animate && !reduced;
+  // Each forward beat he leans toward the props and back, as if watching them act. A character
+  // move, played once per beat; under Reduce Motion or on a cut he stays put.
+  useEffect(() => {
+    if (!acts) {
+      lean.set(0);
+      return;
+    }
+    lean.set(
+      withSequence(
+        withTiming(-ATLAS_LEAN, { duration: ATLAS_LEAN_IN_MS, easing: Ease.enter }),
+        withTiming(0, { duration: ATLAS_LEAN_OUT_MS, easing: Ease.enter }),
+      ),
+    );
+    // `change` is the trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [change.seq, acts]);
+  const style = useAnimatedStyle(() => ({
+    opacity: shown.get(),
+    transform: [{ translateX: lean.get() }, { translateY: rise.get() }],
+  }));
   return (
     <Animated.View
       pointerEvents="none"

@@ -142,31 +142,46 @@ export const CAPTION_MAX_CHARS = 125;
 export const READ_MS_PER_CHAR = 50;
 
 /*
- * MOTION, MEASURED FROM THE BRILLIANT RECORDING (research2/brilliant-lessons.md M2, M3, M7; frames
- * in research2/frames/timing/). Literals, not imports from shared/motion/tokens.ts, because the pins
- * load this file under plain node where Reanimated cannot.
- *   ACTOR_ENTER_MS 280  one element arriving. Hilbert's pieces take 200-400ms each (hilbert.jpg);
- *                       280 is the app's Duration.base, so a scene and a card enter share a tempo.
- *   ACTOR_SLIDE_MS 400  a move across the stage, the top of that 200-400ms band because it travels.
- *   ACTOR_EXIT_MS  100  leaving. Their content exit is ~100ms (next.jpg f4, page_a.jpg f3).
- *   CAPTION_OUT/GAP/IN  100 / 100 / 200: the words swap the way their screens do, exit, a beat of
+ * MOTION. The first tempo was measured off the Brilliant recording (research2/brilliant-lessons.md
+ * M2, M3, M7; frames in research2/frames/timing/): 280ms entrances, 400ms slides, beats capped at
+ * 1.5s. On device that read as a flicker: most beats were over in one to three seconds and a teen
+ * saw a prop arrive rather than watched it act. Owner ruling 2026-09-24: the learn-part visuals
+ * run longer and animate more. So every value below is roughly twice the measured one, the cue
+ * offsets authored in SCENES are stretched by CUE_DELAY_SCALE instead of being rewritten one by
+ * one, and a `play` sprite runs its frames PLAY_FRAME_SCALE slower. The ratios between them are
+ * the measured ones, so the clip keeps Brilliant's rhythm at a calmer tempo. Literals, not imports
+ * from shared/motion/tokens.ts, because the pins load this file under plain node where Reanimated
+ * cannot.
+ *   ACTOR_ENTER_MS 600  one element arriving, with room to rise and settle onto its mark.
+ *   ACTOR_SLIDE_MS 1000 a move across the stage; the eye can follow it the whole way.
+ *   ACTOR_EXIT_MS  260  leaving. Still the quickest motion on stage: an exit is not the news.
+ *   CAPTION_OUT/GAP/IN  200 / 150 / 450: the words swap the way their screens do, exit, a beat of
  *                       empty, then fade in (M7, next.jpg f4-f8). Without the gap the old and new
  *                       sentence overlap for a frame and read as one garbled line.
- *   COPY_STAGGER_MS 100 one copy of a pile or tally after another. 160 (the first version) put a
- *                       ten-coin tally at 1.9s, past the clip budget; Brilliant stamps marks 40ms
- *                       apart, and 100 is the slowest rate that still lets the eye count to ten
- *                       inside a beat.
- *   BEAT_MOTION_MAX_MS 1500  equal to the clip kit's BEAT_MAX_MS (part-scene-pin asserts it): Koch's
- *                       steps sweep for 1.2-1.6s; longer and the learner waits on the picture.
+ *   COPY_STAGGER_MS 200 one copy of a pile or tally after another, slow enough to count along.
+ *   BEAT_MOTION_MAX_MS 3500  equal to the clip kit's BEAT_MAX_MS (part-scene-pin asserts it). Past
+ *                       this a beat stops being a picture the learner drives and becomes a video
+ *                       they wait on; Next is disabled for the whole of it.
  */
-export const ACTOR_ENTER_MS = 280;
-export const ACTOR_SLIDE_MS = 400;
-export const ACTOR_EXIT_MS = 100;
-export const CAPTION_OUT_MS = 100;
-export const CAPTION_GAP_MS = 100;
-export const CAPTION_IN_MS = 200;
-export const COPY_STAGGER_MS = 100;
-export const BEAT_MOTION_MAX_MS = 1500;
+export const ACTOR_ENTER_MS = 600;
+export const ACTOR_SLIDE_MS = 1000;
+export const ACTOR_EXIT_MS = 260;
+export const CAPTION_OUT_MS = 200;
+export const CAPTION_GAP_MS = 150;
+export const CAPTION_IN_MS = 450;
+export const COPY_STAGGER_MS = 200;
+export const BEAT_MOTION_MAX_MS = 3500;
+/** Authored `atMs` offsets were written against the first tempo; stretch them with the rest. */
+export const CUE_DELAY_SCALE = 2;
+/** A `play` sprite runs each frame this many times its authored length, so the action reads. */
+export const PLAY_FRAME_SCALE = 2;
+/**
+ * After a beat's cues land, the props they moved give one small swell (up to ACCENT_SCALE and back
+ * over ACCENT_MS) so the eye goes to what just changed. Each half is a monotonic timing, never a
+ * spring: a prop is not a character, so it gets no overshoot (AGENTS.md).
+ */
+export const ACCENT_MS = 700;
+export const ACCENT_SCALE = 1.08;
 /** A sprite's frames default to 120ms each (pixel/types.ts `frameMs`). */
 const DEFAULT_FRAME_MS = 120;
 
@@ -900,6 +915,16 @@ export function resolveActorSprite(key: string): PixelSprite | null {
 
 /* ── TIMING ──────────────────────────────────────────────────────────────────────────────────── */
 
+/** When a cue starts inside its beat: the authored offset at the current tempo. */
+export function cueDelayMs(cue: SceneCue): number {
+  return (cue.atMs ?? 0) * CUE_DELAY_SCALE;
+}
+
+/** One frame of a `play` cue's sprite, slowed by PLAY_FRAME_SCALE. */
+export function playFrameMs(sprite: PixelSprite | undefined | null): number {
+  return (sprite?.frameMs ?? DEFAULT_FRAME_MS) * PLAY_FRAME_SCALE;
+}
+
 /** How long one cue moves, from its own start. `play` runs every frame of the sprite once. */
 export function cueMotionMs(cue: SceneCue): number {
   switch (cue.do) {
@@ -913,7 +938,7 @@ export function cueMotionMs(cue: SceneCue): number {
     case 'play': {
       const sprite = resolveActorSprite(cue.actor);
       const frames = sprite?.frames?.length ?? 0;
-      return Math.max(ACTOR_ENTER_MS, frames * (sprite?.frameMs ?? DEFAULT_FRAME_MS));
+      return Math.max(ACTOR_ENTER_MS, frames * playFrameMs(sprite));
     }
     default:
       return ACTOR_ENTER_MS;
@@ -926,7 +951,7 @@ export function cueMotionMs(cue: SceneCue): number {
  * beat for this plus a gap, or the caption's reading time, whichever is longer.
  */
 export function sceneMotionMs(beat: SceneBeat): number {
-  return beat.cast.reduce((m, c) => Math.max(m, (c.atMs ?? 0) + cueMotionMs(c)), 0);
+  return beat.cast.reduce((m, c) => Math.max(m, cueDelayMs(c) + cueMotionMs(c)), 0);
 }
 
 /**
