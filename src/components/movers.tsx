@@ -12,6 +12,7 @@
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { ThemedText } from '@/components/themed-text';
 import { TickerLogo } from '@/components/ticker-logo';
@@ -21,9 +22,11 @@ import { useTheme } from '@/hooks/use-theme';
 import { getMovers, type Mover } from '@/lib/market';
 import { money } from '@/lib/stocks';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
+import { Duration, Ease } from '@/shared/motion/tokens';
 
 export function Movers() {
   const theme = useTheme();
+  const reduced = useReducedMotion();
   const [dir, setDir] = useState<'gainers' | 'losers'>('gainers');
   const [data, setData] = useState<Mover[] | null>(null);
   // Which direction the rows in `data` belong to — derives loading without setState in the effect
@@ -87,7 +90,10 @@ export function Movers() {
         {loading ? (
           <View style={styles.loading}><ActivityIndicator color={theme.primary} /></View>
         ) : (
-          data?.map((m, i) => (
+          /* Keyed by direction: arriving rows (first load, or a Gainers/Losers toggle) fade in
+             instead of snapping over the spinner or the other list. */
+          <Animated.View key={dir} entering={reduced ? undefined : FadeIn.duration(Duration.base).easing(Ease.enter)}>
+          {data?.map((m, i) => (
             <SpringPressable
               key={m.sym}
               onPress={() => router.push(`/stock/${m.sym}`)}
@@ -110,7 +116,8 @@ export function Movers() {
                 </View>
               </View>
             </SpringPressable>
-          ))
+          ))}
+          </Animated.View>
         )}
       </Card>
     </View>

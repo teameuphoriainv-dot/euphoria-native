@@ -87,6 +87,7 @@ function RootLayout() {
     markInteractive({ params: { fonts_loaded: true } });
   }, [loaded, markInteractive]);
 
+
   /*
    * Ask RevenueCat what this Apple ID is actually entitled to, once per launch, so a subscription
    * cancelled or expired on another device is reflected here rather than trusting a stale cached

@@ -38,6 +38,8 @@ type TypedMessageProps = {
   cursorStyle?: StyleProp<TextStyle>;
 };
 
+const UNTYPED = { color: 'transparent' } as const;
+
 function TypedMessageInner({ text, msPerChar, finished, onDone, style, cursorStyle }: TypedMessageProps) {
   const reduced = useReducedMotion();
   // The count carries the text it was counted against, so a text change without a remount can
@@ -77,10 +79,20 @@ function TypedMessageInner({ text, msPerChar, finished, onDone, style, cursorSty
   }, [finished, msPerChar, reduced, text]);
 
   const complete = reduced || finished || !text || count >= text.length;
+  const shown = complete ? text.length : count;
+  /*
+   * FULL STRING, UNTYPED REMAINDER TRANSPARENT. Rendering only text.slice(0, count) let a half-typed
+   * word fit on line 1 and then jump to line 2 once it grew (users reported "investing" doing this in
+   * onboarding). Laying out the whole sentence from the first character fixes every word's line.
+   * The cursor TAKES THE SLOT of the next untyped character instead of being inserted beside it, so
+   * the line only differs by one glyph's width difference rather than a whole extra glyph -- the
+   * wrap holds, and typewriter-leaf-pin still sees a cursor while typing and none after.
+   */
   return (
     <ThemedText accessibilityElementsHidden style={style}>
-      {complete ? text : text.slice(0, count)}
-      {!complete ? <ThemedText style={cursorStyle}>▌</ThemedText> : null}
+      {text.slice(0, shown)}
+      {complete ? null : <ThemedText style={cursorStyle}>▌</ThemedText>}
+      <ThemedText style={UNTYPED}>{text.slice(complete ? shown : shown + 1)}</ThemedText>
     </ThemedText>
   );
 }

@@ -34,12 +34,25 @@ import { courseAccent } from '@/lib/course-accents';
 import { COURSES, isCourseAvailable, loadCourseLessons, type PathwayLesson } from '@/lib/curriculum';
 import { getCourseById } from '@/lib/curriculum/courseIndex';
 import { PixelSpriteView, bolt, coin, controller, flame, target, chartUp } from '@/lib/pixel';
+import { DIGEST_POSTS } from '@/lib/digest-content';
 import { hoursUntilReset, questsForToday } from '@/lib/quests';
 import { lessonKey, useApp } from '@/lib/store';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 
-/** 1 Step · 2 Greenlight · 3 Robinhood · 4 Acorns · 5 Bloom · 6 Brilliant */
-const V: 1 | 2 | 3 | 4 | 5 | 6 = 6;
+/**
+ * 1 Step · 2 Greenlight · 3 Robinhood · 4 Acorns · 5 Bloom · 6 Brilliant · 7 NOT-LEARN
+ *
+ * 7 exists because 1 through 6 were all the same screen. Every one of them showed the current
+ * course, the next lesson, a Start button and the course list -- which is Learn's job, done
+ * better on Learn by the actual path. Six arrangements of Learn is not six Home screens.
+ *
+ * 7 removes every lesson element. No lesson card, no course list, no Start. What is left is
+ * the things Learn does NOT do: the habit, the quests that span trading and games as well as
+ * lessons, the paper portfolio, and today's guide. If this screen has nothing on it, that is
+ * the finding -- it means Home has no job and should be deleted, which is what two of the six
+ * reference apps concluded.
+ */
+const V: 1 | 2 | 3 | 4 | 5 | 6 | 7 = 7;
 
 function useHome() {
   const streak = useApp((s) => s.streak);
@@ -48,6 +61,9 @@ function useHome() {
   const courseId = useApp((s) => s.activeCourseId);
   const minutes = useApp((s) => s.minutesDoneToday());
   const goal = useApp((s) => s.dailyGoalMinutes());
+  const cash = useApp((s) => s.cash);
+  const positions = useApp((s) => s.positions);
+  const bestStreak = useApp((s) => s.bestStreak);
   const questState = useApp((s) => s);
   const quests = useMemo(() => questsForToday(questState, new Date()), [questState]);
   const questsDone = quests.filter((q) => q.done).length;
@@ -65,6 +81,7 @@ function useHome() {
   const courses = COURSES.filter((c) => isCourseAvailable(c.id));
   return {
     streak, xp, minutes, goal, quests, questsDone, upcoming, done, courses, courseId,
+    cash, positions, bestStreak,
     next: upcoming[0] ?? null,
     course: getCourseById(courseId),
     accent: courseAccent(courseId),
@@ -302,11 +319,88 @@ function Brilliant({ h }: { h: H }) {
   );
 }
 
+/* ─────────────────────── 7 · NOT-LEARN ─────────────────────── */
+/* The only variant that is not a rearrangement of Learn. Nothing here mentions a lesson, a
+   course or a Start button. Each block is a tab Learn does not own. */
+function NotLearn({ h }: { h: H }) {
+  const t = useTheme();
+  const held = Object.entries(h.positions).filter(([, n]) => n > 0);
+  const post = DIGEST_POSTS[0];
+  const WEEK = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const todayIdx = (new Date().getDay() + 6) % 7;
+
+  return (
+    <>
+      {/* HABIT. The number Learn never shows you, with the week it was built over. */}
+      <View style={[s.nlCard, { backgroundColor: t.cardElevated, borderColor: t.border }]}>
+        <View style={s.row}>
+          <PixelSpriteView sprite={flame} size={26} />
+          <View style={{ flex: 1 }}>
+            <ThemedText type="display" style={{ fontSize: 34, lineHeight: 38, color: t.streak }}>{h.streak}</ThemedText>
+            <ThemedText type="small" themeColor="mutedForeground">day streak · best {h.bestStreak}</ThemedText>
+          </View>
+        </View>
+        <View style={s.week}>
+          {WEEK.map((d, i) => (
+            <View key={`${d}${String(i)}`} style={s.day}>
+              <ThemedText type="small" themeColor={i === todayIdx ? undefined : 'mutedForeground'}>{d}</ThemedText>
+              <View style={[s.ring, { borderColor: i === todayIdx ? t.primary : t.border }]} />
+            </View>
+          ))}
+        </View>
+      </View>
+
+      {/* QUESTS, OPEN. These span lessons, trades and games -- the only block on Home that is
+          about all five tabs at once, and it was collapsed behind a chevron. */}
+      <View style={s.nlSection}>
+        <View style={s.nlHead}>
+          <ThemedText type="label" themeColor="mutedForeground">TODAY</ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground">{h.hoursLeft}h left</ThemedText>
+        </View>
+        {h.quests.map((q) => (
+          <View key={q.title} style={[s.nlRow, { borderColor: t.border }]}>
+            <View style={[s.ring, { borderColor: q.done ? t.success : t.border, backgroundColor: q.done ? t.success : 'transparent' }]} />
+            <ThemedText type="body" style={{ flex: 1 }} numberOfLines={1}>{q.title}</ThemedText>
+            <ThemedText type="smallBold" style={{ color: q.done ? t.success : t.mutedForeground }}>{q.at}/{q.of}</ThemedText>
+          </View>
+        ))}
+      </View>
+
+      {/* MONEY. Trade's number, on Home, because a finance app whose home screen never mentions
+          money is a quiz app. Cash and holdings only -- no live mark is read here. */}
+      <SpringPressable onPress={() => router.push('/(tabs)/trade')} accessibilityLabel="Paper portfolio">
+        <View style={[s.nlCard, { backgroundColor: t.cardElevated, borderColor: t.border }]}>
+          <View style={s.nlHead}>
+            <ThemedText type="label" themeColor="mutedForeground">PAPER PORTFOLIO</ThemedText>
+            <UIcon name="chevronRight" size={15} color={t.mutedForeground} />
+          </View>
+          <ThemedText type="display" style={{ fontSize: 30, lineHeight: 34 }}>{h.cash.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground">
+            {held.length === 0 ? 'cash · nothing held yet' : `cash · ${String(held.length)} position${held.length === 1 ? '' : 's'} held`}
+          </ThemedText>
+        </View>
+      </SpringPressable>
+
+      {/* READ. Digest's newest, so Home has something that changes when you have done nothing. */}
+      <SpringPressable onPress={() => router.push('/(tabs)/digest')} accessibilityLabel={post.title}>
+        <View style={[s.nlCard, { backgroundColor: t.cardElevated, borderColor: t.border }]}>
+          <View style={s.nlHead}>
+            <ThemedText type="label" themeColor="mutedForeground">TODAY&apos;S READ · {post.readMinutes} MIN</ThemedText>
+            <UIcon name="chevronRight" size={15} color={t.mutedForeground} />
+          </View>
+          <ThemedText type="bodyMedium" numberOfLines={2}>{post.title}</ThemedText>
+          <ThemedText type="small" themeColor="mutedForeground" numberOfLines={2}>{post.excerpt}</ThemedText>
+        </View>
+      </SpringPressable>
+    </>
+  );
+}
+
 export default function HomeVariants() {
   const t = useTheme();
   const h = useHome();
-  const Body = { 1: Step, 2: Greenlight, 3: Robinhood, 4: Acorns, 5: Bloom, 6: Brilliant }[V];
-  const label = { 1: 'STEP', 2: 'GREENLIGHT', 3: 'ROBINHOOD', 4: 'ACORNS', 5: 'BLOOM', 6: 'BRILLIANT' }[V];
+  const Body = { 1: Step, 2: Greenlight, 3: Robinhood, 4: Acorns, 5: Bloom, 6: Brilliant, 7: NotLearn }[V];
+  const label = { 1: 'STEP', 2: 'GREENLIGHT', 3: 'ROBINHOOD', 4: 'ACORNS', 5: 'BLOOM', 6: 'BRILLIANT', 7: 'NOT-LEARN' }[V];
   const bleed = V === 5; /* Bloom owns the whole surface; the others sit on the app background. */
 
   return (
@@ -381,6 +475,13 @@ const s = StyleSheet.create({
   brCard: { borderWidth: 1, borderRadius: Radius.lg, padding: Spacing.four, gap: Spacing.four },
   brRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
 
+  nlCard: { borderWidth: 1, borderRadius: Radius.lg, padding: Spacing.four, gap: Spacing.two },
+  nlSection: { gap: Spacing.two },
+  nlHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  nlRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three },
+  week: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.two },
+  day: { alignItems: 'center', gap: 4 },
+  ring: { width: 22, height: 22, borderRadius: 11, borderWidth: 2 },
   path: { gap: Spacing.two },
   pathRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three, borderWidth: 1, borderRadius: Radius.md, padding: Spacing.three },
 });
