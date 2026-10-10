@@ -1068,7 +1068,7 @@ export const useApp = create<AppState>()(
         const s = get();
         const today = dayKey();
         const alive =
-          s.lastActiveDay === '' ||
+          (s.lastActiveDay === '' && s.streak === 0) ||
           s.lastActiveDay === today ||
           s.lastActiveDay === prevDayKey() ||
           (s.lastActiveDay === dayBeforeKey() && s.streakFreezes > 0);

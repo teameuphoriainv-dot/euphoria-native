@@ -483,13 +483,13 @@ function BalanceSheet({ model }: { model: InteractiveGraphModel }) {
       <Svg width="100%" height={190} viewBox="0 0 320 190" accessible={false}>
         <SvgText x={80} y={18} fill={theme.success} fontSize={11} fontWeight="700" textAnchor="middle">ASSETS</SvgText>
         <TweenRect x={30} y={165 - assetHeight} width={100} height={assetHeight} baseline={165} rx={8} fill={theme.success + '2E'} stroke={theme.success} strokeWidth={1.5} />
-        <SvgText x={80} y={157 - assetHeight} fill={theme.success} fontSize={11} fontWeight="700" textAnchor="middle">${compact(assets)}</SvgText>
+        <SvgText x={80} y={157 - assetHeight} fill={theme.success} fontSize={11} fontWeight="700" textAnchor="middle">{`$${compact(assets)}`}</SvgText>
         <SvgText x={160} y={98} fill={theme.success} fontSize={24} fontWeight="700" textAnchor="middle">=</SvgText>
         <SvgText x={240} y={18} fill={theme.mutedForeground} fontSize={10} fontWeight="700" textAnchor="middle">LIABILITIES + EQUITY</SvgText>
         <TweenRect x={190} y={165 - liabilityHeight - equityHeight} width={100} height={equityHeight} baseline={165 - liabilityHeight} rx={8} fill={theme.primary + '2E'} stroke={theme.primary} strokeWidth={1.5} />
         <TweenRect x={190} y={165 - liabilityHeight} width={100} height={liabilityHeight} baseline={165} rx={8} fill={theme.destructive + '2E'} stroke={theme.destructive} strokeWidth={1.5} />
-        <SvgText x={240} y={178 - liabilityHeight - equityHeight} fill={theme.iconLilac} fontSize={9} textAnchor="middle">Equity ${compact(equity)}</SvgText>
-        <SvgText x={240} y={178 - liabilityHeight} fill={theme.destructive} fontSize={9} textAnchor="middle">Debt ${compact(liabilities)}</SvgText>
+        <SvgText x={240} y={178 - liabilityHeight - equityHeight} fill={theme.iconLilac} fontSize={9} textAnchor="middle">{`Equity $${compact(equity)}`}</SvgText>
+        <SvgText x={240} y={178 - liabilityHeight} fill={theme.destructive} fontSize={9} textAnchor="middle">{`Debt $${compact(liabilities)}`}</SvgText>
       </Svg>
       <View style={[styles.status, { backgroundColor: theme.success + '18', borderColor: theme.success + '4D' }]}><ThemedText type="smallBold" style={{ color: theme.success }}>✓ Books Balanced</ThemedText></View>
     </View>
@@ -600,7 +600,7 @@ function Scatter({ model }: { model: InteractiveGraphModel }) {
       <TweenCircle cx={x} cy={y} r={4} fill={theme.primary} duration={GRAPH_FAST_MS} />
       <SvgText x={172} y={207} fill={theme.mutedForeground} fontSize={10} textAnchor="middle">{model.labels[0]}</SvgText>
       <SvgText x={13} y={108} fill={theme.mutedForeground} fontSize={10} textAnchor="middle" transform="rotate(-90 13 108)">{model.labels[1]}</SvgText>
-      <SvgText x={Math.max(45, Math.min(275, x))} y={Math.max(15, y - 16)} fill={theme.iconLilac} fontSize={10} fontWeight="700" textAnchor="middle">{compact(point.x)}, {compact(point.y)}</SvgText>
+      <SvgText x={Math.max(45, Math.min(275, x))} y={Math.max(15, y - 16)} fill={theme.iconLilac} fontSize={10} fontWeight="700" textAnchor="middle">{`${compact(point.x)}, ${compact(point.y)}`}</SvgText>
     </Svg>
   );
 }
@@ -768,11 +768,11 @@ function CompoundGrowthGraph({
             return (
               <G key={fraction}>
                 <Line x1={pad.left} x2={CHART_WIDTH - pad.right} y1={y(value)} y2={y(value)} stroke={theme.border} strokeWidth={0.8} />
-                <SvgText x={pad.left - 6} y={y(value) + 3} fill={theme.mutedForeground} fontSize={9} textAnchor="end">${compact(value)}</SvgText>
+                <SvgText x={pad.left - 6} y={y(value) + 3} fill={theme.mutedForeground} fontSize={9} textAnchor="end">{`$${compact(value)}`}</SvgText>
               </G>
             );
           })}
-          {yearTicks.map((year) => <SvgText key={year} x={x(year)} y={height - 9} fill={theme.mutedForeground} fontSize={9} textAnchor="middle">{year}y</SvgText>)}
+          {yearTicks.map((year) => <SvgText key={year} x={x(year)} y={height - 9} fill={theme.mutedForeground} fontSize={9} textAnchor="middle">{`${String(year)}y`}</SvgText>)}
           {totalArea ? <Polygon points={totalArea} fill={theme.primary + '25'} /> : null}
           {contributionArea ? <Polygon points={contributionArea} fill={theme.mutedForeground + '2E'} /> : null}
           {contributed.slice(1).map((point, index) => {
@@ -796,9 +796,10 @@ function CompoundGrowthGraph({
           ) : null}
           <TweenCircle cx={handleX} cy={handleY} r={dragging ? 11 : 9} fill={theme.primary} stroke={theme.primaryForeground} strokeWidth={2.5} duration={curveDuration} />
           {!grabbedOnce && controlsLive ? <SvgText x={handleX} y={Math.max(12, handleY - 35)} fill={theme.text} fontSize={10} fontWeight="700" textAnchor="middle">drag me</SvgText> : null}
-          <G transform={`translate(${String(handleX - 52)} ${String(handleY + (chipAbove ? -36 : 18))})`}>
+          {/* Multi-child SvgText anchors each child separately and overlaps them; keep labels one string. Chip clamped inside the plot. */}
+          <G transform={`translate(${String(Math.min(Math.max(handleX - 52, 2), CHART_WIDTH - 106))} ${String(handleY + (chipAbove ? -36 : 18))})`}>
             <Rect width={104} height={22} rx={11} fill={theme.card} stroke={theme.primary} strokeOpacity={0.5} />
-            <SvgText x={52} y={15} fill={theme.text} fontSize={10.5} fontWeight="700" textAnchor="middle">{data.annualReturn}% · {data.years} yrs</SvgText>
+            <SvgText x={52} y={15} fill={theme.text} fontSize={10.5} fontWeight="700" textAnchor="middle">{`${String(data.annualReturn)}% · ${String(data.years)} yrs`}</SvgText>
           </G>
         </Svg>
         {controlsLive && width > 0 ? (
@@ -993,8 +994,8 @@ function PortfolioMixerGraph({
         {medianLine ? <Polyline points={medianLine} fill="none" stroke={PORTFOLIO_COLORS.primary} strokeWidth={2.8} strokeLinecap="round" strokeLinejoin="round" /> : null}
         {worst.length ? <Polyline points={worst.map((point) => `${x(point.x)},${y(point.y)}`).join(' ')} fill="none" stroke={PORTFOLIO_COLORS.negative} strokeWidth={1.2} strokeDasharray="3 3" opacity={0.65} /> : null}
         <SvgText x={35} y={190} fill={theme.mutedForeground} fontSize={10}>0y</SvgText>
-        <SvgText x={x(Math.round(data.years / 2))} y={190} fill={theme.mutedForeground} fontSize={10} textAnchor="middle">{Math.round(data.years / 2)}y</SvgText>
-        <SvgText x={308} y={190} fill={theme.mutedForeground} fontSize={10} textAnchor="end">{data.years}y</SvgText>
+        <SvgText x={x(Math.round(data.years / 2))} y={190} fill={theme.mutedForeground} fontSize={10} textAnchor="middle">{`${String(Math.round(data.years / 2))}y`}</SvgText>
+        <SvgText x={308} y={190} fill={theme.mutedForeground} fontSize={10} textAnchor="end">{`${String(data.years)}y`}</SvgText>
       </Svg>
 
       <View style={styles.crashChips}>
@@ -1290,8 +1291,12 @@ export function InteractiveGraph({
   };
   const insightLead = special?.kind === 'inflationEroder' && betIndex !== null && predict
     ? (() => {
+        // Score the bet against the question's own years/rate (step params), not the live sliders:
+        // the reveal needs 28+ years, so the sliders rarely sit where the question was asked.
+        const asked = buildInteractiveGraphModel(step, []).explorable;
+        const answer = asked?.kind === 'inflationEroder' ? asked.survivors : special.survivors;
         const called = predict.options[betIndex]?.match(/\d+/)?.[0];
-        return called && Number(called) !== special.survivors ? `You called ${called} tickets. Inflation left ${String(special.survivors)}.` : undefined;
+        return called && Number(called) !== answer ? `You called ${called} tickets. Inflation left ${String(answer)}.` : undefined;
       })()
     : special?.kind === 'compoundGrowthLab' && revealed
       ? (() => {
