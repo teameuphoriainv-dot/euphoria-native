@@ -42,6 +42,9 @@ export const NODE_UPCOMING_COLOR = '#17141F';
 export const NODE_CHALLENGE_COLOR = '#F59E0B';
 /** Side-wall height. 4pt at a 56pt node; scaled with size so a big node does not look pasted on. */
 export const NODE_LIP = 4;
+/** The glyph ink. Named once rather than repeated: the check and the play triangle are the same
+ *  white, and design-rules-pin counts every hex literal in the file. */
+const GLYPH_INK = '#FFFFFF';
 
 export type PathNodeState = 'current' | 'done' | 'upcoming' | 'locked';
 
@@ -51,7 +54,7 @@ export type PathNodeState = 'current' | 'done' | 'upcoming' | 'locked';
  * draw the SAME triangle -- a second hand-rolled one would drift on proportion the first time
  * either is tweaked.
  */
-export function PlayGlyph({ scale = 1, color = '#FFFFFF' }: { scale?: number; color?: string }) {
+export function PlayGlyph({ scale = 1, color = GLYPH_INK }: { scale?: number; color?: string }) {
   return (
     <View
       style={{
