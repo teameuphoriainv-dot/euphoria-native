@@ -20,6 +20,14 @@ import type { LessonArtSet } from './types';
 
 export const LESSON_ART_LOADERS: Readonly<Record<string, () => Promise<{ art: LessonArtSet }>>> = {
   'quantitative-analysis:1': () => import('./qa1'),
+  'quantitative-analysis:2': () => import('./qa2'),
+  'quantitative-analysis:3': () => import('./qa3'),
+  'quantitative-analysis:4': () => import('./qa4'),
+  'quantitative-analysis:5': () => import('./qa5'),
+  'quantitative-analysis:6': () => import('./qa6'),
+  'quantitative-analysis:7': () => import('./qa7'),
+  'quantitative-analysis:8': () => import('./qa8'),
+  'quantitative-analysis:9': () => import('./qa9'),
   'investing-fundamentals:1': () => import('./if1'),
   'investing-fundamentals:2': () => import('./if2'),
   'investing-fundamentals:3': () => import('./if3'),
