@@ -183,6 +183,14 @@ export const LESSON_ART_LOADERS: Readonly<Record<string, () => Promise<{ art: Le
   'wealth-management:7': () => import('./wm7'),
   'wealth-management:8': () => import('./wm8'),
   'wealth-management:9': () => import('./wm9'),
+  'wealth-management:10': () => import('./wm10'),
+  'wealth-management:11': () => import('./wm11'),
+  'wealth-management:12': () => import('./wm12'),
+  'wealth-management:13': () => import('./wm13'),
+  'wealth-management:14': () => import('./wm14'),
+  'wealth-management:15': () => import('./wm15'),
+  'wealth-management:16': () => import('./wm16'),
+  'wealth-management:17': () => import('./wm17'),
 };
 
 const loaded = new Map<string, LessonArtSet>();
