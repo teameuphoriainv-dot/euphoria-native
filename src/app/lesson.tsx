@@ -100,7 +100,7 @@ import {
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge, notificationsNeverAsked } from '@/lib/notifications';
-import { lessonArtFor } from '@/lib/pixel/scenes';
+import { lessonArtFor, loadLessonArt } from '@/lib/pixel/scenes';
 import { lessonKey, useApp, type AppState } from '@/lib/store';
 import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
 import { feedback, warmLesson } from '@/lib/feedback';
@@ -568,8 +568,10 @@ export default function Lesson() {
     if (!hasHydrated) return;
 
     let cancelled = false;
-    loadCourseLessons(courseId)
-      .then((ls) => {
+    // The lesson's art loads beside it (lib/pixel/scenes is on demand), so lessonArtFor has it by
+    // the render setLesson triggers. Art is decoration: a failed load shows the lesson without it.
+    Promise.all([loadCourseLessons(courseId), loadLessonArt(courseId, lessonNum).catch(() => null)])
+      .then(([ls]) => {
         if (cancelled) return;
         const found = ls.find((l) => l.num === lessonNum) ?? null;
         setChallengeStage('none');

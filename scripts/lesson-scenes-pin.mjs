@@ -11,10 +11,13 @@
 //   quiet     a bright backdrop colour sits behind white text and purple buttons
 //   key       an entry for a lesson that does not exist is art nobody will ever see
 //   label     VoiceOver reads the label, so it must exist and carry no em dash (CONSTITUTION 4)
+//   loads     every entry is a lazy import (scenes/index.ts); one that fails would only show in-app
+//   orphan    a `<prefix><N>.ts` lesson set with no entry in index.ts is art nobody will ever see
 import assert from 'node:assert/strict';
+import { readdirSync } from 'node:fs';
 
 import { compileFrames, compileSprite } from '../src/lib/pixel/compile.ts';
-import { LESSON_ART } from '../src/lib/pixel/scenes/index.ts';
+import { LESSON_ART_LOADERS } from '../src/lib/pixel/scenes/index.ts';
 import { COURSES } from '../src/lib/curriculum/courseIndex.ts';
 
 const BUDGET = { opener: 900, backdrop: 700, finish: 400 };
@@ -34,10 +37,22 @@ const check = (ok, msg) => { if (!ok) failures.push(msg); };
 const courseIds = new Set(COURSES.map((c) => c.id));
 let scenes = 0;
 
-for (const [key, set] of Object.entries(LESSON_ART)) {
+const keys = Object.keys(LESSON_ART_LOADERS);
+const lessonFiles = readdirSync(new URL('../src/lib/pixel/scenes/', import.meta.url)).filter((f) => /^[a-z]{2}\d{1,2}\.ts$/.test(f));
+check(lessonFiles.length === keys.length,
+  `${String(lessonFiles.length)} lesson set files in scenes/ but ${String(keys.length)} entries in LESSON_ART_LOADERS; register every <prefix><N>.ts`);
+
+for (const key of keys) {
   const [courseId, num] = key.split(':');
   check(courseIds.has(courseId), `${key}: no course "${courseId}"`);
   check(Number.isInteger(Number(num)) && Number(num) >= 1 && Number(num) <= 25, `${key}: lesson number out of range`);
+  let set;
+  try {
+    ({ art: set } = await LESSON_ART_LOADERS[key]());
+  } catch (error) {
+    check(false, `${key}: art does not load: ${error instanceof Error ? error.message : String(error)}`);
+    continue;
+  }
 
   for (const slot of ['opener', 'backdrop', 'finish']) {
     const art = set[slot];
@@ -94,4 +109,4 @@ for (const [key, set] of Object.entries(LESSON_ART)) {
 
 assert.ok(scenes > 0, 'no lesson scenes found; this pin cannot see what it guards');
 assert.deepEqual(failures, [], `lesson scenes break their contract:\n  ${failures.join('\n  ')}`);
-console.log(`lesson-scenes-pin: OK. ${String(scenes)} scenes across ${String(Object.keys(LESSON_ART).length)} lessons honour size, bounds, motion, budget and backdrop quiet.`);
+console.log(`lesson-scenes-pin: OK. ${String(scenes)} scenes across ${String(keys.length)} lessons honour size, bounds, motion, budget and backdrop quiet.`);

@@ -6,21 +6,51 @@
  * live inside them. A lesson with no entry keeps the shared defaults (the flame opener, the plain
  * starfield, the finish screen as it was), so adding art is always opt-in per lesson.
  *
- * PILOT (owner, 2026-09-29): one lesson, all out, before anything is rolled out further.
- * When this grows past a handful of lessons, load each course's art on demand, the way the lesson
- * decks already are (scripts/lazy-deck-pin.mjs), instead of importing every scene here.
+ * LOADED ON DEMAND (owner, 2026-10-10: art for every lesson of every pathway). Each lesson's set
+ * lives in its own module, `<prefix><N>.ts` exporting `art`, imported the first time that lesson
+ * opens, the way the course decks are (curriculum/courseIndex.ts). The kits compose their bases
+ * when a module loads, so importing all 300 lessons here would cost every cold start for pictures
+ * nobody opened. lessonArtFor reads only what has loaded; lesson.tsx awaits loadLessonArt beside
+ * the lesson itself, so the art is in place before the first screen draws.
+ *
+ * One literal import per lesson because Metro only bundles specifiers it can read statically.
+ * scripts/lesson-scenes-pin.mjs fails if a `<prefix><N>.ts` file exists without an entry here.
  */
-import { qaBackdrop } from './qa-backdrop';
-import { qa1Finish } from './qa1-finish';
-import { qa1Opener } from './qa1-opener';
 import type { LessonArtSet } from './types';
 
-export const LESSON_ART: Readonly<Record<string, LessonArtSet>> = {
-  'quantitative-analysis:1': { opener: qa1Opener, backdrop: qaBackdrop, finish: qa1Finish },
+export const LESSON_ART_LOADERS: Readonly<Record<string, () => Promise<{ art: LessonArtSet }>>> = {
+  'quantitative-analysis:1': () => import('./qa1'),
+  'investing-fundamentals:1': () => import('./if1'),
+  'personal-finance:1': () => import('./pf1'),
+  'global-economics:1': () => import('./ge1'),
+  'corporate-finance:1': () => import('./cf1'),
+  'business-strategy:1': () => import('./bs1'),
+  'financial-analytics:1': () => import('./fa1'),
+  'behavioral-finance:1': () => import('./bf1'),
+  'applied-accounting:1': () => import('./aa1'),
+  'risk-management:1': () => import('./rm1'),
+  'alternative-investments:1': () => import('./ai1'),
+  'wealth-management:1': () => import('./wm1'),
 };
 
+const loaded = new Map<string, LessonArtSet>();
+const keyOf = (courseId: string, lessonNumber: number) => `${courseId}:${String(lessonNumber)}`;
+
+/** The lesson's art if it has loaded, else null. Synchronous, for render. */
 export function lessonArtFor(courseId: string, lessonNumber: number): LessonArtSet | null {
-  return LESSON_ART[`${courseId}:${String(lessonNumber)}`] ?? null;
+  return loaded.get(keyOf(courseId, lessonNumber)) ?? null;
+}
+
+/** Loads (once) and returns the lesson's art; null for a lesson without any. */
+export async function loadLessonArt(courseId: string, lessonNumber: number): Promise<LessonArtSet | null> {
+  const key = keyOf(courseId, lessonNumber);
+  const hit = loaded.get(key);
+  if (hit) return hit;
+  const load = LESSON_ART_LOADERS[key];
+  if (!load) return null;
+  const { art } = await load();
+  loaded.set(key, art);
+  return art;
 }
 
 export type { LessonArtSet, SceneArt, SceneLayer, SceneMotion } from './types';
