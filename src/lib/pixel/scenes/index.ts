@@ -70,6 +70,14 @@ export const LESSON_ART_LOADERS: Readonly<Record<string, () => Promise<{ art: Le
   'applied-accounting:1': () => import('./aa1'),
   'risk-management:1': () => import('./rm1'),
   'alternative-investments:1': () => import('./ai1'),
+  'alternative-investments:2': () => import('./ai2'),
+  'alternative-investments:3': () => import('./ai3'),
+  'alternative-investments:4': () => import('./ai4'),
+  'alternative-investments:5': () => import('./ai5'),
+  'alternative-investments:6': () => import('./ai6'),
+  'alternative-investments:7': () => import('./ai7'),
+  'alternative-investments:8': () => import('./ai8'),
+  'alternative-investments:9': () => import('./ai9'),
   'wealth-management:1': () => import('./wm1'),
 };
 
