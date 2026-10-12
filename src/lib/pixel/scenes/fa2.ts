@@ -3,16 +3,19 @@
  *
  * OPENER. A close-up of one machine: the sorting board, a tall glass bean machine fed from the
  * ceiling chute. Yearly returns drop through the pegs and stack in eleven bins into the lesson's
- * picture, a bell-shaped distribution: red in the loss tail, teal through the body, green in the
- * gains tail, a gold dashed line at the mean and white ticks on the scale one standard deviation
- * either side. The histogram builds itself and clears; the analyst checks it on the tablet, and
- * the map lights ANALYZE.
+ * picture of annual stock returns, lopsided the way they really fall: a long low red tail of crash
+ * years on the left, the teal body piled up right of centre, a short green gains tail. Because the
+ * crash years drag it, the gold dashed mean sits left of the white dashed median, and both sit left
+ * of the tallest bin, the mode: the typical year beats the average year. A bright white bracket on
+ * the scale spans one standard deviation either side of the mean. The histogram builds itself and
+ * clears; the analyst checks it on the tablet, and the map lights ANALYZE.
  *
- * KEEPSAKE. The trophy with the bell curve: red and green tails, a gold mean marker on top.
+ * KEEPSAKE. The trophy with the same lopsided histogram in thin bars: a long flat red crash tail,
+ * the gold dashed mean just left of the tallest bar, a white bracket for one standard deviation.
  */
 import { faBackdrop } from './fa-backdrop';
 import { faAnalyst, faCompose, faDrawnChart, faFalling, faPipelineMap, faTabletLine, FA_ANALYST_TABLET } from './fa-kit';
-import { faKeepsake, faRoom, faStageLight } from './fa-kit-a';
+import { faDrawnBy, faKeepsake, faRoom, faStageLight } from './fa-kit-a';
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
 
@@ -21,8 +24,14 @@ import type { LessonArtSet, SceneArt } from './types';
 const GLASS_W = 43;
 /** Every bin is a 3px stack and a 1px divider. */
 const BIN = 4;
-/** Stack heights, bin by bin: a bell with fat tails, the way annual returns fall. */
-const HEIGHTS = [2, 3, 6, 10, 14, 17, 14, 10, 6, 3, 2];
+/**
+ * Stack heights, bin by bin: skewed left, the way annual returns fall. The mean is bin 6.05, the
+ * median falls exactly on the divider between bins 6 and 7, the mode is bin 7, and one standard
+ * deviation is 2.4 bins.
+ */
+const HEIGHTS = [2, 2, 3, 4, 6, 9, 13, 17, 14, 6, 2];
+/** In glass pixels: the mean (centre of bin 6), the median (the 6 and 7 divider), one SD either side. */
+const STATS = { mean: 25, median: 27, sdFrom: 16, sdTo: 35 } as const;
 
 /** 49 x 37. Glass from (3, 4): pegs on rows 5, 7 and 9, bins from row 11, the scale on row 31. */
 const board: PixelSprite = (() => {
@@ -31,8 +40,11 @@ const board: PixelSprite = (() => {
   const pegs = (from: number) => glass((x) => (x >= from && (x - from) % 6 === 0 ? 'x' : 'K'));
   const open = glass(() => 'K');
   const bins = glass((x) => (x % BIN === BIN - 1 ? 'D' : 'K'));
-  // The scale: a gold tick under the mean, white ticks one standard deviation either side.
-  const scale = Array.from({ length: 45 }, (_, s) => (s === 22 ? 'y' : s === 16 || s === 28 ? 'w' : 'X')).join('');
+  // The scale (s is glass x + 1): a bright white bracket one standard deviation either side of the
+  // mean, its ends turned up into the floor above, and the gold mean tick inside it.
+  const sd = (s: number) => s >= STATS.sdFrom + 1 && s <= STATS.sdTo + 1;
+  const scale = Array.from({ length: 45 }, (_, s) => (s === STATS.mean + 1 ? 'y' : sd(s) ? 'w' : 'X')).join('');
+  const floor = Array.from({ length: 45 }, (_, s) => (s === STATS.sdFrom + 1 || s === STATS.sdTo + 1 ? 'w' : 'D')).join('');
   return {
     id: 'fa2-board',
     name: 'sorting board',
@@ -45,7 +57,7 @@ const board: PixelSprite = (() => {
       `Dx${'D'.repeat(20)}KKKKK${'D'.repeat(20)}kD`,
       open, pegs(2), open, pegs(5), open, pegs(2), open, open,
       ...Array.from({ length: 18 }, () => bins),
-      `Dx${'D'.repeat(45)}kD`,
+      `Dx${floor}kD`,
       `Dx${scale}kD`,
       `D${'T'.repeat(46)}tD`,
       `Dx${'X'.repeat(45)}kD`,
@@ -97,7 +109,7 @@ const base = faCompose('fa2-opener-base', room, [
 
 /** The histogram stacking up bin by bin, holding, then the bins emptying for the next run. */
 const histogram: PixelSprite = (() => {
-  const ink = (bin: number) => (bin < 2 ? 'RRr' : bin > 8 ? 'NNn' : 'TTt');
+  const ink = (bin: number) => (bin < 3 ? 'RRr' : bin > 8 ? 'NNn' : 'TTt');
   const full = Array.from({ length: 19 }, (_, y) =>
     Array.from({ length: GLASS_W }, (_, x) => {
       const bin = Math.floor(x / BIN);
@@ -109,21 +121,24 @@ const histogram: PixelSprite = (() => {
   ], 300);
 })();
 
-/** The mean: a gold dashed line down the centre bin. */
+/** The mean: a gold dashed line down bin 6. */
 const meanLine: PixelSprite = { id: 'fa2-mean-line', name: 'mean line', tags: ['scene', 'fa2'], rows: Array.from({ length: 19 }, (_, y) => (y % 2 ? '.' : 'y')) };
+/** The median: a white dashed line down the divider after bin 6, its dashes between the mean's. */
+const medianLine: PixelSprite = { id: 'fa2-median-line', name: 'median line', tags: ['scene', 'fa2'], rows: Array.from({ length: 19 }, (_, y) => (y % 2 ? 'w' : '.')) };
 
 /** Returns dropping from the slot through the pegs. */
 const drops = faFalling('fa2-drops', 5, 9, [[0, 0, 'B'], [2, 4, 'B'], [4, 7, 'T'], [1, 6, 'w'], [3, 2, 'B']], 130);
 
 export const fa2Opener: SceneArt = {
   id: 'fa2-opener',
-  label: 'A tall glass sorting board in the data works: returns drop through pegs and stack into a bell shaped histogram with red and green tails and a gold mean line, while an analyst with a tablet watches.',
+  label: 'A tall glass sorting board in the data works: yearly returns drop through pegs and stack into a lopsided histogram with a long low red tail of crash years, a gold mean line left of a white median line and the tallest bin, and a white bracket one standard deviation either side, while an analyst with a tablet watches.',
   width: 80,
   height: 60,
   base,
   layers: [
     { sprite: histogram, x: GLASS.x, y: GLASS.y + 7 },
-    { sprite: meanLine, x: GLASS.x + 21, y: GLASS.y + 7, motion: { kind: 'twinkle', periodMs: 1700, min: 0.4 } },
+    { sprite: meanLine, x: GLASS.x + STATS.mean, y: GLASS.y + 7, motion: { kind: 'twinkle', periodMs: 1700, min: 0.4 } },
+    { sprite: medianLine, x: GLASS.x + STATS.median, y: GLASS.y + 7, motion: { kind: 'twinkle', periodMs: 1700, phase: 0.5, min: 0.4 } },
     { sprite: drops, x: GLASS.x + 19, y: GLASS.y },
     faStageLight('analyze', MAP.x, MAP.y),
     { sprite: faTabletLine, x: ANALYST.x + FA_ANALYST_TABLET.x, y: ANALYST.y + FA_ANALYST_TABLET.y },
@@ -132,40 +147,45 @@ export const fa2Opener: SceneArt = {
 
 /* ── the keepsake ──────────────────────────────────────────────────────────────────────────── */
 
+/** The emblem's bars: one pixel wide on every other column, lopsided like the opener's. */
+const EMBLEM_BARS = [1, 1, 2, 4, 7, 9, 5, 2];
+/** Where the emblem's bars stand, its mean (a gap column, x = 8.65 rounded), and one SD either side. */
+const EMBLEM = { floor: 9, mean: 9, sdFrom: 5, sdTo: 12 } as const;
+
 /**
- * LESSON 2: descriptive statistics. A bell curve, red in the loss tail and green in the gains
- * tail, its rim lit, with a gold marker over the peak for the mean. It rises from the baseline,
- * the mean lands on top and flashes, it holds, the screen clears.
+ * LESSON 2: descriptive statistics. Eight thin bars with gaps between them, skewed like real
+ * returns: a long flat red crash tail on the left, the teal body tallest right of centre, a short
+ * pale gains tail. A gold dashed mean runs down the gap just left of the tallest bar, and along the
+ * foot a white bracket spans one standard deviation either side of it. The bars rise, the mean
+ * drops in, the bracket is drawn, it holds, the screen clears.
  */
 export const faEmblemBell: PixelSprite = (() => {
-  const full = [
-    '.......yy.......',
-    '................',
-    '.......mm.......',
-    '......mTTm......',
-    '......TTTT......',
-    '.....mTTTTm.....',
-    '.....TTTTTT.....',
-    '....mTTTTTTm....',
-    '...mTTTTTTTTm...',
-    '..RTTTTTTTTTTN..',
-    'RRRTTTTTTTTTTNNN',
-  ];
-  const BELL = [1, 1, 2, 3, 4, 6, 8, 9, 9, 8, 6, 4, 3, 2, 1, 1];
-  const grow = (k: number) => BELL.map((h) => Math.ceil((h * k) / 4));
-  const withMean = BELL.map((h, x) => (x === 7 || x === 8 ? 11 : h));
-  const chart = faDrawnChart('fa-emblem-bell', full, BELL.map((_, x) => [x, x] as const), [
-    grow(1), grow(2), grow(3), grow(4), withMean, withMean, withMean, withMean, BELL.map(() => 0),
-  ], 320);
-  const frames = chart.frames ?? [chart.rows];
-  // The mean catches the light on the beat after it lands.
-  frames[5] = frames[5].map((row, y) => (y === 0 ? row.replace('yy', 'ww') : row));
-  return { ...chart, name: 'emblem bell', tags: ['scene', 'fa', 'emblem'], blurb: 'A bell curve with fat tails and its mean.', frames };
+  const ink = (bar: number) => (bar < 3 ? 'R' : bar === EMBLEM_BARS.length - 1 ? 'm' : 'T');
+  const full = Array.from({ length: 11 }, (_, y) =>
+    Array.from({ length: 16 }, (_, x) => {
+      if (y === EMBLEM.floor + 1) {
+        if (x === EMBLEM.mean) return 'y';
+        return x >= EMBLEM.sdFrom && x <= EMBLEM.sdTo ? 'w' : '.';
+      }
+      if (x === EMBLEM.mean) return y >= 1 && y % 2 === 1 ? 'y' : '.';
+      const bar = x / 2;
+      const h = x % 2 === 0 ? (EMBLEM_BARS[bar] ?? 0) : 0;
+      return y <= EMBLEM.floor && y > EMBLEM.floor - h ? ink(bar) : '.';
+    }).join(''));
+  return {
+    ...faDrawnBy('fa-emblem-bell', full, (x, y, ch) => {
+      if (y === EMBLEM.floor + 1) return 7;
+      if (ch === 'y') return 6;
+      return 1 + Math.floor((EMBLEM.floor - y) / 2);
+    }, 300, 4),
+    name: 'emblem histogram',
+    blurb: 'A lopsided histogram with a long red tail, its mean and one standard deviation.',
+  };
 })();
 
 export const fa2Finish: SceneArt = faKeepsake(
   'fa2-finish',
-  'A gold terminal trophy on a purple stand, its screen drawing a bell curve with a red tail, a green tail and a gold mean marker, with small sparkles around it.',
+  'A gold terminal trophy on a purple stand, its screen drawing a lopsided histogram of thin bars with a long flat red tail, a gold dashed mean line beside the tallest bar and a white bracket for one standard deviation, with small sparkles around it.',
   faEmblemBell,
 );
 
