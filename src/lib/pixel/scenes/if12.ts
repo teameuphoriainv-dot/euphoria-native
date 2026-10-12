@@ -3,12 +3,14 @@
  * seller's.
  *
  * A new set for the pathway: a stream winding out of the hills with an arched footbridge over it. On
- * the near bank the investor holds up a green sign, a bid of 19; on the far bank the orchard's
- * gardener, a crate of coins behind them, holds up a red sign asking 20. The stream between them is
- * the spread, and the bridge is where the order fills if one of them crosses. The water ripples,
- * stars twinkle in it and over it, the coins glint and fireflies drift.
+ * the near bank the investor, a crate of coins behind them, holds up a green sign, a bid of 19; on the
+ * far bank the orchard's gardener, a crate of apples behind them, holds up a red sign asking 20. Money
+ * on one bank and goods on the other, so it reads as a trade. The stream between them is the spread,
+ * and the bridge is where the order fills if one of them crosses. The water ripples, stars twinkle in
+ * it and over it, the coins glint and fireflies drift.
  *
- * The keepsake's emblem is a green arrow up beside a red arrow down: a buy and a sell.
+ * The keepsake's emblem is the two price boards facing each other across a strip of water: the bid,
+ * the ask and the spread between them.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -24,7 +26,7 @@ import {
   ifStarBig,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { IF_A_PALETTE, IF_GARDENER_HAND, ifGardener } from './if-kit-a';
+import { IF_APPLE, IF_A_PALETTE, IF_GARDENER_HAND, ifGardener, ifRecolour } from './if-kit-a';
 import { ifDigits } from './if-kit-b';
 import type { LessonArtSet, SceneArt } from './types';
 
@@ -110,7 +112,7 @@ const ASK_STICK = 7;
 const bidSign = priceSign('if12-bid', '19', 'N', 'n', BID_STICK);
 const askSign = priceSign('if12-ask', '20', 'R', 'r', ASK_STICK);
 
-/** A crate heaped with coins, 7x6, the seller's goods. */
+/** A crate heaped with coins, 7x6: the buyer's money. Recoloured with apples, it is the seller's goods. */
 const crate: PixelSprite = {
   id: 'if12-crate',
   name: 'if12-crate',
@@ -140,13 +142,15 @@ const SELLER = { x: 57, y: 26 } as const;
 /** Each stick rises out of a hand; the boards ride above the figures' heads, clear of their hats. */
 const BID = { x: INVESTOR.x + IF_INVESTOR_HAND.x - BID_STICK, y: INVESTOR.y + IF_INVESTOR_HAND.y - 12 } as const;
 const ASK = { x: SELLER.x + IF_GARDENER_HAND.x - ASK_STICK, y: SELLER.y + IF_GARDENER_HAND.y - 12 } as const;
-const CRATE = { x: 72, y: 40 } as const;
+const COINS = { x: 0, y: 40 } as const;
+const APPLES = { x: 72, y: 40 } as const;
 
 const base = ifCompose('if12-opener-base', 80, 60, [
   { sprite: ifStage, x: 0, y: 0 },
   { sprite: stream, x: 0, y: STREAM_TOP },
   { sprite: bridge, x: 0, y: 0 },
-  { sprite: crate, x: CRATE.x, y: CRATE.y },
+  { sprite: crate, x: COINS.x, y: COINS.y },
+  { sprite: ifRecolour(crate, 'if12-crate-apples', IF_APPLE), x: APPLES.x, y: APPLES.y },
   // Each sign before its holder, so the hand closes over the stick.
   { sprite: bidSign, x: BID.x, y: BID.y },
   { sprite: askSign, x: ASK.x, y: ASK.y },
@@ -156,7 +160,7 @@ const base = ifCompose('if12-opener-base', 80, 60, [
 
 export const if12Opener: SceneArt = {
   id: 'if12-opener',
-  label: 'On one bank of a moonlit stream an investor holds up a green sign bidding 19, and on the other bank a seller with a crate of coins holds up a red sign asking 20, a footbridge over the water between them.',
+  label: 'On one bank of a moonlit stream an investor with a crate of coins holds up a green sign bidding 19, and on the other bank a seller with a crate of apples holds up a red sign asking 20, a footbridge over the water between them.',
   width: 80,
   height: 60,
   base,
@@ -166,7 +170,7 @@ export const if12Opener: SceneArt = {
     { sprite: ripple, x: 44, y: 53, motion: { kind: 'drift', amp: 1, periodMs: 2000, phase: 0.7 } },
     { sprite: ifStar, x: 36, y: 57, motion: { kind: 'twinkle', periodMs: 1900, min: 0.15 } },
     { sprite: ifStar, x: 46, y: 51, motion: { kind: 'twinkle', periodMs: 2500, phase: 0.5, min: 0.15 } },
-    { sprite: ifGlint, x: CRATE.x + 1, y: CRATE.y - 1 },
+    { sprite: ifGlint, x: COINS.x + 1, y: COINS.y - 1 },
     { sprite: ifStarBig, x: 30, y: 5, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
     { sprite: ifStar, x: 47, y: 11, motion: { kind: 'twinkle', periodMs: 1800, phase: 0.4, min: 0.2 } },
     { sprite: ifStar, x: 66, y: 4, motion: { kind: 'twinkle', periodMs: 2600, phase: 0.7, min: 0.2 } },
@@ -181,22 +185,23 @@ const emblemOrders: PixelSprite = {
   id: 'if-emblem-orders',
   name: 'if-emblem-orders',
   tags: ['scene', 'if'],
-  blurb: "Lesson 12: a green arrow up beside a red arrow down. A buy order and a sell order.",
+  blurb: "Lesson 12: a green bid board and a red ask board facing each other across the water. The spread between them.",
+  palette: IF_PALETTE,
   rows: [
-    '..N...sRr.',
-    '.mNn..sRr.',
-    'mNNNn.sRr.',
-    '.mNn..sRr.',
-    '.mNn..sRr.',
-    '.mNn.sRRRr',
-    '.mNn..sRr.',
-    '.mNn...R..',
+    'nnnn..rrrr',
+    'nmNn..rsRr',
+    'nNNn..rRRr',
+    'nnnn..rrrr',
+    '.hA....hA.',
+    '.hA.bb.hA.',
+    'LLLLbBLLLL',
+    'LLLBwbBLLL',
   ],
 };
 
 export const if12Finish: SceneArt = ifKeepsake(
   'if12-finish',
-  'A golden acorn hanging from an oak twig, with a green arrow pointing up beside a red arrow pointing down in its purple window and small sparkles around it.',
+  'A golden acorn hanging from an oak twig, with a green sign and a red sign on posts facing each other across a strip of blue water in its purple window and small sparkles around it.',
   emblemOrders,
 );
 

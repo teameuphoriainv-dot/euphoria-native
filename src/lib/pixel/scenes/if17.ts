@@ -8,7 +8,8 @@
  * a stump with its sand running, because the right expires and is worth less every day it waits (time
  * decay). Sand falls (frames), the ribbon flutters, coins glint, stars twinkle and fireflies drift.
  *
- * The keepsake's emblem is the hourglass.
+ * The keepsake's emblem is the hourglass with the strike tag tied to it on the red ribbon: a price
+ * fixed today that holds only until the sand runs out, which no other lesson's hourglass would mean.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -201,23 +202,23 @@ const emblemHourglass: PixelSprite = {
   id: 'if-emblem-hourglass',
   name: 'if-emblem-hourglass',
   tags: ['scene', 'if'],
-  blurb: "Lesson 17: an hourglass with its sand running. A right that runs out.",
+  blurb: "Lesson 17: an hourglass with the strike tag tied to it. A fixed price, until time runs out.",
   palette: IF_PALETTE,
   rows: [
-    'hhhhhhhhhA',
-    '.wyGGGGgx.',
-    '..wGGGgx..',
-    '...wGgx...',
-    '...wy.x...',
-    '..w.y..x..',
-    '.wyGGGGgx.',
-    'hhhhhhhhhA',
+    'hhhhhARr..',
+    'wyGGgx.Rr.',
+    '.wGgx..Rw.',
+    '..wx..wKwx',
+    '..wx..wwwx',
+    '.wyGx.wwwx',
+    'wyGGgx.wwx',
+    'hhhhhA.xxx',
   ],
 };
 
 export const if17Finish: SceneArt = ifKeepsake(
   'if17-finish',
-  'A golden acorn hanging from an oak twig, with an hourglass of gold sand in its purple window and small sparkles around it.',
+  'A golden acorn hanging from an oak twig, with an hourglass of gold sand and a white price tag tied to it with a red ribbon in its purple window and small sparkles around it.',
   emblemHourglass,
 );
 
