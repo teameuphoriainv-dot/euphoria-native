@@ -19,6 +19,10 @@
  * and a Reanimated clock picks which group shows: no React work per tick. The frames compile as
  * stills through compileSprite, which caches per sprite AND canvas (compileFrames caches per sprite
  * only, so a theme switch would keep the first theme's colours).
+ *
+ * ALWAYS THE DARK PALETTE (owner, 2026-10-12: lessons are always dark). Scene art lives only in the
+ * lesson, whose design (LessonDesignProvider) is dark in both appearances, so it never takes the light
+ * retint, which would darken its pale tones for a white page that is not there.
  */
 import { useIsFocused } from 'expo-router';
 import { memo, useEffect } from 'react';
@@ -37,13 +41,14 @@ import Animated, {
 } from 'react-native-reanimated';
 import Svg, { G, Path } from 'react-native-svg';
 
-import { useThemeMode } from '@/hooks/use-theme';
 import { compileSprite, PixelSpriteView, type PixelSprite } from '@/lib/pixel';
 import type { PixelCanvas } from '@/lib/pixel/compile';
 import { pathsFor } from '@/lib/pixel/PixelSprite';
 import type { SceneArt, SceneLayer } from '@/lib/pixel/scenes/types';
 
 const AnimatedG = Animated.createAnimatedComponent(G);
+/** Scene art is drawn for the lesson's dark canvas in both appearances. */
+const SCENE_CANVAS: PixelCanvas = 'dark';
 
 /** Each frame of a framed sprite as its own still sprite, kept per source so identities (and compileSprite's cache) hold. */
 const frameStills = new WeakMap<PixelSprite, PixelSprite[]>();
@@ -82,7 +87,7 @@ function FrameGroup({ clock, index, count, sprite, canvas }: {
 
 /** A framed sprite looping its frames at its own frameMs, the way PixelSpriteView's 'loop' does, off the JS thread. */
 function FramedSprite({ sprite, scale, live }: { sprite: PixelSprite; scale: number; live: boolean }) {
-  const canvas = useThemeMode();
+  const canvas = SCENE_CANVAS;
   const clock = useSharedValue(0);
   const stills = stillsOf(sprite);
   const count = stills.length;
@@ -98,7 +103,7 @@ function FramedSprite({ sprite, scale, live }: { sprite: PixelSprite; scale: num
     return () => cancelAnimation(clock);
   }, [live, count, ms, clock]);
 
-  if (!live) return <PixelSpriteView sprite={sprite} scale={scale} />;
+  if (!live) return <PixelSpriteView sprite={sprite} scale={scale} canvas={SCENE_CANVAS} />;
   const { width, height } = compileSprite(sprite, canvas);
   return (
     <Svg width={width * scale} height={height * scale} viewBox={`0 0 ${String(width)} ${String(height)}`}>
@@ -169,7 +174,7 @@ function MovingLayer({ layer, scale, live }: { layer: SceneLayer; scale: number;
     <Animated.View style={[styles.layer, { left: layer.x * scale, top: layer.y * scale }, style]}>
       {framed
         ? <FramedSprite sprite={layer.sprite} scale={scale} live={live} />
-        : <PixelSpriteView sprite={layer.sprite} scale={scale} />}
+        : <PixelSpriteView sprite={layer.sprite} scale={scale} canvas={SCENE_CANVAS} />}
     </Animated.View>
   );
 }
@@ -194,7 +199,7 @@ function PixelSceneViewInner({ art, scale, decorative = false, paused = false }:
       accessibilityElementsHidden={decorative}
       importantForAccessibility={decorative ? 'no-hide-descendants' : 'yes'}>
       <View pointerEvents="none" accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-        <PixelSpriteView sprite={art.base} scale={scale} />
+        <PixelSpriteView sprite={art.base} scale={scale} canvas={SCENE_CANVAS} />
         {art.layers.map((layer, i) => (
           <MovingLayer key={`${layer.sprite.id}-${String(i)}`} layer={layer} scale={scale} live={live} />
         ))}

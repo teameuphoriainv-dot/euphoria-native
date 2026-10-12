@@ -69,6 +69,7 @@ import { TrialRewardSheet } from '@/components/trial-reward-sheet';
 import { UIcon } from '@/components/ui-icon';
 import { PixelSpriteView, heart as heartSprite, lightbulb as lightbulbSprite } from '@/lib/pixel';
 import { Button, SlabButton } from '@/components/ui/button';
+import { LessonColors } from '@/constants/lesson-design';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { Ev, track } from '@/lib/analytics';
 import { useTheme } from '@/hooks/use-theme';
@@ -2126,7 +2127,9 @@ const styles = StyleSheet.create({
     bottom: ATLAS_REST,
     zIndex: 30,
   },
-  safe: { flex: 1 },
+  // Lessons are always dark (owner, 2026-10-12): the screen paints its own canvas instead of letting a
+  // Light appearance's page show through the dark lesson design.
+  safe: { flex: 1, backgroundColor: LessonColors.background },
   hintBtn: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
   loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
   header: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, zIndex: 20 },
