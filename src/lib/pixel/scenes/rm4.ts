@@ -1,9 +1,9 @@
 /**
- * Risk Management lesson 4 opener, Credit Risk & Default Probability: three loads hang from the
- * store-room beam, each tagged with its rating. AAA rides on a stout gold chain and BBB on a plain
- * rope; CCC's rusty chain has snapped, its stub swinging, and the crate lies burst on the floor
- * with its coins spilled, the loss given default. The keeper points at it. Moving: the broken stub,
- * coin glints, the dust of the fall, the lantern.
+ * Risk Management lesson 4 opener, Credit Risk & Default Probability: three loads were hung from
+ * the store-room beam, each under its rating tag, and two still hang. AAA rides on a stout gold chain
+ * and BBB on a plain rope; CCC's rusty chain has snapped, its stub swinging, and its crate lies burst
+ * on the floor with its coins spilled, the loss given default. The keeper points at it. Moving: the
+ * broken stub, coin glints, the dust of the fall, the lantern.
  */
 import type { PixelSprite } from '../types';
 import { rmBackdrop } from './rm-backdrop';
@@ -18,11 +18,14 @@ const LETTERS: Record<string, readonly string[]> = {
   C: ['.##', '#..', '#..', '#..', '.##'],
 };
 
-/** A rating tag: three letters in dark ink on a card of `card`. 13x7. */
+/**
+ * A rating tag: three letters in the card colour on a dark plate. 13x7. Bright letters on dark, not
+ * dark on bright: dark ink ran into the dark frame and the eye read the card as the letters.
+ */
 function ratingTag(id: string, letter: string, card: string): PixelSprite {
-  const ink = (row: string) => [...row].map((ch) => (ch === '#' ? 'K' : card)).join('');
+  const ink = (row: string) => [...row].map((ch) => (ch === '#' ? card : 'K')).join('');
   const glyph = LETTERS[letter];
-  const rows = glyph.map((row) => `D${ink(row)}${card}${ink(row)}${card}${ink(row)}D`);
+  const rows = glyph.map((row) => `D${ink(row)}K${ink(row)}K${ink(row)}D`);
   return { id, name: id, tags: ['scene', 'rm4'], rows: ['.DDDDDDDDDDD.', ...rows, '.DDDDDDDDDDD.'] };
 }
 
@@ -163,7 +166,7 @@ const base = rmCompose('rm4-opener-base', rmWatchRoom(80, 60, 50), [
 
 export const rm4Opener: SceneArt = {
   id: 'rm4-opener',
-  label: 'Three crates hang from a beam under rating tags, AAA on a gold chain and BBB on a rope, while the rusty CCC chain has snapped and its crate lies burst on the floor spilling coins, as the keeper points at it.',
+  label: "Under AAA, BBB and CCC rating tags on a beam, the AAA crate hangs on a stout gold chain and the BBB crate on a rope, while CCC's rusty chain has snapped and its crate lies burst on the floor spilling coins, as the keeper points at it.",
   width: 80,
   height: 60,
   base,

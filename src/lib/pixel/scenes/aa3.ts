@@ -101,7 +101,7 @@ const bottomLine = sprite('aa3-bottom-line', ['mmm', '...', 'mmm']);
 
 export const aa3Opener: SceneArt = {
   id: 'aa3-opener',
-  label: 'A bookkeeper sits under a waterfall chart where a coin steps down from a tall revenue bar past red costs to a small green net income bar, beside a brass plate reading P&L.',
+  label: 'A bookkeeper under a brass plate reading P&L sits beside a waterfall chart where a coin steps down from a tall gold revenue bar past red costs to a small green net income bar, and the statement on the desk ends in a green double ruled bottom line.',
   width: 80,
   height: 60,
   base,
@@ -116,29 +116,34 @@ export const aa3Opener: SceneArt = {
   ],
 };
 
-/** Lesson 3 emblem: a gilt waterfall, revenue down past two hanging costs to the bottom line. */
+/**
+ * Lesson 3 emblem: the opener's waterfall in its own colours. A gold revenue bar, red cost of goods
+ * hanging from its top, the gold gross profit bar, red operating costs hanging from that, and the
+ * green net income bar, double-ruled underneath: the bottom line. Each level adds up (10 = 3 + 7,
+ * 7 = 3 + 4), and the stamp sits a pixel in from the plate's gilt edge so the revenue bar stays clear.
+ */
 const emblemWaterfall = sprite('aa-emblem-waterfall', [
   '................',
+  '.yGgsRr.........',
+  '.yGgsRr.........',
+  '.yGgsRr.........',
+  '.yGg...yGgsRr...',
+  '.yGg...yGgsRr...',
+  '.yGg...yGgsRr...',
+  '.yGg...yGg...mNn',
+  '.yGg...yGg...mNn',
+  '.yGg...yGg...mNn',
+  '.yGg...yGg...mNn',
   '................',
-  '.yGggO..........',
-  '.yG.gO..........',
-  '.yG.gO..........',
-  '.yG.gO..........',
-  '.yG.gO..........',
-  '.yG...gyGggO....',
-  '.yG....yG.gO....',
-  '.yG....yG.gO....',
-  '.yG....yG...gyG.',
-  '.yG....yG....yG.',
-  '.yG....yG....yG.',
-  '.yG....yG....yG.',
-  'OOOOOOOOOOOOOOOO',
+  '............NNNN',
+  '................',
+  '............NNNN',
   '................',
 ]);
 
 export const aa3Finish = aaKeepsake(
   'aa3-finish',
-  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped in gold with a waterfall of bars stepping down to the bottom line, with small glints and check marks around it.',
+  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped with a waterfall chart, a tall gold revenue bar and red costs stepping down to a small green net income bar with a double rule under it, with small glints and check marks around it.',
   emblemWaterfall,
 );
 
