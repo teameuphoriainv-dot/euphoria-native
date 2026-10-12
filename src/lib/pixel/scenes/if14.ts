@@ -9,7 +9,8 @@
  * young tree and back, the lesson's pendulum: neither style leads for long. The swing swings
  * (frames), the young tree's tip sparkles, seed fluff rises round it, coins glint and stars twinkle.
  *
- * The keepsake's emblem is the same pair: a thin young tree beside a broad old one.
+ * The keepsake's emblem is the same pair in the same order: the broad old tree bearing two gold coins
+ * on the left, and the thin young one on the right, two rows taller, with the sparkle at its tip.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -219,23 +220,23 @@ const emblemTwoTrees: PixelSprite = {
   id: 'if-emblem-two-trees',
   name: 'if-emblem-two-trees',
   tags: ['scene', 'if'],
-  blurb: "Lesson 14: a thin young tree beside a broad old one. Growth and value.",
+  blurb: "Lesson 14: a broad old tree bearing coins beside a taller thin one still growing. Value and growth.",
   palette: IF_PALETTE,
   rows: [
-    '.m........',
-    'mNn..nNNn.',
-    '.N..nNNNNn',
-    'mNn.NNnNnn',
-    '.N..nNNnnV',
-    '.A...naAn.',
-    '.A....hA..',
-    'hAa..hhAaa',
+    '........w.',
+    '.......mNn',
+    '.nNNNn.mNn',
+    'nyGNyGn.N.',
+    'nGgnGgV.A.',
+    '.nnhAnV.A.',
+    '...hA...A.',
+    '.hhAAa.hAa',
   ],
 };
 
 export const if14Finish: SceneArt = ifKeepsake(
   'if14-finish',
-  'A golden acorn hanging from an oak twig, with a thin young tree beside a broad old one in its purple window and small sparkles around it.',
+  'A golden acorn hanging from an oak twig, with a broad low tree bearing two gold coins beside a taller thin tree with a white sparkle at its tip in its purple window and small sparkles around it.',
   emblemTwoTrees,
 );
 

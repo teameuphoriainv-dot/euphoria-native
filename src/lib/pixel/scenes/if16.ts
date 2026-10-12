@@ -10,7 +10,8 @@
  * (frames), petals drift, coins glint, stars twinkle and fireflies rise over the summer grass.
  *
  * The backdrop is the pathway's own, turned to autumn: the same orchard with rust and brown leaves.
- * The keepsake's emblem is a wave, green up, red down, green up again.
+ * The keepsake's emblem is the cycle as the lesson scores it: a long green climb, a short, shallow red
+ * dip that stays above where the climb began, and a second climb to a new high. Bears are short.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -190,22 +191,22 @@ const emblemWave: PixelSprite = {
   id: 'if-emblem-wave',
   name: 'if-emblem-wave',
   tags: ['scene', 'if'],
-  blurb: "Lesson 16: a wave rising green, falling red and rising again. A full market cycle.",
+  blurb: "Lesson 16: a long green climb, a short red dip, then a climb to a new high. Bears are short, bulls dominate.",
   rows: [
-    '.NR.......',
-    '.NRR......',
-    'N..R.....N',
-    'N..RR....N',
-    '....R...NN',
-    '....RR..N.',
-    '.....RRNN.',
-    '.....RRN..',
+    '.........N',
+    '........NN',
+    '........N.',
+    '....N..NN.',
+    '...NNR.N..',
+    '..NN.RRN..',
+    '.NN...R...',
+    'NN........',
   ],
 };
 
 export const if16Finish: SceneArt = ifKeepsake(
   'if16-finish',
-  'A golden acorn hanging from an oak twig, with a wave rising in green, falling in red and rising again in its purple window and small sparkles around it.',
+  'A golden acorn hanging from an oak twig, with a line that climbs a long way in green, dips briefly in red and climbs again to a new high in its purple window and small sparkles around it.',
   emblemWave,
 );
 

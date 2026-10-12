@@ -8,11 +8,13 @@
  * taxable account pays every year. The investor carries a full basket toward the glass. The crow
  * flaps (frames), the sun's rays shine, coins glint, gold dust rises and the first stars come out.
  *
- * The keepsake is the premium acorn (halo and a ring of lights); its emblem is the greenhouse.
+ * The keepsake is the premium acorn (halo and a ring of lights); its emblem is the greenhouse on its
+ * brick plinth with the heavy tree inside, two coins on it: sheltered growth, not a seedling.
  */
 import type { PixelSprite } from '../types';
 import {
   IF_INVESTOR_HAND,
+  IF_PALETTE,
   ifCompose,
   ifGlint,
   ifGoldMote,
@@ -189,22 +191,23 @@ const emblemGreenhouse: PixelSprite = {
   id: 'if-emblem-greenhouse',
   name: 'if-emblem-greenhouse',
   tags: ['scene', 'if'],
-  blurb: "Lesson 10: a sprout growing under glass. An account that shelters what grows in it.",
+  blurb: "Lesson 10: a tree heavy with coins growing under glass. An account that shelters what grows in it.",
+  palette: IF_PALETTE,
   rows: [
     '....wx....',
-    '...wQQx...',
-    '..wQQQQx..',
-    '.wwwwxxxx.',
-    '.wQmNNnQx.',
-    '.wQ.Nn.Qx.',
-    '.wQ.nn.Qx.',
-    '.wwwwxxxx.',
+    '...wmNx...',
+    '..wmNyGx..',
+    '.wyGNGgnx.',
+    '.wGgNNnNx.',
+    '.wQ.Aa..x.',
+    '.w..Aa..x.',
+    '.22212221.',
   ],
 };
 
 export const if10Finish: SceneArt = ifPremiumKeepsake(
   'if10-finish',
-  'A golden acorn inside a ring of gold light, hanging from an oak twig, with a sprout in a glass greenhouse in its purple window and sparkles all around it.',
+  'A golden acorn inside a ring of gold light, hanging from an oak twig, with a tree bearing two gold coins inside a glass greenhouse on a brick base in its purple window and sparkles all around it.',
   emblemGreenhouse,
 );
 
