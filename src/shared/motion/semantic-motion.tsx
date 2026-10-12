@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect } from 'react';
-import type { StyleProp, ViewStyle } from 'react-native';
+import { StyleSheet, type StyleProp, type ViewStyle } from 'react-native';
 import Animated, {
   FadeOut,
   useAnimatedStyle,
@@ -70,11 +70,15 @@ export function SemanticMotion({
     };
   });
 
+  const body = <Animated.View style={[exit ? styles.fill : style, animatedStyle]}>{children}</Animated.View>;
+  if (!exit) return body;
+  // The exit fade lives on a wrapper: an animated opacity on the same view as a layout animation can be
+  // overwritten by it (Reanimated warned on every step change), and the entrance above animates opacity.
   return (
-    <Animated.View
-      exiting={exit && !reduced ? FadeOut.duration(Duration.exit).easing(Ease.exitCurve) : undefined}
-      style={[style, animatedStyle]}>
-      {children}
+    <Animated.View exiting={reduced ? undefined : FadeOut.duration(Duration.exit).easing(Ease.exitCurve)} style={style}>
+      {body}
     </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({ fill: { flex: 1 } });
