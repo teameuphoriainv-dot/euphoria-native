@@ -179,19 +179,21 @@ const towerLight: PixelSprite = {
   ],
 };
 
-/** Lesson 11's emblem: a handshake, a blue sleeve and a teal one with white cuffs, the hands clasped between. */
-const emblemHandshake: PixelSprite = {
-  id: 'pf11-emblem-handshake',
-  name: 'pf11-emblem-handshake',
+/** Lesson 11's emblem: the raise, a pay envelope of green bills beside a bold green arrow up. */
+const emblemRaise: PixelSprite = {
+  id: 'pf11-emblem-raise',
+  name: 'pf11-emblem-raise',
   tags: ['scene', 'pf', 'emblem'],
-  palette: SKIN,
   rows: [
-    '......MM......',
-    '....MMCCMM....',
-    'BBwMCCMCCCMwTT',
-    'BBwCUCCUCCCwTT',
-    'BBwUCCUCCUUwTT',
-    'bbw.UUUUU..wtt',
+    '...........N..',
+    '..........NNN.',
+    '.nnnnnn..NNNNN',
+    '.nmNNmn...mNn.',
+    'DxwwwwxD..mNn.',
+    'DwxwwxwD..mNn.',
+    'DwwxxwwD..mNn.',
+    'DwwwwwwD..mNn.',
+    'DDDDDDDD..nnn.',
   ],
 };
 
@@ -247,8 +249,8 @@ export const pf11Opener: SceneArt = {
 
 export const pf11Finish = pfKeepsake(
   'pf11-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a handshake between a blue sleeve and a teal one, with small sparkles around it.',
-  emblemHandshake,
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a pay envelope of green bills beside a green arrow pointing up, with small sparkles around it.',
+  emblemRaise,
 );
 
 export const art: LessonArtSet = { opener: pf11Opener, backdrop: pfBackdrop, finish: pf11Finish };
