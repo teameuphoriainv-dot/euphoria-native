@@ -64,7 +64,7 @@ import type { CompiledSprite, PixelSprite } from './types';
  */
 const pathCache = new WeakMap<CompiledSprite, { fill: string; d: string }[]>();
 
-function pathsFor(c: CompiledSprite): { fill: string; d: string }[] {
+export function pathsFor(c: CompiledSprite): { fill: string; d: string }[] {
   const hit = pathCache.get(c);
   if (hit) return hit;
   const byFill = new Map<string, string>();

@@ -43,7 +43,8 @@ function LessonBackdropInner({ art, hidden = false }: { art: SceneArt; /** True 
   const fade = useAnimatedStyle(() => ({ opacity: BACKDROP_OPACITY * shown.get() }));
   return (
     <Animated.View pointerEvents="none" style={[styles.band, fade]}>
-      <PixelSceneView art={art} scale={BACKDROP_SCALE} decorative />
+      {/* Paused while hidden: the fade only changes opacity, and the art's motion should not keep running under the bar. */}
+      <PixelSceneView art={art} scale={BACKDROP_SCALE} decorative paused={hidden} />
       {/* theme.background is a hex token, so alpha-append is safe (CONSTITUTION 5.8). */}
       <LinearGradient
         pointerEvents="none"
