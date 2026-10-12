@@ -1400,7 +1400,7 @@ export default function Lesson() {
       {lessonArt?.backdrop ? <LessonBackdrop art={lessonArt.backdrop} hidden={checkBarH > 0} /> : null}
 
       <KeyboardAvoidingView
-        style={styles.safe}
+        style={styles.content}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
 
@@ -2130,6 +2130,9 @@ const styles = StyleSheet.create({
   // Lessons are always dark (owner, 2026-10-12): the screen paints its own canvas instead of letting a
   // Light appearance's page show through the dark lesson design.
   safe: { flex: 1, backgroundColor: LessonColors.background },
+  // The content layer stays clear: the stars and the lesson's backdrop are drawn under it, and an opaque
+  // canvas here hid the backdrop down to its last 34pt (owner, 2026-10-12: "it's not fully shown").
+  content: { flex: 1 },
   hintBtn: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
   loadingShape: { paddingHorizontal: Spacing.three, paddingTop: Spacing.five, gap: Spacing.three },
   header: { height: 56, flexDirection: 'row', alignItems: 'center', gap: 12, paddingHorizontal: 16, zIndex: 20 },
