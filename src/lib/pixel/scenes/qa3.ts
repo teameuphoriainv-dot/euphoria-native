@@ -2,12 +2,13 @@
  * Quantitative Analysis lesson 3, Time Series Analysis: dawn at the desk after a night on the data.
  *
  * One big screen carries the classic decomposition, four panels stacked: the observed price series
- * (white, jagged) with its moving average (gold) through it, the trend (green), the seasonal cycle
- * (pale orchid) and the residual noise (red). The wall clock and a window going gold over the
- * skyline say what the lesson is about: values in time. Only small layers move: the seasonal wave
- * rolls on, the residual noise flickers, the series' live tick blinks, the clock's minute hand
- * turns, steam rises from the morning coffee, the morning star fades in and out.
- * Keepsake: a wave.
+ * (white, jagged) with its 12-pixel moving average (gold) through it, the trend (green), the seasonal
+ * cycle (pale orchid) and the residual noise (red). The panels add up: every column of the price is
+ * the trend plus the season plus the residual below it, one pixel to one unit. The wall clock and a
+ * window going gold over the skyline say what the lesson is about: values in time. The data holds
+ * still; a dotted time cursor sweeps all four panels, the series' live tick blinks, the clock's
+ * minute hand turns, steam rises from the morning coffee, the morning star fades in and out.
+ * Keepsake: a jagged price line and its smooth moving average.
  */
 import type { PixelSprite } from '../types';
 import { qaBackdrop } from './qa-backdrop';
@@ -78,58 +79,64 @@ const SCREEN = { x: 3, y: 2, width: 46, height: 34 } as const;
 /** Every panel runs 40 pixels wide from here. */
 const PANEL_X = SCREEN.x + 3;
 
-const movingAverage = qaPath('qa3-moving-average', 40, 9, [
-  [0, 6], [8, 5], [16, 4], [24, 3], [32, 2], [39, 1],
-], 'y');
-const observed = qaPath('qa3-observed', 40, 9, [
-  [0, 7], [2, 5], [3, 6], [5, 3], [7, 5], [8, 4], [10, 6], [12, 3], [13, 4], [15, 2], [17, 5], [18, 4], [20, 6],
-  [22, 2], [23, 3], [25, 1], [27, 4], [28, 3], [30, 1], [31, 2], [33, 0], [35, 3], [36, 1], [38, 0], [39, 1],
-], 'w');
 const trend = qaPath('qa3-trend', 40, 4, [[0, 3], [39, 0]], 'N');
 const axis = (id: string) => qaPath(id, 40, 1, [[0, 0], [39, 0]], 'B');
 const centre = (id: string) => qaPath(id, 40, 1, [[0, 0], [39, 0]], 'B', [1, 1]);
 
+/** The row the trend line takes in each column of its panel. */
+const TREND_ROW = [...Array(40)].map((_, x) => trend.rows.findIndex((row) => row[x] === 'N'));
+
 /** One cycle of the seasonal wave, 12 pixels long, as rows down from the panel's top. */
 const CYCLE = [2, 1, 0, 0, 0, 1, 2, 3, 4, 4, 4, 3];
 
-function seasonal(shift: number): string[] {
-  return [0, 1, 2, 3, 4].map((r) => [...Array(40)].map((_, x) => (CYCLE[(x + shift) % 12] === r ? 'Q' : '.')).join(''));
-}
-
 /** The residual: a spike every other pixel, up (negative) or down from the panel's middle row. */
-function residual(spikes: readonly number[]): string[] {
-  return [0, 1, 2, 3, 4].map((r) => [...Array(40)].map((_, x) => {
-    const v = x % 2 === 0 ? spikes[x / 2] : 0;
-    const top = Math.min(2, 2 + v);
-    const bottom = Math.max(2, 2 + v);
-    return v !== 0 && r >= top && r <= bottom ? 'R' : '.';
-  }).join(''));
-}
+const NOISE = [1, -1, 0, 2, -1, 0, 1, -2, 0, 1, -1, 1, 0, -1, 2, 0, -1, 1, 0, 1] as const;
+const residualAt = (x: number) => (x % 2 === 0 ? NOISE[x / 2] : 0);
 
-const NOISE = [
-  [1, -1, 0, 2, -1, 0, 1, -2, 0, 1, -1, 1, 0, -1, 2, 0, -1, 1, 0, -2],
-  [-1, 0, 2, -1, 1, -1, 0, 1, -2, 0, 1, -1, 2, 0, -1, 1, -2, 0, 1, 0],
-  [0, 2, -1, 1, 0, -2, 1, 0, -1, 2, 0, -1, 1, -1, 0, -2, 1, -1, 0, 1],
-] as const;
+/**
+ * The observed price, built from the panels under it: in every column its row is the trend's row
+ * plus the season's row plus the residual, one pixel to one unit in all four panels. So the screen
+ * adds up, and the price carries the very cycle it is split into. It stays inside its 9 rows.
+ */
+const OBSERVED = [...Array(40)].map((_, x) => TREND_ROW[x] + CYCLE[x % 12] + residualAt(x));
+const observed = qaPath('qa3-observed', 40, 9, OBSERVED.map((row, x) => [x, row] as const), 'w');
+
+/**
+ * The gold line is the price's 12-pixel moving average: it starts once twelve prices are in, and as
+ * long as the seasonal cycle it averages the season away, leaving the trend's rise, a little late.
+ */
+const movingAverage = qaPath('qa3-moving-average', 40, 9, OBSERVED.slice(11).map((_, i) => {
+  const x = i + 11;
+  const mean = OBSERVED.slice(x - 11, x + 1).reduce((sum, row) => sum + row, 0) / 12;
+  return [x, Math.round(mean)] as const;
+}), 'y');
 
 const seasonalWave: PixelSprite = {
   id: 'qa3-seasonal',
   name: 'qa3-seasonal',
   tags: ['scene', 'qa3'],
-  blurb: 'The seasonal cycle rolling on, a quarter cycle a frame.',
-  rows: seasonal(0),
-  frames: [seasonal(0), seasonal(3), seasonal(6), seasonal(9)],
-  frameMs: 450,
+  blurb: 'The seasonal cycle, three and a third turns across the panel.',
+  rows: [0, 1, 2, 3, 4].map((r) => [...Array(40)].map((_, x) => (CYCLE[x % 12] === r ? 'Q' : '.')).join('')),
 };
 
 const residualNoise: PixelSprite = {
   id: 'qa3-residual',
   name: 'qa3-residual',
   tags: ['scene', 'qa3'],
-  blurb: "The residual: noise that never repeats, so it flickers.",
-  rows: residual(NOISE[0]),
-  frames: NOISE.map(residual),
-  frameMs: 260,
+  blurb: 'The residual: what is left of the price once trend and season are taken out.',
+  rows: [0, 1, 2, 3, 4].map((r) => [...Array(40)].map((_, x) => {
+    const v = residualAt(x);
+    return v !== 0 && r >= Math.min(2, 2 + v) && r <= Math.max(2, 2 + v) ? 'R' : '.';
+  }).join('')),
+};
+
+/** A dotted time cursor through all four panels (rows 5 to 32), read top to bottom at any moment. */
+const timeCursor: PixelSprite = {
+  id: 'qa3-time-cursor',
+  name: 'qa3-time-cursor',
+  tags: ['scene', 'qa3'],
+  blurb: 'A dotted time cursor sweeping the four panels together.',
+  rows: [...Array(28)].map((_, i) => (i % 2 === 0 ? 'x' : '.')),
 };
 
 const stand: PixelSprite = {
@@ -153,7 +160,9 @@ const base = qaCompose('qa3-opener-base', 80, 60, [
   { sprite: trend, x: PANEL_X, y: 16 },
   { sprite: axis('qa3-axis-trend'), x: PANEL_X, y: 20 },
   { sprite: centre('qa3-centre-seasonal'), x: PANEL_X, y: 24 },
+  { sprite: seasonalWave, x: PANEL_X, y: 22 },
   { sprite: centre('qa3-centre-residual'), x: PANEL_X, y: 30 },
+  { sprite: residualNoise, x: PANEL_X, y: 28 },
   { sprite: qaKeyboard, x: 18, y: 40 },
   { sprite: qaMouse, x: 35, y: 40 },
   { sprite: qaMug, x: 43, y: 34 },
@@ -163,45 +172,49 @@ const base = qaCompose('qa3-opener-base', 80, 60, [
 
 export const qa3Opener: SceneArt = {
   id: 'qa3-opener',
-  label: 'At dawn a quant studies a big screen that splits a price series into trend, a seasonal wave and noise, beside a wall clock and a window going gold over the city.',
+  label: 'At dawn a quant studies a big screen that splits a price series and its moving average into a rising trend, a seasonal wave and noise that add back up to the price, a cursor sweeping all four panels, beside a wall clock and a window going gold over the city.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: seasonalWave, x: PANEL_X, y: 22 },
-    { sprite: residualNoise, x: PANEL_X, y: 28 },
-    { sprite: qaBlip, x: PANEL_X + 39, y: 5, motion: { kind: 'twinkle', periodMs: 1000, min: 0.2 } },
+    // Centred on the panels and swinging 19 either way, so it covers columns 1 to 39 of each.
+    { sprite: timeCursor, x: PANEL_X + 20, y: 5, motion: { kind: 'drift', amp: 19, periodMs: 7000 } },
+    { sprite: qaBlip, x: PANEL_X + 39, y: 5 + OBSERVED[39], motion: { kind: 'twinkle', periodMs: 1000, min: 0.2 } },
     { sprite: qaClockTick, x: 52, y: 6 },
     { sprite: qaSteam, x: 44, y: 30, motion: { kind: 'rise', amp: 3, periodMs: 1800 } },
     { sprite: qaStar, x: 65, y: 5, motion: { kind: 'twinkle', periodMs: 2400, phase: 0.4, min: 0.15 } },
   ],
 };
 
-/** Lesson 3's emblem: one period of a wave, drawn bold so it reads at keepsake size. */
-const emblemWave: PixelSprite = {
-  id: 'qa3-emblem-wave',
-  name: 'qa3-emblem-wave',
+/**
+ * Lesson 3's emblem: the opener's top panel in small. A jagged price line climbs, raised in deep gold
+ * with its shadow under it, and its moving average runs smooth and white beneath, a pixel clear of it
+ * all the way, so the two lines never merge in single-colour gold.
+ */
+const emblemPriceAverage: PixelSprite = {
+  id: 'qa3-emblem-price-average',
+  name: 'qa3-emblem-price-average',
   tags: ['scene', 'qa3'],
   rows: [
     '............',
-    '............',
-    '............',
-    '..OOO.......',
-    '.OOOOO......',
-    'OOyyyOO.....',
-    'Oy...yOO...O',
-    'y.....yOOOOO',
-    '.......yOOOy',
-    '........yyy.',
-    '............',
-    '............',
+    '.........O..',
+    '......O.O.O.',
+    '......OOOg.g',
+    '..O..O.Ogg..',
+    '..OO.Og.g..w',
+    '.O.gO.g..ww.',
+    '.Og..g.ww...',
+    '..g...w.....',
+    '....ww......',
+    '..ww........',
+    '.w..........',
   ],
 };
 
 export const qa3Finish: SceneArt = qaKeepsake(
   'qa3-finish',
-  'A gold medallion hanging from a purple ribbon, embossed with a wave, with small sparkles around it.',
-  emblemWave,
+  'A gold medallion hanging from a purple ribbon, embossed with a jagged price line above its smooth moving average, with small sparkles around it.',
+  emblemPriceAverage,
 );
 
 export const art: LessonArtSet = { opener: qa3Opener, backdrop: qaBackdrop, finish: qa3Finish };

@@ -1,11 +1,13 @@
 /**
- * Personal Finance lesson 7, Taxes 101: filing before the deadline.
+ * Personal Finance lesson 7, Taxes 101: how the brackets stack.
  *
  * The kitchen late at night, seen closer: the table top runs deep, so the return lies flat on it with
  * a calculator and the year's W-2s, and the figure bends over the form with a pencil. On the wall a
- * calendar turned to April, the fifteenth ringed in red; the window is dark under a moon. The cat
- * sleeps on the table among the papers. Moving: the pencil, the ring, the lamp, the coffee's steam,
- * two stars, the cat's z.
+ * pinned chart of the brackets on a $50,000 income, drawn to scale with income across and the rate
+ * up: a short green step at 10%, a long blue one at 12%, and only a one-pixel amber sliver at 22%,
+ * the little the top rate touches. The window is dark under a moon; the cat sleeps on the table
+ * among the papers. Moving: the pencil, the sliver's glow, the lamp, the coffee's steam, two stars,
+ * the cat's z.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -158,39 +160,45 @@ const pencil: PixelSprite = {
   frameMs: 300,
 };
 
-/** The wall calendar turned to APR, the fifteenth in red; deadlineRing pulses around it. */
-const aprilCalendar: PixelSprite = {
-  id: 'pf7-april-calendar',
-  name: 'april calendar',
+/**
+ * The brackets on a $50,000 income, the lesson's hook drawn to scale on a pinned sheet: income runs
+ * across the 20-pixel plot, the rate rises half a pixel per percent, and a plain axis frames them;
+ * a dotted guide marks the 22% level.
+ * The first $11,600 (5 pixels) at 10% is green, up to $47,150 (14 pixels) at 12% is blue, and the
+ * last $2,850 (1 pixel) at 22% is the amber sliver at the right edge, in its shade here; sliverGlow
+ * lights it.
+ */
+const bracketChart: PixelSprite = {
+  id: 'pf7-bracket-chart',
+  name: 'bracket chart',
   tags: ['scene', 'pf'],
   rows: [
-    '...D.......D...',
-    'rRRDRRRRRRRDRRr',
-    'rRRwRRwwRRwwRRr',
-    'rRwRwRwRwRwRwRr',
-    'rRwwwRwwRRwwRRr',
-    'rRwRwRwRRRwRwRr',
-    'rrrrrrrrrrrrrrr',
-    'wwwwwwwwwwwwwwx',
-    'wXwXwXwXwXwXwXx',
-    'wwwwwwwwwwwwwwx',
-    'wXwXwXwRwXwXwXx',
-    'wwwwwwwwwwwwwwx',
-    'wXwXwXwXwXwXwXx',
-    'wwwwwwwwwwwwwwx',
-    'xxxxxxxxxxxxxxx',
+    '............G............',
+    'xxxxxxxxxxxxgxxxxxxxxxxxX',
+    'xwwwwwwwwwwwwwwwwwwwwwwwX',
+    'xwXxwxwxwxwxwxwxwxwxwxgwX',
+    'xwXwwwwwwwwwwwwwwwwwwwgwX',
+    'xwXwwwwwwwwwwwwwwwwwwwgwX',
+    'xwXwwwwwwwwwwwwwwwwwwwgwX',
+    'xwXwwwwwwwwwwwwwwwwwwwgwX',
+    'xwXwwwwwBBBBBBBBBBBBBBgwX',
+    'xwXmmmmmBBBBBBBBBBBBBBgwX',
+    'xwXNNNNNBBBBBBBBBBBBBBgwX',
+    'xwXNNNNNBBBBBBBBBBBBBBgwX',
+    'xwXNNNNNBBBBBBBBBBBBBBgwX',
+    'xwXNNNNNBBBBBBBBBBBBBBgwX',
+    'xwXXXXXXXXXXXXXXXXXXXXXwX',
+    'xwwwwwwwwwwwwwwwwwwwwwwwX',
+    'xXXXXXXXXXXXXXXXXXXXXXXXX',
   ],
 };
 
-const deadlineRing: PixelSprite = {
-  id: 'pf7-deadline-ring',
-  name: 'deadline ring',
+/** The 22% sliver in full amber over its shade, pulsing: the only income the top rate touches. */
+const sliverGlow: PixelSprite = {
+  id: 'pf7-sliver-glow',
+  name: 'sliver glow',
   tags: ['scene', 'pf'],
-  rows: [
-    'RRR',
-    'R.R',
-    'RRR',
-  ],
+  rows: ['G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G', 'G'],
 };
 
 const moon: PixelSprite = {
@@ -214,27 +222,30 @@ const star: PixelSprite = {
   ],
 };
 
-/** Lesson 7's emblem: the return with its blue header, and the pencil filling it in. */
+/**
+ * Lesson 7's emblem: the return with its blue header, carrying the opener's bracket staircase: a
+ * green step, a longer blue one a little higher, and the thin amber sliver of the top rate.
+ */
 const emblemTaxes: PixelSprite = {
   id: 'pf7-emblem-taxes',
   name: 'pf7-emblem-taxes',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    '.wwwwwwwx.....',
-    '.wbbbwwwx...F.',
-    '.wwwwwwwx..Gg.',
-    '.wxxxxwwx.Gg..',
-    '.wwwwwwwxGg...',
-    '.wxxxwxxGg....',
-    '.wwwwwwGgx....',
-    '.wxxxxKwwx....',
-    '.xxxxxxxxx....',
+    '.wwwwwwwwwwwx.',
+    '.wbbbbbwwwwwx.',
+    '.wwwwwwwwwwwx.',
+    '.wwwwwwwwwGwx.',
+    '.wwwwwwwwwGwx.',
+    '.wwwBBBBBBGwx.',
+    '.wNNBBBBBBGwx.',
+    '.wNNBBBBBBGwx.',
+    '.xxxxxxxxxxxx.',
   ],
 };
 
 // Order is depth: the figure behind the table, its forearms and everything flat on the top after it.
 const base = pfCompose('pf7-opener-base', 80, 60, pfKitchen.rows, [
-  [aprilCalendar, 6, 5],
+  [bracketChart, 4, 4],
   [pfWindowNight, 53, 4],
   [pfCurtain, 52, 3],
   [pfCurtain, 76, 3],
@@ -253,14 +264,15 @@ const base = pfCompose('pf7-opener-base', 80, 60, pfKitchen.rows, [
 
 export const pf7Opener: SceneArt = {
   id: 'pf7-opener',
-  label: 'Late at night at the kitchen table, a person fills in a tax form with a pencil beside a calculator and a mug of coffee, under a calendar turned to April with the fifteenth circled, while the cat sleeps on the table.',
+  label: 'Late at night at the kitchen table, a person fills in a tax form with a pencil beside a calculator and a mug of coffee, under a wall chart of how tax brackets stack on an income, a short green step at the lowest rate, a long blue step and only a thin glowing amber sliver at the top rate, while the cat sleeps on the table.',
   width: 80,
   height: 60,
   base,
   layers: [
     // The pencil sits in the left hand (forearms at 30,36; hand at columns 3 to 5, rows 3 and 4).
     { sprite: pencil, x: 31, y: 36 },
-    { sprite: deadlineRing, x: 12, y: 14, motion: { kind: 'twinkle', periodMs: 1400, min: 0.15 } },
+    // The sliver is the chart's column 22, rows 3 to 13 (chart at 4,4).
+    { sprite: sliverGlow, x: 26, y: 7, motion: { kind: 'twinkle', periodMs: 1400, min: 0.15 } },
     { sprite: pfLampGlow, x: 35, y: 9, motion: { kind: 'twinkle', periodMs: 3000, min: 0.55 } },
     { sprite: pfSteam, x: 13, y: 27, motion: { kind: 'rise', amp: 3, periodMs: 2400 } },
     { sprite: star, x: 59, y: 8, motion: { kind: 'twinkle', periodMs: 2300, min: 0.2 } },
@@ -271,7 +283,7 @@ export const pf7Opener: SceneArt = {
 
 export const pf7Finish = pfKeepsake(
   'pf7-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a tax form with a pencil filling it in, with small sparkles around it.',
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a tax form with a blue header whose brackets stack as a green step, a blue step and a thin amber sliver, with small sparkles around it.',
   emblemTaxes,
 );
 
