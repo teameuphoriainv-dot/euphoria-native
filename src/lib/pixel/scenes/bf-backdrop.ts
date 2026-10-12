@@ -6,6 +6,8 @@
  * striped tent, a Ferris wheel turning slowly (cycles come round), a game booth, and strings of dim
  * bulbs on wires. Silhouettes are curves, circles and wedges so it never reads as the quant skyline.
  * Everything stays under luminance 0.15; the brightest steps are the wheel's gondolas and the bulbs.
+ * It stands on a boardwalk built like the quant skyline's street (a curb, a line of bulbs, a neon strip),
+ * because the bottom rows are all that shows under a lesson's footer, and there they must read as ground.
  */
 import type { PixelSprite } from '../types';
 import type { SceneArt } from './types';
@@ -53,11 +55,11 @@ const base: PixelSprite = {
     '.k...k...k...k...k...k...k...k..DXXXDk...k...k...k...k...kDIIkkkKKKKKIIIkkD.....D...........D.......kKKKKKKKKKk.',
     '.k...k...k...k...k...k...k...k...DDD.k...k...k...k...k...kIIkkkkKKKKKIIIIkkD...D.............D......kKKKKKKKKKk.',
     '.k...k...k...k...k...k...k...k...k...k...k...k...k...k...kIIkkkIKKKKKkIIIkkD...D.............D......kkkkkkkkkkk.',
-    '.k...k...k...k...k...k...k...k...k...k...k...k...k...k..DkIIkkkIKKKKKkIIIkkkD..D.............D......kkkkkkkkkkk.',
-    '.k...k...k...k...k...k...k...k...k...k...k...k...k...k..DkIkkkkIKKKKKkIIIIkkD.D...............D.....kkkkkkkkkkk.',
+    'DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD',
     'kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk',
-    'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK',
-    'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK',
+    'KKKKKOKKKKKKKKKKKKOKKKKKKKKKKKKOKKKKKKKKKKKKOKKKKKKKKKKKKOKKKKKKKKKKKKOKKKKKKKKKKKOKKKKKKKKKKKKKOKKKKKKKKKKKOKKK',
+    'IIIIIIIIIIIIKIIIIIIIIIIIIKKIIIIIIIIIIKIIIIIIIIIIIIIKKIIIIIIIIIIKIIIIIIIIIIIIIKIIIIIIIIIIIKIIIIIIIIIIIIKKIIIIIIII',
+    'KKKKKKKKKKKKIKKKKKKKKKKKKIIKKKKKKKKKKIKKKKKKKKKKKKKIIKKKKKKKKKKIKKKKKKKKKKKKKIKKKKKKKKKKKIKKKKKKKKKKKKIIKKKKKKKK',
     'KKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKKK',
   ],
 };
