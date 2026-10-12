@@ -2,12 +2,12 @@
  * Quantitative Analysis lesson 10, the Foundations Checkpoint: everything comes together.
  *
  * The control room's video wall carries the first half of the pathway, a tile a lesson: lesson 2's
- * dice, 3's wave, 4's frontier and 5's hockey stick down the left; 6's fan, 7's factor staircase,
- * 8's spread and 9's pipeline down the right. Every tile feeds the gold-framed screen in the middle,
- * where the validation funnel turns a thousand ideas into three live strategies. The quant stands
- * at the console with both arms up. Only small layers move: the feeds pulse in towards the middle,
- * an idea drops through the funnel, the three live strategies twinkle, the wave tile rolls on, the
- * console's lights blink.
+ * dice, 3's price over its moving average, 4's frontier and 5's hockey stick down the left; 6's fan,
+ * 7's factor staircase, 8's spread and 9's pipeline down the right. Every tile feeds the gold-framed
+ * screen in the middle, where the validation funnel turns a thousand ideas into three live
+ * strategies. The quant stands at the console with both arms up. Only small layers move: the feeds
+ * pulse in towards the middle, an idea drops through the funnel, the three live strategies twinkle,
+ * the console's lights blink.
  * Keepsake: the funnel, on the honours medal (a gold-striped ribbon and a laurel).
  */
 import type { PixelSprite } from '../types';
@@ -38,18 +38,11 @@ const diceMini = mini('qa10-mini-dice', [
   '..w.w.w.y.w.w.w.',
 ]);
 
-/** Lesson 3: the seasonal wave, one cycle every 12 pixels. */
-function wave(shift: number): string[] {
-  const points: [number, number][] = [...Array(MINI.width)].map((_, x) => [x, Math.round(3 - 3 * Math.sin(((x + shift) * Math.PI) / 6))]);
-  return qaPath('qa10-mini-wave', MINI.width, MINI.height, points, 'Q').rows;
-}
-
-const waveRolling: PixelSprite = {
-  ...mini('qa10-mini-wave', wave(0)),
-  blurb: 'The wave tile rolling on, a quarter cycle a frame.',
-  frames: [wave(0), wave(3), wave(6), wave(9)],
-  frameMs: 450,
-};
+/** Lesson 3: the price climbing, jagged, over its smooth gold moving average, as on the lesson's medal. */
+const priceMini = qaCompose('qa10-mini-price', MINI.width, MINI.height, [
+  { sprite: qaPath('qa10-mini-average', MINI.width, MINI.height, [[0, 6], [15, 3]], 'y'), x: 0, y: 0 },
+  { sprite: qaPath('qa10-mini-price-line', MINI.width, MINI.height, [[0, 4], [2, 2], [3, 4], [5, 1], [6, 3], [8, 0], [9, 2], [10, 1], [12, 2], [13, 0], [15, 1]], 'w'), x: 0, y: 0 },
+]);
 
 /** Lesson 4: the efficient frontier over its cloud of portfolios, the tangent portfolio a gold star. */
 const frontierMini = qaCompose('qa10-mini-frontier', MINI.width, MINI.height, [
@@ -107,7 +100,7 @@ const pipelineMini = mini('qa10-mini-pipeline', [
   '................',
 ]);
 
-const LEFT_MINIS = [diceMini, null, frontierMini, hockeyMini] as const;
+const LEFT_MINIS = [diceMini, priceMini, frontierMini, hockeyMini] as const;
 const RIGHT_MINIS = [fanMini, staircaseMini, spreadMini, pipelineMini] as const;
 
 const tiles: QaStamp[] = TILE_Y.flatMap((y, i) => {
@@ -281,7 +274,6 @@ export const qa10Opener: SceneArt = {
   height: 60,
   base,
   layers: [
-    { sprite: waveRolling, x: TILE_X.left + 2, y: TILE_Y[1] + 2 },
     { sprite: feedLeft, x: TILE.width, y: FEED.y },
     { sprite: feedRight, x: TILE_X.right - 2, y: FEED.y },
     { sprite: drop, x: DROP.x, y: DROP.y },
