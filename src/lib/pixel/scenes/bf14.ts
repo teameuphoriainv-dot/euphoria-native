@@ -7,7 +7,8 @@
  * its ear to the chair, eyes heavy, dozing off, while a snail overtakes it on the floor. The tortoise
  * walks in with the wake-up call, a ringing alarm clock: audit the defaults.
  *
- * The keepsake jar holds a snail.
+ * The keepsake jar holds the cobwebbed armchair, empty: the default nobody gets up from. The snail stays
+ * in the room as the foil that passes the hare; the jar keeps the bias, not the thing that moves.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -207,32 +208,38 @@ export const bf14Opener: SceneArt = {
   ],
 };
 
-const emblemSnail: PixelSprite = {
-  id: 'bf14-emblem-snail',
-  name: 'bf14-emblem-snail',
+/** The default left alone: the hare's purple armchair, empty, its seat sagging, a cobweb across one corner. */
+const emblemArmchair: PixelSprite = {
+  id: 'bf14-emblem-armchair',
+  name: 'bf14-emblem-armchair',
   tags: ['emblem', 'bf', 'lesson-14'],
-  blurb: "Lesson 14's emblem: inertia caught as a snail, spiral shell and all.",
+  blurb: "Lesson 14's emblem: status quo bias caught as an armchair nobody has left, its cushion sagging and a cobweb across the corner by its arm.",
   rows: [
-    '.............D..D',
-    '....EEEEE....n..n',
-    '..EEFFFFFEE..n..n',
-    '.EFFfffffFFE.n..n',
-    '.EFfFEEEfFFE.nmmn',
-    'EFfFEFFFEfFFEnmmn',
-    'EFfFEFEFEfFFEmmmn',
-    'EFfFFEEFfFFFEmmmn',
-    'EFFffffFFFFEmmmmn',
-    '.EFFFFFFFFEEmmmmn',
-    '..EEEEEEEEEmmmmmn',
-    'nmmmmmmmmmmmmmmn.',
-    '.nnnnnnnnnnnnnn..',
+    '...............w',
+    '...EEEEEEEEwE.w.',
+    '..Eqqqqqqqwqww..',
+    '..EqPPPPPwwwwwww',
+    '..EqPPPPPPPwpw..',
+    '..EqPPPPPPwPpEw.',
+    '..EqPPPPPPPPpE.w',
+    '.EEEPPPPPPPPpEE.',
+    'EqqEPPPPPPPPEqpE',
+    'EqPEppppppppEPpE',
+    'EqPEqqppppqqEPpE',
+    'EqPEPPqqqqPPEPpE',
+    'EqPEPPPPPPPPEPpE',
+    'EqPEppppppppEPpE',
+    'EEEEEEEEEEEEEEEE',
+    'EppppppppppppppE',
+    '.EEEEEEEEEEEEEE.',
+    '.EE..........EE.',
   ],
 };
 
 export const bf14Finish: SceneArt = bfKeepsake(
   'bf14-finish',
-  'A corked glass jar with a paper tag, holding a little snail with a pink spiral shell, with bubbles rising inside and sparkles around it.',
-  emblemSnail,
+  'A corked glass jar with a paper tag, holding a little purple armchair with a sagging seat and a white cobweb strung across the corner by its arm, with bubbles rising inside and sparkles around it.',
+  emblemArmchair,
 );
 
 export const art: LessonArtSet = { opener: bf14Opener, backdrop: bfBackdrop, finish: bf14Finish };

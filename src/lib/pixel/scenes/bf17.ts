@@ -1,13 +1,14 @@
 /**
  * Behavioral Finance lesson 17: the disposition effect, selling winners too early, inside the head.
  *
- * Built on bfMindRoom. Through the left eye a winner climbs, gets cut (a red x where it was sold), and
- * a dotted line shows where it went on to; through the right a loser keeps falling, still held. In the
- * room it is cutting the flowers and watering the weeds: System 1 reaches in with scissors to snip a
- * flower in full bloom, a petal already falling, while the weed it keeps sits wilting on the console.
- * The tortoise is the rule that lets winners run: it waters the flower.
+ * Built on bfMindRoom. Through the left eye a winner climbs, gets cut (a big red x where it was sold),
+ * and a dotted line shows where it went on to; through the right, Odean's finding as two bars: 14.8% of
+ * gains realized against 9.8% of losses, winners sold and losers held. In the room it is cutting the
+ * flowers and watering the weeds: System 1 reaches in with scissors to snip a flower in full bloom, a
+ * petal already falling, while the weed it keeps wilts in the same clay pot against its foot. The
+ * tortoise is the rule that lets winners run: it waters the flower.
  *
- * The keepsake jar holds a flower cut early.
+ * The keepsake jar holds a flower cut early, its bloom tipping away from the stump.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -27,7 +28,7 @@ import { bfBackdrop } from './bf-backdrop';
 import { bfKeepsake } from './bf1-finish';
 import type { LessonArtSet, SceneArt } from './types';
 
-/** The left eye: a winner climbing, sold partway up (the red x), and the dotted climb it went on to. */
+/** The left eye: a winner climbing, sold partway up (the big red x), and the dotted climb it went on to. */
 const winnerCut: PixelSprite = {
   id: 'bf17-opener-winner',
   name: 'bf17-opener-winner',
@@ -35,11 +36,11 @@ const winnerCut: PixelSprite = {
   rows: [
     '...................m',
     '..................n.',
-    '................n...',
+    '........R...R...n...',
     '.........R.R..n.....',
     '..........R.n.......',
     '........NR.R........',
-    '.......N............',
+    '.......NR...R.......',
     '.....NN.............',
     '....N...............',
     '..NN................',
@@ -47,22 +48,28 @@ const winnerCut: PixelSprite = {
   ],
 };
 
-/** The right eye: a loser still falling, still held. */
-const loserHeld: PixelSprite = {
-  id: 'bf17-opener-loser',
-  name: 'bf17-opener-loser',
+/**
+ * The right eye: what Odean found in 10,000 accounts. Investors realized 14.8% of their gains (the green
+ * bar, full height) but only 9.8% of their losses (the red bar, two thirds of it): winners sold, losers held.
+ */
+const odeanBars: PixelSprite = {
+  id: 'bf17-opener-odean',
+  name: 'bf17-opener-odean',
   tags: ['scene', 'bf17'],
   rows: [
-    'RR..................',
-    '..RR................',
-    '....R...............',
-    '.....RR.............',
-    '.......R............',
-    '........RR..........',
-    '..........RR........',
-    '............RR......',
-    '..............RRR...',
-    '.................RRw',
+    '.mmmm.......',
+    '.NNNn.......',
+    '.NNNn.......',
+    '.NNNn.......',
+    '.NNNn..ssss.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    '.NNNn..RRRr.',
+    'XXXXXXXXXXXX',
   ],
 };
 
@@ -180,20 +187,31 @@ const petal: PixelSprite = {
   frameMs: 450,
 };
 
-/** The loser it keeps: a weed in a pot on the console, wilting. */
+/**
+ * The loser it keeps: a weed in the flower's own clay pot, on the floor against the hare's foot, its
+ * stalk bent over and its spiky leaves drooping. Flower and weed stand side by side, winner and loser.
+ */
 const weed: PixelSprite = {
   id: 'bf17-weed',
   name: 'bf17-weed',
   tags: ['prop', 'bf17'],
   rows: [
-    '..X....',
-    '.XxX...',
-    'X..xX..',
-    '...x.X.',
-    '...x...',
-    '.11111.',
-    '.13321.',
-    '..111..',
+    '.ggg.....',
+    'g.g.g....',
+    '..g.n....',
+    '.....n...',
+    '.....n...',
+    'g....n..g',
+    '.g.g.n.g.',
+    '..gngngg.',
+    '.ggnnnng.',
+    '.1KKKKK1.',
+    '111111111',
+    '133333321',
+    '.1333321.',
+    '.1333221.',
+    '.1322221.',
+    '..11111..',
   ],
 };
 
@@ -286,24 +304,24 @@ const consoleLightsLater = bfLater(bfConsoleLights, 'bf17-opener-console-lights-
 
 export const bf17Opener: SceneArt = {
   id: 'bf17-opener',
-  label: "Inside an investor's head, a hare snips a flower in full bloom with scissors while a weed wilts on the console and the eyes show a winner sold too soon, and a calm tortoise waters the flower.",
+  label: "Inside an investor's head, a hare snips a flower in full bloom with scissors while keeping a wilting weed in a pot against its foot, the left eye shows a winner sold too soon and the right eye a tall green bar of winners sold beside a shorter red bar of losers sold, and a calm tortoise waters the flower.",
   width: 80,
   height: 60,
   base: bfMindRoom,
   layers: [
     { sprite: bfStarBig, x: 26, y: 24, motion: { kind: 'twinkle', periodMs: 2400, min: 0.3 } },
-    { sprite: bfStar, x: 64, y: 17, motion: { kind: 'twinkle', periodMs: 1900, phase: 0.5, min: 0.2 } },
+    { sprite: bfStar, x: 67, y: 18, motion: { kind: 'twinkle', periodMs: 1900, phase: 0.5, min: 0.2 } },
     { sprite: winnerCut, x: 12, y: 16 },
-    { sprite: loserHeld, x: 49, y: 17 },
+    { sprite: odeanBars, x: 53, y: 15 },
     { sprite: bfConsoleLights, x: 24, y: 34 },
     { sprite: consoleLightsLater, x: 56, y: 34 },
-    { sprite: weed, x: 73, y: 26 },
     { sprite: bfShadowWide, x: 1, y: 54 },
     { sprite: bfShadowNarrow, x: 56, y: 54 },
     { sprite: flower, x: 43, y: 31 },
     { sprite: petal, x: 51, y: 37 },
     { sprite: tortoiseWatering, x: 0, y: 39 },
     { sprite: drops, x: 43, y: 46 },
+    { sprite: weed, x: 52, y: 43 },
     { sprite: hareSnip, x: 47, y: 28 },
   ],
 };
@@ -312,21 +330,22 @@ const emblemFlowerCut: PixelSprite = {
   id: 'bf17-emblem-flower-cut',
   name: 'bf17-emblem-flower-cut',
   tags: ['emblem', 'bf', 'lesson-17'],
-  blurb: "Lesson 17's emblem: the disposition effect caught as a flower cut off in full bloom, a petal falling.",
+  blurb: "Lesson 17's emblem: the disposition effect caught as a flower snipped off in full bloom, the top tipping away from its stump, a petal falling.",
   rows: [
-    '....fFFf......',
-    '..fFFFFFFf....',
-    '.fFFfGGfFFf...',
-    '.FFFGyyGFFF...',
-    '.fFFGyGGFFf...',
-    '..fFFfGfFf....',
-    '...fFFFFf.....',
-    '.....nN.......',
-    '.....nN...Ff..',
-    '....nnN...f...',
-    '...mnnN.......',
-    '.....nN.......',
-    '.....nW.......',
+    '......fFFf....',
+    '....fFFFFFFf..',
+    '...fFFfGGfFFf.',
+    '...FFFGyyGFFF.',
+    '...fFFGyGGFFf.',
+    '....fFFfGfFf..',
+    '.....fFFFFf...',
+    '.......nN.....',
+    '.......nN..Ff.',
+    '......nnN..f..',
+    '....mnnN......',
+    '......nN......',
+    '......nW......',
+    '..............',
     '..............',
     '.....WN.......',
     '......N.......',
@@ -337,7 +356,7 @@ const emblemFlowerCut: PixelSprite = {
 
 export const bf17Finish: SceneArt = bfKeepsake(
   'bf17-finish',
-  'A corked glass jar with a paper tag, holding a pink flower cut off at the stem, a petal falling, with bubbles rising inside and sparkles around it.',
+  'A corked glass jar with a paper tag, holding a pink flower snipped off its stem, the bloom tipping away from the cut stump and a petal falling, with bubbles rising inside and sparkles around it.',
   emblemFlowerCut,
 );
 

@@ -7,7 +7,8 @@
  * stands by with the other kind of evidence, its clipboard turned into a bar chart: data, not stories.
  * The stage and its lights are bf-kit-a.ts; the gesture is bfHareGesture (bf-kit-b.ts).
  *
- * The keepsake jar holds a storybook.
+ * The keepsake jar holds the storybook, story against data: its rocket lifting off the left page for
+ * the moon, the tortoise's bar chart on the facing page.
  */
 import type { PixelSprite } from '../types';
 import { bfShadowNarrow, bfShadowWide, bfSparkle, bfTortoisePlan } from './bf-kit';
@@ -137,33 +138,41 @@ export const bf15Opener: SceneArt = {
   ],
 };
 
+/** The storybook's rocket lifting off its page, flame flickering, puffs left on the paper. */
+const storyLaunch = [
+  '...R.........yy.',
+  '..RRR.........Wy',
+  '..wBw.........Wy',
+  '..www........yy.',
+  '.RwwwR..........',
+  '.R.G.R..........',
+  '...y............',
+  '.DDDDDD..DDDDDD.',
+  'DwwywwwDDwwwwwwD',
+  'DwwwwwwDDwwwwwwD',
+  'DwwxwwwDDwwwwwND',
+  'DwwwwwwDDwwwNwND',
+  'DwxwwwwDDwRwNwND',
+  'DwwwwwwDDwRwNwND',
+  'DwwwwwwDDwXXXXXD',
+  'RRRRRRRDDRRRRRRR',
+  '.rrrrrrRRrrrrrr.',
+];
+const storyLaunchFlare = storyLaunch.map((row, y) => (y === 5 ? '.RGyGR..........' : y === 6 ? '..G.G...........' : row));
+
 const emblemStorybook: PixelSprite = {
   id: 'bf15-emblem-storybook',
   name: 'bf15-emblem-storybook',
   tags: ['emblem', 'bf', 'lesson-15'],
-  blurb: "Lesson 15's emblem: the narrative fallacy caught as an open storybook with a star on its page.",
-  rows: [
-    '.DDDDDD..DDDDDD.',
-    'DwwwwwwDDwwwwwwD',
-    'DwwwywwDDwxxxxwD',
-    'DwwyGywDDwwwwwwD',
-    'DwyGWGyDDwxxxxwD',
-    'DwwyGywDDwwwwwwD',
-    'DwwwywwDDwxxxwwD',
-    'DwwwwwwDDwwwwwwD',
-    'DwxxxxwDDwxxxxwD',
-    'DwwwwwwDDwwwwwwD',
-    'RRRRRRRDDRRRRRRR',
-    '.rrrrrrRRrrrrrr.',
-    '.......Rr.......',
-    '.......Rr.......',
-    '......R..r......',
-  ],
+  blurb: "Lesson 15's emblem: the narrative fallacy caught as an open storybook, its rocket lifting off the left page for the moon while the facing page holds the tortoise's bar chart: story against data.",
+  rows: storyLaunch,
+  frames: [storyLaunch, storyLaunchFlare],
+  frameMs: 240,
 };
 
 export const bf15Finish: SceneArt = bfKeepsake(
   'bf15-finish',
-  'A corked glass jar with a paper tag, holding a little open storybook with a gold star on its page and a red ribbon, with bubbles rising inside and sparkles around it.',
+  'A corked glass jar with a paper tag, holding a little open storybook with a red rocket lifting off its left page toward a crescent moon and a small bar chart on the facing page, with bubbles rising inside and sparkles around it.',
   emblemStorybook,
 );
 

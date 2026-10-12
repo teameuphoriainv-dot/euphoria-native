@@ -2,16 +2,17 @@
  * Behavioral Finance lesson 2: cognitive biases that destroy wealth, inside the investor's head in 2000.
  *
  * Built on bfMindRoom. The dot-com bubble is a bubble System 1 blows itself: the hare puffs through a
- * soap wand, bubbles drifting up off it, a big one swelling in front of its nose. Confirmation,
- * recency, herd and overconfidence are all just more air. Through the left eye the NASDAQ climbs
- * into a swelling bubble; through the right it has popped and the line falls to the 2002 trough.
- * The tortoise is the bias-aware investor, the one who seeks the bear case: it walks in with a pin.
+ * soap wand, and every bubble it blows carries a bias up toward the market: a sheep (herd, the biggest
+ * of them), a crown (overconfidence) and an anchor (anchoring). Through the left eye the NASDAQ climbs
+ * into a swelling bubble; through the right it has popped and the line falls to the 2002 trough. The
+ * tortoise is the bias-aware investor, the one who seeks the bear case: it walks in with a pin and runs
+ * it through the bubble in front of the wand.
  *
- * The keepsake jar holds a funhouse mirror, every bias being a mirror that bends what you see.
+ * The keepsake jar holds that moment: a bubble with the NASDAQ climbing inside it, just blown off a
+ * gold wand, a red-headed pin through it at the peak.
  */
 import type { PixelSprite } from '../types';
 import {
-  bfBubble,
   bfConsoleLights,
   bfLater,
   bfMindRoom,
@@ -335,6 +336,74 @@ const bigBubble: PixelSprite = {
   ],
 };
 
+/** Soap films lit from the top left: 9x9 holds a 5-wide sign, 11x11 a 7-wide one. */
+const FILM_SMALL = [
+  '...QQQ...',
+  '.QQ...QQ.',
+  '.Q.....Q.',
+  'Q.......Q',
+  'Q.......q',
+  'Q.......q',
+  '.Q.....q.',
+  '.qq...qq.',
+  '...qqq...',
+];
+const FILM_LARGE = [
+  '...QQQQQ...',
+  '.QQ.....QQ.',
+  '.Q.......Q.',
+  'Q.........Q',
+  'Q.........Q',
+  'Q.........q',
+  'Q.........q',
+  'Q.........q',
+  '.Q.......q.',
+  '.qq.....qq.',
+  '...qqqqq...',
+];
+
+/** A bubble off the wand with one bias sealed inside it, the 5-row sign centred in the film. */
+function biasBubble(id: string, blurb: string, sign: string[]): PixelSprite {
+  const film = sign[0].length > 5 ? FILM_LARGE : FILM_SMALL;
+  const x0 = (film[0].length - sign[0].length) / 2;
+  const y0 = (film.length - sign.length) / 2;
+  return {
+    id,
+    name: id,
+    tags: ['prop', 'bf2'],
+    blurb,
+    rows: film.map((row, y) => {
+      const s = sign[y - y0];
+      return s ? row.slice(0, x0) + s + row.slice(x0 + s.length) : row;
+    }),
+  };
+}
+
+const anchorBubble = biasBubble('bf2-bubble-anchor', 'Anchoring: an anchor in a bubble.', [
+  '..w..',
+  '.www.',
+  '..w..',
+  'w.w.w',
+  '.www.',
+]);
+
+/** The herd is the biggest bubble of the three: a sheep, woolly body, grey face, legs. */
+const sheepBubble = biasBubble('bf2-bubble-sheep', 'Herd: a sheep in a bubble.', [
+  '.wWww..',
+  'wwwwwxx',
+  'wwwwwxk',
+  '.wwww..',
+  '.x..x..',
+]);
+
+const crownBubble = biasBubble('bf2-bubble-crown', 'Overconfidence: a crown in a bubble.', [
+  '.....',
+  'y.y.y',
+  'GyGyG',
+  'GGGGG',
+  '.ggg.',
+]);
+
 /** System 2 walking in from the right with a pin held out in its mouth. */
 const tortoisePin: PixelSprite = {
   id: 'bf2-tortoise-pin',
@@ -406,7 +475,7 @@ const consoleLightsLater = bfLater(bfConsoleLights, 'bf2-opener-console-lights-l
 
 export const bf2Opener: SceneArt = {
   id: 'bf2-opener',
-  label: "Inside an investor's head in the dot-com bubble, a hare blows a big soap bubble through a wand while a calm tortoise walks in holding a pin, and the eyes show the bubble swelling and bursting.",
+  label: "Inside an investor's head in the dot-com bubble, a hare blows soap bubbles holding a sheep, a crown and an anchor up toward the market's swelling bubble, while a calm tortoise runs a pin through the bubble at the wand, and the right eye shows the bubble bursting.",
   width: 80,
   height: 60,
   base: bfMindRoom,
@@ -422,45 +491,46 @@ export const bf2Opener: SceneArt = {
     { sprite: bfShadowWide, x: 41, y: 55 },
     { sprite: tortoisePin, x: 32, y: 39 },
     { sprite: hareBlow, x: 6, y: 27 },
-    { sprite: bigBubble, x: 32, y: 34, motion: { kind: 'bob', amp: 1, periodMs: 1500 } },
-    { sprite: bfBubble, x: 31, y: 31, motion: { kind: 'rise', amp: 8, periodMs: 2600 } },
-    { sprite: bfBubble, x: 36, y: 27, motion: { kind: 'rise', amp: 10, periodMs: 3400, phase: 0.4 } },
-    { sprite: bfBubble, x: 28, y: 30, motion: { kind: 'rise', amp: 7, periodMs: 2200, phase: 0.7 } },
+    { sprite: bigBubble, x: 28, y: 44, motion: { kind: 'bob', amp: 1, periodMs: 1500 } },
+    { sprite: sheepBubble, x: 35, y: 30, motion: { kind: 'rise', amp: 7, periodMs: 3800 } },
+    { sprite: crownBubble, x: 27, y: 25, motion: { kind: 'rise', amp: 6, periodMs: 4200, phase: 0.35 } },
+    { sprite: anchorBubble, x: 36, y: 16, motion: { kind: 'rise', amp: 6, periodMs: 4600, phase: 0.7 } },
   ],
 };
 
-const emblemMirror: PixelSprite = {
-  id: 'bf2-emblem-mirror',
-  name: 'bf2-emblem-mirror',
+const emblemPinnedBubble: PixelSprite = {
+  id: 'bf2-emblem-pinned-bubble',
+  name: 'bf2-emblem-pinned-bubble',
   tags: ['emblem', 'bf', 'lesson-2'],
-  blurb: "Lesson 2's emblem: cognitive bias caught as a funhouse mirror, wavy gold frame, bent reflection.",
+  blurb: "Lesson 2's emblem: the biases' bubble caught just off a gold wand, the NASDAQ climbing inside it and a red-headed pin through it at the peak.",
   rows: [
-    '......OyO......',
-    '.....OyGgO.....',
-    '...OOOGGgOOO...',
-    '..OGGqqqqqgGO..',
-    '.OGqqQwqqqqqgO.',
-    '.OGqQwqqqwqqgO.',
-    '.OyqqwqqwqqqgO.',
-    '.OGqqqwqqwqqgO.',
-    '.OGqqqwqqqwqgO.',
-    '.OyqqwqqqqwqgO.',
-    '.OGqwqqqqwqqgO.',
-    '.OGqqwqqwqqqgO.',
-    '.OyqqqwqqwqqgO.',
-    '.OGqqqqwqqwqgO.',
-    '.OGgggggggggGO.',
-    '..OOOOOOOOOOO..',
-    '...OgO...OgO...',
-    '...OgO...OgO...',
-    '..OOOOO.OOOOO..',
+    '.....QQQQQ......',
+    '...QQqqqqqQq....',
+    '...QqWW...pq....',
+    '..QqW......pq.RR',
+    '..Qq...WwwwwwRsR',
+    '..Qq...NXXXXXRRr',
+    '..Qq..N....pq.rr',
+    '..QqNN.....pq...',
+    '...Nq.....pq....',
+    '...OOpppppqq....',
+    '.OOyyOOqqq......',
+    '.OqqFFO.........',
+    'OyqFFBgO........',
+    'OyFFBBgO........',
+    '.OFBBBO.........',
+    '.OOggOO.........',
+    '..OyGO..........',
+    '..OyGO..........',
+    '..OyGO..........',
+    '...OO...........',
   ],
 };
 
 export const bf2Finish: SceneArt = bfKeepsake(
   'bf2-finish',
-  'A corked glass jar with a paper tag, holding a little funhouse mirror in a wavy gold frame, with bubbles rising inside and sparkles around it.',
-  emblemMirror,
+  'A corked glass jar with a paper tag, holding a soap bubble just blown off a little gold wand, a green market line climbing inside it and a red-headed pin stuck through it, with bubbles rising inside and sparkles around it.',
+  emblemPinnedBubble,
 );
 
 export const art: LessonArtSet = { opener: bf2Opener, backdrop: bfBackdrop, finish: bf2Finish };

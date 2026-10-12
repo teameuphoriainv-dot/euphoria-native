@@ -2,8 +2,9 @@
  * Behavioral Finance lesson 7: prospect theory and decision making, inside the investor's head.
  *
  * Built on bfMindRoom. Losses weigh about two and a half times what the same gains do: a balance on
- * the floor with a $100 gain (a small green coin) on one pan and a $100 loss (a red weight of the
- * very same size) on the other, the loss side slammed down and still rocking. The hare winces at
+ * the floor with a $100 gain (a green weight) on one pan and a $100 loss (a red weight of exactly the
+ * same size and shape) on the other, yet the loss side is slammed down and still rocking: equal
+ * amounts, unequal feelings. The hare winces at
  * it, ears drooping, paw to its cheek. Through the left eye, the S-shaped value function, gains
  * concave and losses steeper; through the right, the long run. The tortoise is the one looking at
  * it, through a telescope: check less often, judge over years, not days.
@@ -65,7 +66,7 @@ const scale: PixelSprite = {
   id: 'bf7-scale',
   name: 'bf7-scale',
   tags: ['prop', 'bf7'],
-  blurb: "A gold balance: a red $100 loss on the low pan outweighing a green $100 gain on the high one.",
+  blurb: "A gold balance: a red $100 loss on the low pan outweighing a green $100 gain of the very same size on the high one.",
   rows: [
     '.....................',
     '.....................',
@@ -73,10 +74,10 @@ const scale: PixelSprite = {
     '...............GGG...',
     '.............GGx.....',
     '..........yGGG.x.....',
-    '.........OyO...x.....',
-    '.......GGGgO...x.n...',
-    '.....GGG.OgO...xnmn..',
-    '...GGG...OgO...x.n...',
+    '.........OyO...nnnn..',
+    '.......GGGgO..nNNNNn.',
+    '.....GGG.OgO..nNmmNn.',
+    '...GGG...OgO..nNNNNn.',
     '.x.......OgO..OOOOOOO',
     '.x.......OgO...OOOOO.',
     '.1111....OgO.........',
@@ -106,10 +107,10 @@ const scale: PixelSprite = {
       '...............GGG...',
       '.............GGx.....',
       '..........yGGG.x.....',
-      '.........OyO...x.....',
-      '.......GGGgO...x.n...',
-      '.....GGG.OgO...xnmn..',
-      '...GGG...OgO...x.n...',
+      '.........OyO...nnnn..',
+      '.......GGGgO..nNNNNn.',
+      '.....GGG.OgO..nNmmNn.',
+      '...GGG...OgO..nNNNNn.',
       '.x.......OgO..OOOOOOO',
       '.x.......OgO...OOOOO.',
       '.1111....OgO.........',
@@ -137,10 +138,10 @@ const scale: PixelSprite = {
       '................G....',
       '..............xGG....',
       '.............Gx......',
-      '..........yGG.x......',
-      '.........OyO..x.n....',
-      '........GGgO..xnmn...',
-      '......GG.OgO..x.n....',
+      '..........yGG.nnnn...',
+      '.........OyO.nNNNNn..',
+      '........GGgO.nNmmNn..',
+      '......GG.OgO.nNNNNn..',
       '....GGG..OgO.OOOOOOO.',
       '....G....OgO..OOOOO..',
       '..x......OgO.........',
@@ -299,7 +300,7 @@ const tortoiseTelescope: PixelSprite = {
 
 export const bf7Opener: SceneArt = {
   id: 'bf7-opener',
-  label: "Inside an investor's head, a hare winces at a balance where a small red loss outweighs an equal green gain, while a calm tortoise looks at the long run through a telescope.",
+  label: "Inside an investor's head, a hare winces at a balance where a red loss weight drags down a green gain weight of exactly the same size, while a calm tortoise looks at the long run through a telescope.",
   width: 80,
   height: 60,
   base: bfMindRoom,
@@ -322,22 +323,22 @@ const emblemScale: PixelSprite = {
   id: 'bf7-emblem-scale',
   name: 'bf7-emblem-scale',
   tags: ['emblem', 'bf', 'lesson-7'],
-  blurb: "Lesson 7's emblem: loss aversion caught as a balance tipped by a red weight.",
+  blurb: "Lesson 7's emblem: loss aversion caught as a balance tipped down by a red weight against a green one of the same size.",
   rows: [
     '................',
     '..............G.',
     '...........GGGx.',
     '........yGGG..x.',
-    '.......GyG...nn.',
-    '.....GGGgO...nn.',
-    '..GGGG.OgO..OOOO',
-    '..G....OgO......',
+    '.......GyG..nnnn',
+    '.....GGGgO..nmNn',
+    '..GGGG.OgO..nNNn',
+    '..G....OgO..OOOO',
+    '..x....OgO......',
     '..x....OgO......',
     '1111...OgO......',
-    '1RR1...OgO......',
+    '1sR1...OgO......',
     '1RR1...OgO......',
     'OOOOO..OgO......',
-    '.......OgO......',
     '.......OgO......',
     '.......OgO......',
     '....OOOOOOOOO...',
@@ -347,7 +348,7 @@ const emblemScale: PixelSprite = {
 
 export const bf7Finish: SceneArt = bfKeepsake(
   'bf7-finish',
-  'A corked glass jar with a paper tag, holding a little gold balance tipped down by a red weight against a green one, with bubbles rising inside and sparkles around it.',
+  'A corked glass jar with a paper tag, holding a little gold balance tipped down by a red weight against a green weight of exactly the same size, with bubbles rising inside and sparkles around it.',
   emblemScale,
 );
 
