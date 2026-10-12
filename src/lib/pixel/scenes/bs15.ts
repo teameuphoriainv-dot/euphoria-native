@@ -154,7 +154,7 @@ const streamLater = bsLater(stream, 'bs15-stream-later', 2, 230);
 
 export const bs15Opener: SceneArt = {
   id: 'bs15-opener',
-  label: 'In a tower study, streams of light carry the old books off their shelves into a tall glowing mirror that shows a live chart, while a strategist points into it.',
+  label: 'In a tower study, streams of light run from the old books on their full shelves into a tall glowing mirror that shows a live chart, while a strategist points at it.',
   width: 80,
   height: 60,
   base: bsStudy,
