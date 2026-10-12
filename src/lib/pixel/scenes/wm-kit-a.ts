@@ -5,7 +5,7 @@
  * LESSON 1 STOOD ON THE LAWN; THE ADVISOR'S LESSONS GO INDOORS. So this adds what the study, the
  * library and the drawing room are built from: wallpaper and panelling as grounds for wmCompose,
  * a curtained night window, a bookcase, a candle, the advisor's pointing pose, a line of far tree
- * crowns for the outdoor scenes, and the scales emblem that lesson 8 shares with lesson 16. The
+ * crowns for the outdoor scenes, and the scales emblem for lesson 16's keepsake. The
  * rules are wm-kit.ts's: light from the upper left, gold kept to fittings and flames, and only
  * small sprites carry frames.
  *
@@ -261,7 +261,7 @@ export const wmAdvisorPointing: PixelSprite = {
 
 /* ── keepsake emblems: 14x13, gold, for wmKeepsake (wm1-finish.ts) ──────────────────────────── */
 
-/** A balance: tax optimisation and fair dealing (lessons 8 and 16). */
+/** A balance: fair dealing (lesson 16). */
 export const wmEmblemScales: PixelSprite = {
   id: 'wm-emblem-scales',
   name: 'wm-emblem-scales',

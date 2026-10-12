@@ -5,10 +5,11 @@
  * The opener is the lawn in a night storm: a bank of cloud, the far woods, the manor's lit windows
  * on the horizon. The family stands under one wide orchid umbrella that the father holds, the
  * money bag dry at their feet: an umbrella policy, a small premium keeping a large fortune out of
- * the weather. What moves: rain falls everywhere the umbrella is not (framed tiles, masked to the
- * canopy so the drops stop on it), lightning forks twice and goes dark, a cloud drifts, drops
- * splash on the canopy and ring the puddles, the manor's windows glow. The keepsake carries an
- * umbrella.
+ * the weather. What moves: rain falls everywhere the umbrella is not, down to the lawn either side
+ * of the family (framed tiles, masked to the canopy so the drops stop on it), lightning forks twice
+ * and goes dark, a cloud drifts, drops splash on the canopy and ring the puddles, the manor's
+ * windows glow. The label leaves the lightning out: it is dark at rest and under Reduce Motion.
+ * The keepsake carries an umbrella.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -224,7 +225,7 @@ const manorGlow: PixelSprite = {
 
 export const wm5Opener: SceneArt = {
   id: 'wm5-opener',
-  label: 'A family shelters under one wide orchid umbrella in a night storm, their money bag dry at their feet, while rain pours and lightning forks over the far manor.',
+  label: 'A family shelters under one wide orchid umbrella in a night storm, the rain stopping at its canopy so their money bag stays dry at their feet, while the far manor\'s windows glow.',
   width: 80,
   height: 60,
   base,
@@ -238,6 +239,8 @@ export const wm5Opener: SceneArt = {
     { sprite: rain('wm5-opener-rain-4', 37, 0, 18, 39), x: 37, y: 0 },
     { sprite: rain('wm5-opener-rain-5', 55, 0, 25, 23), x: 55, y: 0 },
     { sprite: rain('wm5-opener-rain-6', 55, 23, 25, 22), x: 55, y: 23 },
+    { sprite: rain('wm5-opener-rain-7', 0, 45, 18, 15), x: 0, y: 45 },
+    { sprite: rain('wm5-opener-rain-8', 55, 45, 25, 15), x: 55, y: 45 },
     { sprite: splash, x: 23, y: 29, motion: { kind: 'twinkle', periodMs: 900, min: 0 } },
     { sprite: splash, x: 46, y: 29, motion: { kind: 'twinkle', periodMs: 1100, phase: 0.5, min: 0 } },
     { sprite: ripple, x: 6, y: 53, motion: { kind: 'twinkle', periodMs: 1300, min: 0 } },

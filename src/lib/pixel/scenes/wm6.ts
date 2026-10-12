@@ -2,13 +2,16 @@
  * Wealth Management lesson 6 (charitable giving and philanthropy): its opener, the pathway
  * backdrop and its keepsake, as one set loaded on demand.
  *
- * The opener is the village green at night. On the right stands the schoolhouse the family gives
- * to: stone walls, lamplit windows, a heart over the door, a bell in its tower. On the left the
- * child, the grandmother behind, holds a stock certificate up to a gift box marked with a heart:
- * the lesson's point is to give the appreciated shares themselves, not cash, so the gift arrives
- * whole and no gains tax is paid on the way. What moves: hearts rise from the box toward the
- * school, its windows glow, the bell swings, stars twinkle, a firefly rises. The keepsake carries
- * a heart.
+ * The opener is the village green at night. On the right stands the stone hall the family gives
+ * to: lamplit windows, a heart over the door, a bell in its tower. On the left the child, the
+ * grandmother watching, pushes a share certificate into the slot of a donation box marked with a
+ * heart. The certificate is drawn large enough to read, in lesson 20's look (a dark frame, cream
+ * paper, a gold band), with a green line rising across it to an up-tick: an appreciated share.
+ * That is the lesson's point: give the shares themselves, not cash, so the gift arrives whole and
+ * no gains tax is paid on the way. What moves: the certificate nudges down into the slot (the
+ * box's front is a layer drawn over it, so it passes behind), hearts rise from the gift toward the
+ * hall, its windows glow, the bell swings, stars twinkle, a firefly rises. The keepsake carries
+ * the same gift: a certificate with a rising line going into a heart-marked box.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -17,9 +20,15 @@ import { wmBands, wmCompose, wmElder, wmFirefly, wmStar, wmStarDot, WM_INKS } fr
 import { wmTreeline } from './wm-kit-a';
 import { wmKeepsake } from './wm1-finish';
 
-/** The schoolhouse's top-left in the scene; its bell and windows are placed from it. */
-const SCHOOL_X = 48;
-const SCHOOL_Y = 12;
+/** The hall's top-left in the scene; its bell and windows are placed from it. */
+const HALL_X = 48;
+const HALL_Y = 12;
+
+/** The donation box's top-left (its lid and slot are row 0) and the certificate standing in the slot. */
+const BOX_X = 27;
+const BOX_Y = 47;
+const CERT_X = BOX_X + 2;
+const CERT_Y = 40;
 
 /** Fixed faint stars. */
 const skyDots: PixelSprite = {
@@ -105,25 +114,25 @@ const roof: PixelSprite = {
 };
 
 /** The stone front: lit on the left edge, in shade on the right, a dark plinth. 26x14. */
-const schoolWall: PixelSprite = {
-  id: 'wm6-opener-school-wall',
-  name: 'wm6-opener-school-wall',
+const hallWall: PixelSprite = {
+  id: 'wm6-opener-hall-wall',
+  name: 'wm6-opener-hall-wall',
   tags: ['scene', 'wm6'],
   rows: [...Array.from({ length: 13 }, () => `X${'D'.repeat(24)}K`), 'k'.repeat(26)],
 };
 
 /** An arched window, its panes dim until the glow layer lights them. 4x6. */
-const schoolWindow: PixelSprite = {
-  id: 'wm6-opener-school-window',
-  name: 'wm6-opener-school-window',
+const hallWindow: PixelSprite = {
+  id: 'wm6-opener-hall-window',
+  name: 'wm6-opener-hall-window',
   tags: ['scene', 'wm6'],
   rows: ['.KK.', 'KOOK', 'KOOK', 'KOOK', 'KOOK', 'XXXX'],
 };
 
-/** The school's door. 6x9. */
-const schoolDoor: PixelSprite = {
-  id: 'wm6-opener-school-door',
-  name: 'wm6-opener-school-door',
+/** The hall's door. 6x9. */
+const hallDoor: PixelSprite = {
+  id: 'wm6-opener-hall-door',
+  name: 'wm6-opener-hall-door',
   tags: ['scene', 'wm6'],
   palette: WM_INKS,
   rows: [
@@ -139,7 +148,7 @@ const schoolDoor: PixelSprite = {
   ],
 };
 
-/** A pink heart, for the sign over the door and the box. 5x4. */
+/** A pink heart, for the sign over the door and the hearts rising from the gift. 5x4. */
 const heart: PixelSprite = {
   id: 'wm6-opener-heart',
   name: 'wm6-opener-heart',
@@ -147,18 +156,18 @@ const heart: PixelSprite = {
   rows: ['sF.Ff', 'FFFFf', '.FFf.', '..f..'],
 };
 
-/** The schoolhouse, composed. 30x34. */
-const school = wmCompose('wm6-opener-school', wmBands(30, [['.', 34]]), [
+/** The hall, composed. 30x34. */
+const hall = wmCompose('wm6-opener-hall', wmBands(30, [['.', 34]]), [
   { sprite: belfry, x: 11, y: 0 },
   { sprite: roof, x: 0, y: 11 },
-  { sprite: schoolWall, x: 2, y: 20 },
-  { sprite: schoolWindow, x: 5, y: 23 },
-  { sprite: schoolWindow, x: 21, y: 23 },
-  { sprite: schoolDoor, x: 12, y: 25 },
+  { sprite: hallWall, x: 2, y: 20 },
+  { sprite: hallWindow, x: 5, y: 23 },
+  { sprite: hallWindow, x: 21, y: 23 },
+  { sprite: hallDoor, x: 12, y: 25 },
   { sprite: heart, x: 12, y: 21 },
 ]);
 
-/** Gravel from the school door down to us, widening, with a few lit stones. 26x14. */
+/** Gravel from the hall door down to us, widening, with a few lit stones. 26x14. */
 const path: PixelSprite = {
   id: 'wm6-opener-path',
   name: 'wm6-opener-path',
@@ -172,43 +181,79 @@ const path: PixelSprite = {
   }),
 };
 
-/** The gift box on its stand: a slot in the lid, a heart on the front. 11x10. */
+/**
+ * The donation box: a lid with a slot as wide as the certificate (columns 2 to 9), a heart on the
+ * front, short feet. Rows 1 and 2 are also drawn as a layer over the certificate, so the paper
+ * pushed into the slot passes behind the front. 12x8.
+ */
+const BOX = [
+  'yCKKKKKKKKCg',
+  'OUUUUUUUUUUO',
+  'OUUUsFUFfUUO',
+  'OUUUFFFFfUUO',
+  'OUUUUFFfUUUO',
+  'OUUUUUfUUUUO',
+  'OOOOOOOOOOOO',
+  '.K........K.',
+];
 const giftBox: PixelSprite = {
   id: 'wm6-opener-gift-box',
   name: 'wm6-opener-gift-box',
   tags: ['scene', 'wm6'],
   palette: WM_INKS,
+  rows: BOX,
+};
+const boxFront: PixelSprite = {
+  id: 'wm6-opener-box-front',
+  name: 'wm6-opener-box-front',
+  tags: ['scene', 'wm6'],
+  palette: WM_INKS,
+  rows: BOX.slice(1, 3),
+};
+
+/**
+ * The share certificate in lesson 20's look (wm20.ts): a dark frame, cream paper, a gold band, and
+ * across it a green line rising to an up-tick, the share that has grown. Rows 7 to 9 are in the
+ * slot and behind the box's front at rest; the bob lifts them into view and lets them sink back.
+ * 8x10.
+ */
+const certificate: PixelSprite = {
+  id: 'wm6-opener-certificate',
+  name: 'wm6-opener-certificate',
+  tags: ['scene', 'wm6'],
   rows: [
-    'yCCKKKKCCCg',
-    'OUUUUUUUUUO',
-    'OUUsFUFfUUO',
-    'OUUFFFFfUUO',
-    'OUUUFFfUUUO',
-    'OUUUUfUUUUO',
-    'OOOOOOOOOOO',
-    '.OUUUUUUUO.',
-    '.O.......O.',
-    '.K.......K.',
+    'DDDDDDDD',
+    'DyyyynND',
+    'DyyyyynD',
+    'DyynynyD',
+    'DynynyyD',
+    'DnyyyyyD',
+    'DyGgGgyD',
+    'DyyyyyyD',
+    'DyyyyyyD',
+    'DyyyyyyD',
   ],
 };
 
-/** The heir in teal, one arm raised with a rolled share certificate, tied in gold. 7x10. */
+/** The heir in teal, the right arm raised to hold the certificate's edge at the slot. 8x12. */
 const childGiving: PixelSprite = {
   id: 'wm6-opener-child-giving',
   name: 'wm6-opener-child-giving',
   tags: ['scene', 'wm6'],
   palette: WM_INKS,
   rows: [
-    '.....yw',
-    '.ggg.Gx',
-    'gCCCgC.',
-    'CkCkUT.',
-    '.CCUT..',
-    'tTTTt..',
-    'CTTtU..',
-    '.TTt...',
-    '.k.k...',
-    'KK.KK..',
+    '........',
+    '......CC',
+    '......T.',
+    '.ggg.T..',
+    'gCCCgT..',
+    'CkCkUT..',
+    '.CCUT...',
+    'tTTTt...',
+    'CTTt....',
+    '.TTt....',
+    '.k.k....',
+    'KK.KK...',
   ],
 };
 
@@ -216,14 +261,14 @@ const base = wmCompose('wm6-opener-base', wmBands(80, [['K', 44], ['h', 16]]), [
   { sprite: skyDots, x: 0, y: 0 },
   { sprite: moon, x: 8, y: 5 },
   { sprite: trees, x: 0, y: 34 },
-  { sprite: school, x: SCHOOL_X, y: SCHOOL_Y },
+  { sprite: hall, x: HALL_X, y: HALL_Y },
   { sprite: path, x: 50, y: 46 },
   { sprite: wmElder, x: 11, y: 43 },
-  { sprite: childGiving, x: 20, y: 45 },
-  { sprite: giftBox, x: 27, y: 45 },
+  { sprite: childGiving, x: 21, y: 43 },
+  { sprite: giftBox, x: BOX_X, y: BOX_Y },
 ]);
 
-/** The school bell, swinging in its arch. 6x4. */
+/** The hall's bell, swinging in its arch. 6x4. */
 const BELL = ['.yg.', 'yGGg', 'yGGg', 'gggO'];
 const bellAt = (left: number) => BELL.map((row) => `${'.'.repeat(left)}${row}${'.'.repeat(2 - left)}`);
 const bell: PixelSprite = {
@@ -252,49 +297,54 @@ const smallHeart: PixelSprite = {
 
 export const wm6Opener: SceneArt = {
   id: 'wm6-opener',
-  label: 'A child holds up a share certificate at a heart-marked gift box as the grandmother watches, and hearts rise toward a lamplit schoolhouse with a bell tower.',
+  label: 'A child slips a share certificate with a rising green line into a heart-marked donation box as the grandmother watches, and hearts rise from the gift toward a lamplit stone hall with a bell tower.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: heart, x: 28, y: 40, motion: { kind: 'rise', amp: 14, periodMs: 3400, phase: 0 } },
-    { sprite: smallHeart, x: 32, y: 39, motion: { kind: 'rise', amp: 12, periodMs: 3400, phase: 0.35 } },
-    { sprite: heart, x: 30, y: 41, motion: { kind: 'rise', amp: 16, periodMs: 3400, phase: 0.7 } },
-    { sprite: windowGlow, x: SCHOOL_X + 6, y: SCHOOL_Y + 24, motion: { kind: 'twinkle', periodMs: 4200, min: 0.4 } },
-    { sprite: windowGlow, x: SCHOOL_X + 22, y: SCHOOL_Y + 24, motion: { kind: 'twinkle', periodMs: 4800, phase: 0.5, min: 0.4 } },
-    { sprite: bell, x: SCHOOL_X + 12, y: SCHOOL_Y + 5 },
+    { sprite: certificate, x: CERT_X, y: CERT_Y, motion: { kind: 'bob', amp: 2, periodMs: 2400 } },
+    { sprite: boxFront, x: BOX_X, y: BOX_Y + 1 },
+    { sprite: heart, x: 29, y: 34, motion: { kind: 'rise', amp: 14, periodMs: 3400, phase: 0 } },
+    { sprite: smallHeart, x: 35, y: 35, motion: { kind: 'rise', amp: 12, periodMs: 3400, phase: 0.35 } },
+    { sprite: heart, x: 33, y: 30, motion: { kind: 'rise', amp: 16, periodMs: 3400, phase: 0.7 } },
+    { sprite: windowGlow, x: HALL_X + 6, y: HALL_Y + 24, motion: { kind: 'twinkle', periodMs: 4200, min: 0.4 } },
+    { sprite: windowGlow, x: HALL_X + 22, y: HALL_Y + 24, motion: { kind: 'twinkle', periodMs: 4800, phase: 0.5, min: 0.4 } },
+    { sprite: bell, x: HALL_X + 12, y: HALL_Y + 5 },
     { sprite: wmStar, x: 36, y: 4, motion: { kind: 'twinkle', periodMs: 2400, min: 0.3 } },
     { sprite: wmStarDot, x: 44, y: 11, motion: { kind: 'twinkle', periodMs: 1800, phase: 0.6, min: 0.2 } },
     { sprite: wmFirefly, x: 41, y: 41, motion: { kind: 'rise', amp: 5, periodMs: 2900, phase: 0.3 } },
   ],
 };
 
-/** A heart: giving. */
-const emblemHeart: PixelSprite = {
-  id: 'wm6-emblem-heart',
-  name: 'wm6-emblem-heart',
+/**
+ * The gift itself: a share certificate with a green line rising to an up-tick, going into the slot
+ * of a gold box with a pink heart on its front.
+ */
+const emblemGift: PixelSprite = {
+  id: 'wm6-emblem-gift',
+  name: 'wm6-emblem-gift',
   tags: ['scene', 'wm6'],
   rows: [
-    '..yyGg..yGGg..',
-    '.yywGGgyGGGgg.',
-    'yywGGGGGGGGggg',
-    'yyGGGGGGGGGggg',
-    'yGGGGGGGGGGggg',
-    'yGGGGGGGGGgggO',
-    '.GGGGGGGGGggO.',
-    '..GGGGGGGggO..',
-    '...GGGGGggO...',
-    '....GGGggO....',
-    '.....GggO.....',
-    '......gO......',
-    '..............',
+    '..yyyyyyyyyg..',
+    '..ywwwwwwnng..',
+    '..ywwwwwnwng..',
+    '..ywwnwnwwwg..',
+    '..ywnwnwwwwg..',
+    '..ynwwwwwwwg..',
+    'yGKKKKKKKKKKGg',
+    'yGGGGGGGGGGGgg',
+    'yGGGsFGFfGGGgg',
+    'yGGGFFFFfGGGgg',
+    'yGGGGFFfGGGGgg',
+    'gGGGGGfGGGGggO',
+    '.ggggggggggOO.',
   ],
 };
 
 export const wm6Finish: SceneArt = wmKeepsake(
   'wm6-finish',
-  emblemHeart,
-  'A green crest with a gold rim bearing a heart, framed by laurel over a purple banner, with sparkles around it.',
+  emblemGift,
+  'A green crest with a gold rim bearing a share certificate with a rising green line going into a heart-marked box, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm6Opener, backdrop: wmBackdrop, finish: wm6Finish };

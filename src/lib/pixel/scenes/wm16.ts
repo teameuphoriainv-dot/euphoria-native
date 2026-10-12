@@ -9,7 +9,7 @@
  * on paper but are not, because the account's tax is still owed. So the motion is red coins
  * slipping off the money bag and fading, while the model house's windows keep their light. The
  * candles flicker and a star twinkles in the window. The keepsake carries the balance from
- * wm-kit-a.ts, which this lesson shares with lesson 8, as the plan sets out.
+ * wm-kit-a.ts.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';

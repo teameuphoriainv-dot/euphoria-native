@@ -4,16 +4,21 @@
  *
  * The opener is the house's drawing room: plum wallpaper pinstriped in orchid over the kit's
  * panelling, the curtained window, a marble fireplace with candles and a clock on the mantel, and
- * over it a gilt-framed painting of the house of five pillars. On the rug the advisor and the
- * father shake hands: the lesson's point is choosing a fiduciary, someone bound to stand on the
- * family's side, and paying a fee that does not quietly eat the fortune. What moves: the handshake
- * pumps and rests, the fire crackles, the candles flicker, firelight breathes on the hearth, a star
- * twinkles in the window. The keepsake carries an open hand raised in pledge.
+ * over it a gilt-framed painting of the house of five pillars. The lesson is who is on your side
+ * and what it costs, so the advisor stands AT the father's side, not across a deal from him, and
+ * points to the lesson's own chart on a marble table: two coin stacks that start level, a low-fee
+ * stack nearest the family and a high-fee stack, with a fee jar at the end. What moves: each tick
+ * of the mantel clock is a year; both stacks gain a coin, but every other year the high-fee
+ * stack's coin is skimmed off into the jar, so the low-fee stack ends visibly taller. The stacks
+ * only ever step up (the skim is a separate coin in flight, never a coin taken off a stack), and
+ * the loop starts again after a held rest. The fire crackles, the candles flicker, firelight
+ * breathes on the hearth, a star twinkles in the window. The keepsake carries a coin with a bite
+ * taken out of it: the fee that quietly eats a fortune.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
 import { wmBackdrop } from './wm-backdrop';
-import { wmBands, wmCompose, wmLater, wmStarDot, WM_INKS } from './wm-kit';
+import { wmBands, wmCompose, wmLater, wmParent, wmStarDot, WM_INKS } from './wm-kit';
 import { wmCandle, wmCandleFlame, wmStripes, wmWainscot, wmWindow } from './wm-kit-a';
 import { wmKeepsake } from './wm1-finish';
 
@@ -86,7 +91,7 @@ function frameInk(i: number, j: number): string {
   return lit ? 'G' : 'g';
 }
 
-/** The painting: the house of five pillars by night. 14x18. */
+/** The painting: the house of five pillars by night, five two-pixel columns across its width. 14x18. */
 const painting: PixelSprite = {
   id: 'wm9-opener-painting',
   name: 'wm9-opener-painting',
@@ -98,15 +103,15 @@ const painting: PixelSprite = {
     'KKKKKKxwKKKKKK',
     'KKKKxxwwXXKKKK',
     'KKxxwwwwwwXXKK',
-    'KxwwwwwwwwwwXK',
-    'KDXXXXXXXXXXDK',
-    'KKxXOxXOxXOxXK',
-    'KKxXOxXOxXOxXK',
-    'KKxXOxXOxXOxXK',
-    'KKxXOxXOxXOxXK',
-    'KKxXOxXOxXOxXK',
-    'KxwwwwwwwwwwXK',
+    'xxwwwwwwwwwwXX',
+    'DXXXXXXXXXXXXD',
+    'xXOxXOxXOxXOxX',
+    'xXOxXOxXOxXOxX',
+    'xXOxXOxXOxXOxX',
+    'xXOxXOxXOxXOxX',
+    'xXOxXOxXOxXOxX',
     'xwwwwwwwwwwwwX',
+    'DXXXXXXXXXXXXD',
     'hhhhhhhhhhhhhh',
     'hHhhhhhhhhhhHh',
     'hhhhhhhhhhhhhh',
@@ -128,64 +133,68 @@ const portrait = wmCompose('wm9-opener-portrait', wmBands(FRAME_W, [['.', FRAME_
   },
 ]);
 
-/** An orchid rug with a gold border. 36x4. */
+/** An orchid rug with a gold border. 40x4. */
 const rug: PixelSprite = {
   id: 'wm9-opener-rug',
   name: 'wm9-opener-rug',
   tags: ['scene', 'wm9'],
   rows: [
-    `g${'G'.repeat(34)}g`,
-    `g${Array.from({ length: 34 }, (_, x) => (x % 6 === 2 ? 'p' : 'E')).join('')}g`,
-    `g${Array.from({ length: 34 }, (_, x) => (x % 6 === 5 ? 'p' : 'E')).join('')}g`,
-    `O${'g'.repeat(34)}O`,
+    `g${'G'.repeat(38)}g`,
+    `g${Array.from({ length: 38 }, (_, x) => (x % 6 === 2 ? 'p' : 'E')).join('')}g`,
+    `g${Array.from({ length: 38 }, (_, x) => (x % 6 === 5 ? 'p' : 'E')).join('')}g`,
+    `O${'g'.repeat(38)}O`,
   ],
 };
 
-/** The advisor, briefcase set down, the left arm out to shake; the forearm and hand are the handshake layer. 7x13. */
-const advisorShaking: PixelSprite = {
-  id: 'wm9-opener-advisor-shaking',
-  name: 'wm9-opener-advisor-shaking',
+/**
+ * The advisor without the briefcase, beside the father, the right arm raised to point up and to our
+ * left at the stacks. Drawn rather than mirrored, so the light still falls from the upper left. 12x13.
+ */
+const advisorPointingLeft: PixelSprite = {
+  id: 'wm9-opener-advisor-pointing',
+  name: 'wm9-opener-advisor-pointing',
   tags: ['scene', 'wm9'],
   palette: WM_INKS,
   rows: [
-    '..kkk..',
-    '.kkkkk.',
-    '.kSSSk.',
-    '.SkSkM.',
-    '..SSM..',
-    '.XwGwX.',
-    'XxXGXXD',
-    'xXXGXXX',
-    'SXXXXD.',
-    '.XXXXD.',
-    '.kk.kk.',
-    '.kk.kk.',
-    '.KK.KK.',
+    '.......kkk..',
+    '......kkkkk.',
+    '......kSSSk.',
+    '......SkSkM.',
+    'SS.....SSM..',
+    '.XX...XwGwX.',
+    '...XXXxXGXXD',
+    '......XXGXXD',
+    '......XXXXDM',
+    '......XXXXD.',
+    '......kk.kk.',
+    '......kk.kk.',
+    '......KK.KK.',
   ],
 };
 
-/** The father, the right arm out to shake; the forearm and hand are the handshake layer. 8x13. */
-const parentShaking: PixelSprite = {
-  id: 'wm9-opener-parent-shaking',
-  name: 'wm9-opener-parent-shaking',
+/** A low marble-topped table on gilt legs, for the stacks. 22x9. */
+const table: PixelSprite = {
+  id: 'wm9-opener-table',
+  name: 'wm9-opener-table',
   tags: ['scene', 'wm9'],
-  palette: WM_INKS,
   rows: [
-    '...kkk..',
-    '..kkkkk.',
-    '..kCCCk.',
-    '..CkCkU.',
-    '...CCU..',
-    '..bwRwb.',
-    '.bBBRBbb',
-    'BBBBRBbb',
-    '..BBBBbU',
-    '..bBBbb.',
-    '..kk.kk.',
-    '..kk.kk.',
-    '..KK.KK.',
-  ],
+    `x${'w'.repeat(20)}X`,
+    `D${'X'.repeat(20)}D`,
+    '.yGg............yGg..',
+    '..Gg.............Gg..',
+    '..Gg.............Gg..',
+    '..Gg.............Gg..',
+    '..Gg.............Gg..',
+    '.yGgg...........yGgg.',
+    '.OOOO...........OOOO.',
+  ].map((row) => row.padEnd(22, '.')),
 };
+
+/** The table's top-left; the stacks stand on it. Each stack's coins sit on the row above its top. */
+const TABLE_X = 1;
+const TABLE_Y = 47;
+const CLOCK_X = 56;
+const CLOCK_Y = 33;
 
 const base = wmCompose('wm9-opener-base', [
   ...wmBands(80, [['K', 2], ['D', 1]]),
@@ -199,26 +208,110 @@ const base = wmCompose('wm9-opener-base', [
   { sprite: surround, x: HEARTH_X, y: HEARTH_Y },
   { sprite: logs, x: HEARTH_X + 6, y: HEARTH_Y + 10 },
   { sprite: hearth, x: HEARTH_X - 3, y: HEARTH_Y + 12 },
-  { sprite: clock, x: 56, y: 33 },
+  { sprite: clock, x: CLOCK_X, y: CLOCK_Y },
   { sprite: wmCandle, x: 47, y: 34 },
   { sprite: wmCandle, x: 66, y: 34 },
-  { sprite: rug, x: 6, y: 55 },
-  { sprite: advisorShaking, x: 21, y: 43 },
-  { sprite: parentShaking, x: 33, y: 43 },
+  { sprite: rug, x: 1, y: 55 },
+  { sprite: table, x: TABLE_X, y: TABLE_Y },
+  { sprite: advisorPointingLeft, x: 23, y: 42 },
+  { sprite: wmParent, x: 35, y: 42 },
 ]);
 
-/** The clasped hands and forearms between them: level, pumped up, level again, then a rest. 5x2. */
-const HANDS_LEVEL = ['.....', 'XSSCB'];
-const HANDS_UP = ['.SSC.', 'X...B'];
-const handshake: PixelSprite = {
-  id: 'wm9-opener-handshake',
-  name: 'wm9-opener-handshake',
+/* ── the fee chart: two stacks and a jar on the table, timed to the clock ──────────────────────── */
+
+/** A stack of `n` coins in the kit's coin-stack look (wm2.ts), top face first. 7 wide, 2n + 1 tall. */
+function coinStack(n: number): string[] {
+  const lower = Array.from({ length: n - 1 }, () => ['OgggggO', 'yGGGGGg']).flat();
+  return ['.yyGGg.', 'yGGGGgg', ...lower, 'OOOOOOO'];
+}
+
+/** The fee jar: glass lit on its left shoulder, dark inside, its coins heaped from the bottom one a row. 6x8. */
+function feeJar(coins: number): string[] {
+  const body = Array.from({ length: 4 }, (_, j) => (3 - j < coins ? 'xyGGgX' : 'xKKKKX'));
+  return ['.xwwX.', '.XKKX.', 'xwKKKX', ...body, 'DXXXXD'];
+}
+
+/** Where things stand in the chart's 22x14 box: the jar, the high-fee stack, the low-fee stack. */
+const CHART_W = 22;
+const CHART_H = 14;
+const JAR_AT = 0;
+const HIGH_AT = 7;
+const LOW_AT = 15;
+
+/**
+ * One moment of the chart: `low` and `high` coins in the two stacks, `jar` coins in the fee jar, and
+ * the skimmed coin's top-left at `fly` if one is in the air. Every piece stands on the chart's
+ * bottom row, which sits on the table top.
+ */
+function chartAt(low: number, high: number, jar: number, fly: readonly [number, number] | null = null): string[] {
+  const grid = Array.from({ length: CHART_H }, () => Array.from({ length: CHART_W }, () => '.'));
+  const stand = (rows: string[], x: number) =>
+    rows.forEach((row, j) => [...row].forEach((ch, i) => {
+      if (ch !== '.') grid[CHART_H - rows.length + j][x + i] = ch;
+    }));
+  stand(feeJar(jar), JAR_AT);
+  stand(coinStack(high), HIGH_AT);
+  stand(coinStack(low), LOW_AT);
+  if (fly) {
+    const [x, y] = fly;
+    [grid[y][x], grid[y][x + 1], grid[y + 1][x], grid[y + 1][x + 1]] = ['y', 'G', 'G', 'g'];
+  }
+  return grid.map((row) => row.join(''));
+}
+
+/**
+ * Twelve beats, one clock tick a year: both stacks rise, then the high-fee stack's next coin is
+ * skimmed into the jar instead of landing, twice, and the end is held before the loop starts again.
+ * The still is that end: the low-fee stack taller, two coins in the jar.
+ */
+const BEATS: readonly string[][] = [
+  chartAt(2, 2, 0),
+  chartAt(3, 3, 0),
+  chartAt(4, 3, 0, [HIGH_AT + 2, 4]),
+  chartAt(4, 3, 0, [2, 2]),
+  chartAt(4, 3, 1),
+  chartAt(5, 4, 1),
+  chartAt(6, 4, 1, [HIGH_AT + 2, 2]),
+  chartAt(6, 4, 1, [2, 1]),
+  chartAt(6, 4, 2),
+  chartAt(6, 4, 2),
+  chartAt(6, 4, 2),
+  chartAt(6, 4, 2),
+];
+const BEAT_MS = 560;
+
+const feeChart: PixelSprite = {
+  id: 'wm9-opener-fee-chart',
+  name: 'wm9-opener-fee-chart',
   tags: ['scene', 'wm9'],
-  palette: WM_INKS,
-  blurb: 'The advisor and the father shaking hands.',
-  rows: HANDS_LEVEL,
-  frames: [HANDS_LEVEL, HANDS_UP, HANDS_LEVEL, HANDS_UP, HANDS_LEVEL, HANDS_LEVEL, HANDS_LEVEL, HANDS_LEVEL],
-  frameMs: 260,
+  blurb: 'Two coin stacks growing a year at a time, the high-fee one losing every other year\'s coin to a fee jar.',
+  rows: chartAt(6, 4, 2),
+  frames: [...BEATS],
+  frameMs: BEAT_MS,
+};
+
+/** The clock's face with its hand at a quarter: up, right, down or left. Laid over the face. 4x4. */
+const FACE = ['.ww.', 'wwww', 'wwww', '.ww.'];
+const HAND: Record<string, readonly (readonly [number, number])[]> = {
+  up: [[1, 1], [1, 0]],
+  right: [[1, 1], [2, 1], [3, 1]],
+  down: [[1, 1], [1, 2], [1, 3]],
+  left: [[1, 1], [0, 1]],
+};
+function faceAt(at: keyof typeof HAND): string[] {
+  const grid = FACE.map((row) => [...row]);
+  for (const [x, y] of HAND[at]) grid[y][x] = 'k';
+  return grid.map((row) => row.join(''));
+}
+
+/** The hand ticking a quarter each year, on the chart's beats. */
+const clockHand: PixelSprite = {
+  id: 'wm9-opener-clock-hand',
+  name: 'wm9-opener-clock-hand',
+  tags: ['scene', 'wm9'],
+  rows: faceAt('up'),
+  frames: (['up', 'right', 'down', 'down', 'down', 'left', 'up', 'up', 'up', 'up', 'up', 'up'] as const).map(faceAt),
+  frameMs: BEAT_MS,
 };
 
 /** The fire on the grate, crackling. 14x7. */
@@ -246,12 +339,13 @@ const hearthGlow: PixelSprite = {
 
 export const wm9Opener: SceneArt = {
   id: 'wm9-opener',
-  label: 'An advisor and a father shake hands in a drawing room before a crackling fire, under a painting of the house of five pillars.',
+  label: 'In the drawing room the advisor stands at the father\'s side, pointing to two coin stacks on a marble table: the low-fee stack has grown taller, while coins skimmed from the high-fee stack sit in a fee jar.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: handshake, x: 28, y: 49 },
+    { sprite: feeChart, x: TABLE_X, y: TABLE_Y - CHART_H },
+    { sprite: clockHand, x: CLOCK_X + 1, y: CLOCK_Y + 2 },
     { sprite: fire, x: HEARTH_X + 5, y: HEARTH_Y + 4 },
     { sprite: wmCandleFlame, x: 48, y: 31 },
     { sprite: wmLater(wmCandleFlame, 'wm9-opener-flame-later', 2, 300), x: 67, y: 31 },
@@ -261,35 +355,34 @@ export const wm9Opener: SceneArt = {
 };
 
 /**
- * An open right hand raised, palm out: the heraldic hand appaumee, faith and a sworn pledge, which
- * is the fiduciary's duty to the family. Two clasped hands were tried here and do not read at 14x13
- * in one gold; the opener carries the handshake itself.
+ * A coin with a bite taken out of its top right: the fee that eats a fortune, which is the cost the
+ * lesson measures (0.25% against 2% on $500K over 30 years). Lit from the upper left, the kit's
+ * coin stroke down its face, a white glint.
  */
-const emblemPledge: PixelSprite = {
-  id: 'wm9-emblem-pledge',
-  name: 'wm9-emblem-pledge',
+const emblemBitten: PixelSprite = {
+  id: 'wm9-emblem-bitten-coin',
+  name: 'wm9-emblem-bitten-coin',
   tags: ['scene', 'wm9'],
   rows: [
-    '.....yG.......',
-    '..yG.yG.yG....',
-    '..yG.yG.yG.yG.',
-    '..yG.yG.yG.yG.',
-    '..yG.yG.yG.yG.',
-    '..yGGyGGyGGyG.',
-    'yG.yGGGGGGGGg.',
-    'yGGyGGGGGGGGg.',
-    '.yGGGGGGGGGgg.',
-    '..yGGGGGGGgg..',
-    '...gGGGGGgg...',
-    '....gGGGgO....',
-    '....OOOOOO....',
+    '.....yyO......',
+    '...yyGGGO.....',
+    '..yGwGGGOO....',
+    '.yGwGGGGGGO...',
+    '.yGGGGyOGGO...',
+    '.yGGGGGOGGGOO.',
+    '.yGGGGGOGGGgO.',
+    '.yGGGGGOGGGgO.',
+    '.yGGGGGGGGggO.',
+    '..yggGGGGggO..',
+    '...OOggggOO...',
+    '.....OOOO.....',
   ],
 };
 
 export const wm9Finish: SceneArt = wmKeepsake(
   'wm9-finish',
-  emblemPledge,
-  'A green crest with a gold rim bearing an open hand raised in pledge, framed by laurel over a purple banner, with sparkles around it.',
+  emblemBitten,
+  'A green crest with a gold rim bearing a gold coin with a bite taken out of it, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm9Opener, backdrop: wmBackdrop, finish: wm9Finish };

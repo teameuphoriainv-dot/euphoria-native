@@ -8,7 +8,9 @@
  * side table. The lesson's 4% rule is the picture: take a little fruit each year and the tree
  * keeps bearing. What moves: one coin drops from the tree into her basket and the next one hangs
  * ready, two new coins ripen in the leaves, the sand runs, fireflies rise over the garden, stars
- * twinkle. The keepsake carries the kit's hourglass.
+ * twinkle. The keepsake carries the same picture in small, so it stands for this lesson and no
+ * other: a leafy bough hung with coins drops one into the wicker basket below, and the next one
+ * ripens in its place.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -16,7 +18,6 @@ import { wmBackdrop } from './wm-backdrop';
 import {
   wmBands,
   wmCompose,
-  wmEmblemHourglass,
   wmFirefly,
   wmHourglass,
   wmStar,
@@ -282,10 +283,55 @@ export const wm3Opener: SceneArt = {
   ],
 };
 
+/**
+ * The keepsake's bough: leaves in the laurel's greens over a wooden branch, a ripe pair of coins
+ * hanging together from it, and the opener's wicker basket heaped with coins at the foot. The coin
+ * on the left is the motion. The pair hangs as one bunch, never as two dots over the basket, so
+ * the bough cannot read as a face.
+ */
+const BOUGH = [
+  '..mN...mNN..mN',
+  '.mNNn.mNNNnmNN',
+  'mNNNNnNNNNNNNN',
+  'CCCCCCCCCCCCCU',
+  'UUUUUUUUOUUOUO',
+  '.......yWGyWG.',
+  '.......GGgGGg.',
+  '........g..g..',
+  '..............',
+  '...yGyGgyGg...',
+  '..UCCCCCCCCU..',
+  '..OUCUCUCUCO..',
+  '...OOOOOOOO...',
+];
+
+/** The bough with the left coin's top at row `dy` (hanging on its stem at 5), or none; `landed` glints the heap. */
+function boughAt(dy: number | null, landed = false): string[] {
+  return BOUGH.map((row, j) => {
+    const cells = [...row];
+    if (dy === 5 && j === 4) cells[3] = 'O';
+    if (dy !== null && j === dy) [cells[3], cells[4]] = ['y', 'G'];
+    if (dy !== null && j === dy + 1) [cells[3], cells[4]] = ['G', 'g'];
+    if (landed && j === 9) [cells[4], cells[5]] = ['W', 'y'];
+    return cells.join('');
+  });
+}
+
+/** Take the fruit, keep the tree: the coin ripens, falls into the basket, and the next one comes. 14x13. */
+const emblemBough: PixelSprite = {
+  id: 'wm3-emblem-bough',
+  name: 'wm3-emblem-bough',
+  tags: ['scene', 'wm3'],
+  palette: WM_INKS,
+  rows: boughAt(7),
+  frames: [boughAt(5), boughAt(5), boughAt(6), boughAt(7), boughAt(null, true), boughAt(null), boughAt(null)],
+  frameMs: 380,
+};
+
 export const wm3Finish: SceneArt = wmKeepsake(
   'wm3-finish',
-  wmEmblemHourglass,
-  'A green crest with a gold rim bearing an hourglass, framed by laurel over a purple banner, with sparkles around it.',
+  emblemBough,
+  'A green crest with a gold rim bearing a leafy bough hung with gold coins, one dropping into a wicker basket of coins below, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm3Opener, backdrop: wmBackdrop, finish: wm3Finish };
