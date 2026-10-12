@@ -10,7 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { UIcon } from '@/components/ui-icon';
 import { useTheme } from '@/hooks/use-theme';
 import { PixelSpriteView, flame as flameSprite } from '@/lib/pixel';
-import { lessonArtFor } from '@/lib/pixel/scenes';
+import type { SceneArt } from '@/lib/pixel/scenes';
 import {
   buildRecallQuiz,
   completedLessonNumbers,
@@ -21,6 +21,8 @@ import { SpringPressable } from '@/shared/motion/spring-pressable';
 type LessonWarmupProps = {
   courseId: string;
   lessonNumber: number;
+  /** The lesson's own opening scene, from the art lesson.tsx loaded with it; null keeps the flame. */
+  opener: SceneArt | null;
   title: string;
   completedLessonIds: string[];
   onDone: () => void;
@@ -29,6 +31,7 @@ type LessonWarmupProps = {
 export function LessonWarmup({
   courseId,
   lessonNumber,
+  opener,
   title,
   completedLessonIds,
   onDone,
@@ -40,7 +43,6 @@ export function LessonWarmup({
      on the same flame; a lesson with art opens on a picture of what it teaches. Whole-number scale
      only, so art pixels stay on whole points: 4 on every current iPhone, 3 if the 24pt gutters
      would not leave room for the scene's width. */
-  const opener = lessonArtFor(courseId, lessonNumber)?.opener ?? null;
   const openerScale = opener && width - 48 >= opener.width * 4 ? 4 : 3;
   const [questions, setQuestions] = useState<RecallQuestion[] | null>(null);
   const [beat, setBeat] = useState(0);

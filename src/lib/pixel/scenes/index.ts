@@ -321,14 +321,37 @@ export function lessonArtFor(courseId: string, lessonNumber: number): LessonArtS
   return loaded.get(keyOf(courseId, lessonNumber)) ?? null;
 }
 
-/** Loads (once) and returns the lesson's art; null for a lesson without any. */
+/**
+ * Loads (once) and returns the lesson's art; null for a lesson without any, or whose art fails.
+ *
+ * A THROW WHILE AN ART MODULE EVALUATES NEVER REJECTS THE IMPORT ON NATIVE (2026-10-11 audit, traced
+ * through expo's asyncRequireModule and metro-runtime's guardedLoadModule): Metro catches it, reports
+ * it through ErrorUtils as FATAL, which ends a release build, and resolves the import with no `art`.
+ * The kits throw on purpose when authoring goes wrong. Art is decoration, so for the length of the
+ * import a fatal report is caught here, and the lesson opens without art instead of closing the app.
+ * lesson-scenes-pin.mjs loads every entry in Node, so a throwing module still fails the checks.
+ */
 export async function loadLessonArt(courseId: string, lessonNumber: number): Promise<LessonArtSet | null> {
   const key = keyOf(courseId, lessonNumber);
   const hit = loaded.get(key);
   if (hit) return hit;
   const load = LESSON_ART_LOADERS[key];
   if (!load) return null;
-  const { art } = await load();
+  let failure: unknown = null;
+  const fatal = typeof ErrorUtils === 'undefined' ? null : ErrorUtils.getGlobalHandler();
+  if (fatal) ErrorUtils.setGlobalHandler((error) => { failure = error; });
+  let art: LessonArtSet | undefined;
+  try {
+    ({ art } = await load());
+  } catch (error) {
+    failure = error;
+  } finally {
+    if (fatal) ErrorUtils.setGlobalHandler(fatal);
+  }
+  if (failure !== null || !art) {
+    if (__DEV__) console.warn(`[lesson art] ${key} did not load; the lesson opens without it`, failure);
+    return null;
+  }
   loaded.set(key, art);
   return art;
 }

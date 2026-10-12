@@ -100,7 +100,7 @@ import {
 import { hasMasteryChallenge, lessonProgressPercent } from '@/lib/mastery-challenge-model';
 import { shouldAnnouncePractice } from '@/lib/step-mode-transition';
 import { applyDailyNudge, notificationsNeverAsked } from '@/lib/notifications';
-import { lessonArtFor, loadLessonArt } from '@/lib/pixel/scenes';
+import { loadLessonArt, type LessonArtSet } from '@/lib/pixel/scenes';
 import { lessonKey, useApp, type AppState } from '@/lib/store';
 import { accuracy, bestCombo, comboAt, comboRate, COMBO_MIN, isPerfect, type FirstTryLog } from '@/lib/combo';
 import { feedback, warmLesson } from '@/lib/feedback';
@@ -225,7 +225,10 @@ export default function Lesson() {
   const params = useLocalSearchParams<{ course?: string; num?: string; fresh?: string; qa?: string; part?: string }>();
   const courseId = params.course ?? '';
   const lessonNum = Number(params.num);
-  const lessonArt = lessonArtFor(courseId, lessonNum);
+  /* The loaded lesson's art, set beside the lesson it belongs to (see the load effect), never read
+     from the route params: a link that swaps the params on a mounted screen would otherwise show the
+     next lesson's art over this lesson until it loads. */
+  const [lessonArt, setLessonArt] = useState<LessonArtSet | null>(null);
   const qa = __DEV__ ? params.qa : undefined;
   /**
    * `?part=learn|vocab|practice`. Read as a primitive so the load effect can depend on it without
@@ -568,13 +571,15 @@ export default function Lesson() {
     if (!hasHydrated) return;
 
     let cancelled = false;
-    // The lesson's art loads beside it (lib/pixel/scenes is on demand), so lessonArtFor has it by
-    // the render setLesson triggers. Art is decoration: a failed load shows the lesson without it.
+    // The lesson's art loads beside it (lib/pixel/scenes is on demand) and is set with it, so the
+    // first render of a lesson already has its art. Art is decoration: a failed load shows the lesson
+    // without it.
     Promise.all([loadCourseLessons(courseId), loadLessonArt(courseId, lessonNum).catch(() => null)])
-      .then(([ls]) => {
+      .then(([ls, art]) => {
         if (cancelled) return;
         const found = ls.find((l) => l.num === lessonNum) ?? null;
         setChallengeStage('none');
+        setLessonArt(art);
         setLesson(found);
         setNotFound(!found);
         /*
@@ -701,6 +706,7 @@ export default function Lesson() {
       })
       .catch(() => {
         if (cancelled) return;
+        setLessonArt(null);
         setNotFound(true);
         openedAt.current = Date.now();
         setCorrectSoFar(0);
@@ -1494,6 +1500,7 @@ export default function Lesson() {
           <LessonWarmup
             courseId={courseId}
             lessonNumber={lesson.num}
+            opener={lessonArt?.opener ?? null}
             title={lesson.title}
             completedLessonIds={completedLessonIds}
             onDone={advance}
