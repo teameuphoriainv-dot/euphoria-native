@@ -1,202 +1,27 @@
 /**
  * Alternative Investments lesson 8: infrastructure and farmland.
  *
- * The opener is the estate at night as real assets, on the kit's land (ai-kit-a.ts): a wind turbine
- * near the fence with a big rotor, a second far off on the hill turning the kit's own blades and a
- * third still on the far ridge, beside a red barn, the silo and crop rows with a tractor working
- * them. Only small layers move: both rotors turn, the near turbine's warning light blinks, the
- * tractor drives along the rows and two stars twinkle. The keepsake is the kit's turbine blades set
- * on a short tower, so it reads as a turbine in the glass case.
+ * The opener is the estate at night as the lesson's two real assets, on the kit's land (ai-kit-a.ts).
+ * Farmland on the left: a red barn, the silo and crop rows with a tractor working them. Infrastructure
+ * down the middle: the path through the gate becomes a toll road, crossed at the fence line by a
+ * toll gantry whose lit sign shows the toll with an up arrow (the lesson's concession, whose tolls
+ * rise with inflation), with a lit toll booth beside it and a car driving up the road toward it. A
+ * small turbine stands still on the far ridge. Only small layers move: the car drives off, a coin
+ * rises off the booth (toll revenue), the gantry's warning light blinks, the tractor drives along the
+ * rows and two stars twinkle. The keepsake is a toll barrier's striped arm held over a wheat sheaf.
  */
 import type { PixelSprite } from '../types';
 import { aiBackdrop } from './ai-backdrop';
-import { aiKeepsake, aiTurbineBlades } from './ai-kit';
+import { aiKeepsake } from './ai-kit';
 import { AI_LAND_PALETTE, aiComposeLand, aiMoon, aiSilo, aiStar } from './ai-kit-a';
+import { aiCoin } from './ai-kit-b';
 import type { LessonArtSet, SceneArt } from './types';
-
-const rotor: PixelSprite = {
-  id: 'ai8-rotor',
-  name: 'ai8-rotor',
-  tags: ['scene', 'ai'],
-  blurb: "The near turbine's rotor: three long blades round the hub at (13, 13), a third of a turn in three frames.",
-  rows: [
-    '...........................',
-    '.............w.............',
-    '.............w.............',
-    '.............w.............',
-    '.............w.............',
-    '.............w.............',
-    '.............wx............',
-    '.............wx............',
-    '.............wx............',
-    '.............wx............',
-    '.............wx............',
-    '.............wx............',
-    '.............X.............',
-    '..........xxXwX............',
-    '.........xxw.X.w...........',
-    '.......xxww...xxww.........',
-    '......xwww......xwww.......',
-    '......ww.........xxww......',
-    '....ww.............x.www...',
-    '...w...................w...',
-    '...........................',
-    '...........................',
-    '...........................',
-    '...........................',
-    '...........................',
-    '...........................',
-    '...........................',
-  ],
-  frames: [
-    [
-      '...........................',
-      '.............w.............',
-      '.............w.............',
-      '.............w.............',
-      '.............w.............',
-      '.............w.............',
-      '.............wx............',
-      '.............wx............',
-      '.............wx............',
-      '.............wx............',
-      '.............wx............',
-      '.............wx............',
-      '.............X.............',
-      '..........xxXwX............',
-      '.........xxw.X.w...........',
-      '.......xxww...xxww.........',
-      '......xwww......xwww.......',
-      '......ww.........xxww......',
-      '....ww.............x.www...',
-      '...w...................w...',
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-    ],
-    [
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-      '....................ww.....',
-      '...................ww......',
-      '..................ww.......',
-      '..................w........',
-      '.................wxx.......',
-      '................wwx........',
-      '...............wwx.........',
-      '.wwww.xxxxx...wwx..........',
-      '.....wwwwwwx.X.x...........',
-      '...........wXwX............',
-      '.............X.............',
-      '.............xw............',
-      '.............xw............',
-      '.............xww...........',
-      '..............xw...........',
-      '..............xw...........',
-      '..............xxw..........',
-      '................w..........',
-      '................w..........',
-      '.................w.........',
-      '.................w.........',
-      '...........................',
-      '...........................',
-    ],
-    [
-      '...........................',
-      '...........................',
-      '...........................',
-      '...........................',
-      '.....ww....................',
-      '......ww...................',
-      '.......ww..................',
-      '........wxx................',
-      '.........wx................',
-      '.........wwx...............',
-      '..........wwx..............',
-      '...........ww.........wwww.',
-      '.............X..wwwwww.....',
-      '............XwXwxxxxxx.....',
-      '.............X.xx..........',
-      '...........xw..............',
-      '...........xw..............',
-      '..........xww..............',
-      '..........xw...............',
-      '..........xw...............',
-      '.........xww...............',
-      '..........w................',
-      '..........w................',
-      '.........w.................',
-      '.........w.................',
-      '...........................',
-      '...........................',
-    ],
-  ],
-  frameMs: 300,
-};
-
-const tower: PixelSprite = {
-  id: 'ai8-tower',
-  name: 'ai8-tower',
-  tags: ['scene', 'ai'],
-  blurb: "The near turbine tower, tapering, moonlit on its left.",
-  rows: [
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    'wxX.',
-    'wxX.',
-    'wxX.',
-    'wxX.',
-    'wxX.',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-  ],
-};
-
-const farTower: PixelSprite = {
-  id: 'ai8-far-tower',
-  name: 'ai8-far-tower',
-  tags: ['scene', 'ai'],
-  blurb: "The far turbine's tower, for the kit's blades.",
-  rows: [
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    '.xX.',
-    'wxX.',
-    'wxX.',
-    'wxXD',
-    'wxXD',
-    'wxXD',
-  ],
-};
 
 const ridgeTurbine: PixelSprite = {
   id: 'ai8-ridge-turbine',
   name: 'ai8-ridge-turbine',
   tags: ['scene', 'ai'],
-  blurb: "A third turbine, small and still, on the far ridge.",
+  blurb: "A small wind turbine, still, on the far ridge.",
   rows: [
     '...x...',
     '...x...',
@@ -275,58 +100,148 @@ const tractor: PixelSprite = {
   ],
 };
 
-const beacon: PixelSprite = { id: 'ai8-beacon', name: 'ai8-beacon', tags: [], rows: ['R'] };
-
-/** Turbine blades on a short tower stub, for the keepsake: blades in front, tower behind. */
-const STUB = [
-  ...Array.from({ length: 8 }, () => '.'.repeat(15)),
-  ...Array.from({ length: 7 }, () => '.......XD......'),
-  '.....DDDDD.....',
-];
-const onStub = (blades: readonly string[]) =>
-  STUB.map((stub, y) => [...stub].map((ch, x) => blades[y]?.[x] ?? '.').map((b, x) => (b === '.' ? stub[x] : b)).join(''));
-const turbine: PixelSprite = {
-  ...aiTurbineBlades,
-  id: 'ai8-turbine',
-  name: 'ai8-turbine',
-  rows: onStub(aiTurbineBlades.rows),
-  frames: aiTurbineBlades.frames?.map(onStub),
+/** The toll road's centre line: gold dashes down the path, longer as they come nearer. */
+const roadLine: PixelSprite = {
+  id: 'ai8-road-line',
+  name: 'ai8-road-line',
+  tags: ['scene', 'ai'],
+  blurb: "Dashed gold centre line down the toll road.",
+  rows: [
+    'yy', '..', '..', 'yy', 'yy', '..', '..', '..', 'yy', 'yy', 'yy',
+    '..', '..', '..', 'yy', 'yy', 'yy', 'yy', '..', '..', '..',
+  ],
 };
 
-/** The near rotor's hub (the rotor's own hub is at its 13, 13) and the far one's (the kit blades', at 7, 7). */
-const HUB = [56, 15] as const;
-const FAR_HUB = [34, 20] as const;
+/**
+ * The toll gantry over the road at the fence line: two steel posts, a beam, and hanging from it a lit
+ * sign with a dollar sign and a green up arrow, the toll rising with inflation.
+ */
+const gantry: PixelSprite = {
+  id: 'ai8-gantry',
+  name: 'ai8-gantry',
+  tags: ['scene', 'ai'],
+  blurb: "A toll gantry spanning the road: steel posts, a beam and a lit sign showing a dollar sign and an up arrow.",
+  rows: [
+    'DDDDDDDDDDDDDDDDDD',
+    'DxxxxxxxxxxxxxxxXD',
+    'DXXXXXXXXXXXXXXXXD',
+    'DxDDDDDDDDDDDDDDXD',
+    'DxDKKyKKKKNKKKDDXD',
+    'DxDKyyyKKNNNKKDDXD',
+    'DxDKyKKKNNNNNKDDXD',
+    'DxDKyyyKKKNKKKDDXD',
+    'DxDKKKyKKKNKKKDDXD',
+    'DxDKyyyKKKNKKKDDXD',
+    'DxDKKyKKKKKKKKDDXD',
+    'DxDDDDDDDDDDDDDDXD',
+    ...Array.from({ length: 7 }, () => 'DxD............DXD'),
+    'DDD............DDD',
+  ],
+};
+
+/** A lit toll booth beside the road: a red band under the roof, a big lit window, a door. */
+const booth: PixelSprite = {
+  id: 'ai8-booth',
+  name: 'ai8-booth',
+  tags: ['scene', 'ai'],
+  blurb: "A small toll booth with a flat roof, a red band and a lit window.",
+  rows: [
+    'DDDDDDDDDDD',
+    'DxxxxxxxxXD',
+    'DRRRRRRRRrD',
+    'DDDDDDDDDDD',
+    '.DwxxxxxXD.',
+    '.DwDDDDDXD.',
+    '.DwDyyGDXD.',
+    '.DwDyGGDXD.',
+    '.DwDDDDDXD.',
+    '.DwxxxxxXD.',
+    '.DwxDDxxXD.',
+    '.DwxDODxXD.',
+    '.DDDDDDDDD.',
+  ],
+};
+
+/** A car seen from behind as it drives up the road: rear window, red tail lights, wheels. */
+const car: PixelSprite = {
+  id: 'ai8-car',
+  name: 'ai8-car',
+  tags: ['scene', 'ai'],
+  blurb: "A blue car from behind, tail lights lit.",
+  rows: [
+    '..DDDD..',
+    '.DxxxXD.',
+    'DBBBBBBD',
+    'DRBBBBRD',
+    'DbbbbbbD',
+    '.KK..KK.',
+  ],
+};
+
+const beacon: PixelSprite = { id: 'ai8-beacon', name: 'ai8-beacon', tags: [], rows: ['R'] };
+
+/** The keepsake: a toll barrier, its red and white arm held out over a sheaf of wheat. 16x16. */
+const tollBoom: PixelSprite = {
+  id: 'ai8-toll-boom',
+  name: 'ai8-toll-boom',
+  tags: ['scene', 'ai'],
+  blurb: "Lesson 8: a toll barrier's red and white striped arm held out over a wheat sheaf, infrastructure over farmland.",
+  rows: [
+    '.DDDD...........',
+    'DwRRXD..........',
+    'DwRRXDDDDDDDDDDD',
+    'DwxxXRRwwRRwwRRD',
+    'DwxxXRRwwRRwwRRD',
+    'DwxxXRRwwRRwwRRD',
+    'DwxxXDDDDDDDDDDD',
+    'DwxxXD.y..y..y..',
+    'DwxxXDyGyyGyyGy.',
+    'DwxxXDGgGGgGGgG.',
+    'DwxxXD.GgGgGgG..',
+    'DwxxXD.OOOOOOO..',
+    'DwxxXD..GgGgG...',
+    'DwxxXD.GgGgGgG..',
+    'DDDDDDGgGg.gGgG.',
+    'DXXXXD..........',
+  ],
+};
+
+/** The toll road at the fence line: the gantry's posts stand either side of the gate. */
+const GANTRY = [31, 27] as const;
+const BOOTH = [50, 34] as const;
+const CAR = [36, 50] as const;
 
 const base = aiComposeLand('ai8-opener-base', [
   [aiMoon, 6, 3],
-  [farTower, FAR_HUB[0] - 1, FAR_HUB[1] + 2],
   [ridgeTurbine, 72, 22],
   [barn, 2, 26],
   [aiSilo, 17, 19],
-  [tower, HUB[0] - 1, HUB[1] + 2],
+  [roadLine, 39, 39],
+  [gantry, GANTRY[0], GANTRY[1]],
+  [booth, BOOTH[0], BOOTH[1]],
   [crops, 0, 48],
 ]);
 
 export const ai8Opener: SceneArt = {
   id: 'ai8-opener',
-  label: 'Farmland at night with a big turning wind turbine and two more on the hills, a red barn and a silo, and a tractor driving along the crop rows.',
+  label: 'Farmland at night with a red barn, a silo and a tractor driving along the crop rows, beside a toll road where a car drives up to a lit toll gantry whose sign shows a dollar sign and an up arrow, next to a lit toll booth.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: rotor, x: HUB[0] - 13, y: HUB[1] - 13 },
-    { sprite: aiTurbineBlades, x: FAR_HUB[0] - 7, y: FAR_HUB[1] - 7 },
-    { sprite: beacon, x: HUB[0] + 1, y: HUB[1] - 2, motion: { kind: 'twinkle', periodMs: 1600, min: 0.15 } },
+    { sprite: car, x: CAR[0], y: CAR[1], motion: { kind: 'rise', amp: 7, periodMs: 4200 } },
+    { sprite: beacon, x: GANTRY[0] + 9, y: GANTRY[1] - 1, motion: { kind: 'twinkle', periodMs: 1600, min: 0.15 } },
+    { sprite: aiCoin, x: BOOTH[0] + 4, y: BOOTH[1] - 5, motion: { kind: 'rise', amp: 5, periodMs: 2800, phase: 0.3 } },
     { sprite: tractor, x: 14, y: 48, motion: { kind: 'drift', amp: 5, periodMs: 7000 } },
     { sprite: aiStar, x: 24, y: 8, motion: { kind: 'twinkle', periodMs: 2700, min: 0.2 } },
-    { sprite: aiStar, x: 74, y: 6, motion: { kind: 'twinkle', periodMs: 3200, min: 0.2, phase: 0.5 } },
+    { sprite: aiStar, x: 66, y: 6, motion: { kind: 'twinkle', periodMs: 3200, min: 0.2, phase: 0.5 } },
   ],
 };
 
 export const ai8Finish = aiKeepsake(
   'ai8-finish',
-  'A small wind turbine with turning blades floating in a glass display case on a marble plinth, with sparkles around it.',
-  turbine,
+  'A toll barrier with a red and white striped arm held out over a wheat sheaf, floating in a glass display case on a marble plinth, with sparkles around it.',
+  tollBoom,
 );
 
 export const art: LessonArtSet = { opener: ai8Opener, backdrop: aiBackdrop, finish: ai8Finish };
