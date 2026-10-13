@@ -3,11 +3,11 @@
  *
  * A new set, the home office late at night, a blind half down over the window. A fishing line drops
  * from the top of the picture with an email on the hook, phishing, the biggest door the lesson's
- * fraud comes through, and it dangles over the laptop. The figure holds a shield out between them,
- * steel with a gold padlock: the freeze, the passwords, the second factor. On the wall the lesson's
- * defence checklist, all four boxes ticked; the cat sits on the desk watching the hook.
- * Moving: the hook, the code arriving on the phone, a glint on the shield, the coffee's steam, a star,
- * the cat's tail.
+ * fraud comes through, and it dangles over the laptop. Between them the figure holds out the defence
+ * the lesson puts first, the credit freeze: its credit card frozen in a block of ice. The laptop shows
+ * the next two, a password of dots and the green tick of a second factor. On the wall the lesson's
+ * defence checklist, all four boxes ticked; the cat sits on the desk watching the hook. Moving: the
+ * hook, the code arriving on the phone, a glint on the ice, the coffee's steam, a star, the cat's tail.
  */
 import type { PixelSprite } from '../types';
 import { pfCompose, pfKitchen, pfSparkle, pfTable } from './pf-kit';
@@ -70,25 +70,27 @@ const phishHook: PixelSprite = {
   ],
 };
 
-/** The shield held out: a steel rim lit on its left, an orchid field, a gold padlock with its keyhole. */
-const shield: PixelSprite = {
-  id: 'pf19-shield',
-  name: 'shield',
+/**
+ * The credit freeze held out: a block of ice, frosted white with a lit top and icicles under it, and
+ * frozen inside it the figure's teal credit card, gold chip and number showing through the ice.
+ */
+const frozenCard: PixelSprite = {
+  id: 'pf19-frozen-card',
+  name: 'frozen card',
   tags: ['scene', 'pf'],
   rows: [
-    'XXXXXXXXXXX',
-    'XwwwwwwwwxX',
-    'XwPPPPPPPxX',
-    'XwPPyyyPPxX',
-    'XwPyPPPyPxX',
-    'XwPGGGGGPxX',
-    'XwPGGKGGPxX',
-    'XwPGgKgGPxX',
-    '.XwPgggPxX.',
-    '.XwPPPPPxX.',
-    '..XwPPPxX..',
-    '...XwPxX...',
-    '....XXX....',
+    '.BBBBBBBBBBB.',
+    'BWWWwwwwBwwwb',
+    'BWwtttttttwBb',
+    'BwtTTTTTTTtwb',
+    'BwtTyGTTTTtwb',
+    'BBtTGgTTTTtwb',
+    'BwtTTTTTTTtBb',
+    'BwtTwwTwwTtwb',
+    'BwwtttttttwBb',
+    'BwWwwwwwBwwwb',
+    '.bbbbbbbbbbb.',
+    '..B...B..B...',
   ],
 };
 
@@ -182,7 +184,7 @@ const emblemPadlock: PixelSprite = {
 };
 
 // Order is depth: the window and its blind, the checklist, the figure, the desk over its lower half,
-// then the things on the desk, the shield last, held in front of the laptop's top edge.
+// then the things on the desk, the frozen card last, held out in front of the laptop's top edge.
 const base = pfCompose('pf19-opener-base', 80, 60, pfKitchen.rows, [
   [pfWindowNight, 3, 4],
   [blind, 5, 6],
@@ -193,18 +195,18 @@ const base = pfCompose('pf19-opener-base', 80, 60, pfKitchen.rows, [
   [pfMug, 11, 32],
   [phone, 21, 33],
   [laptop, 30, 26],
-  [shield, 32, 15],
+  [frozenCard, 31, 14],
 ]);
 
 export const pf19Opener: SceneArt = {
   id: 'pf19-opener',
-  label: 'Late at night in a home office, a fishing hook baited with an email dangles over a laptop, and a person holds out a shield with a padlock on it between the hook and the screen, with a checklist of four ticks on the wall and the cat on the desk watching.',
+  label: 'Late at night in a home office, a fishing hook baited with an email dangles over a laptop, and a person holds out a block of ice with a credit card frozen inside it between the hook and the screen, with a checklist of four ticks on the wall and the cat on the desk watching.',
   width: 80,
   height: 60,
   base,
   layers: [
-    // The hook hangs from the top edge, its bait just clear of the shield (figure at 36,12; hand at
-    // column 1, row 10; the shield's top on row 15).
+    // The hook hangs from the top edge, its bait just clear of the ice (figure at 36,12; hand at
+    // column 1, row 10, behind the ice; the ice's top on row 14, its icicles clear of the laptop).
     { sprite: phishHook, x: 33, y: 0, motion: { kind: 'drift', amp: 2, periodMs: 3600 } },
     { sprite: pfCatSit, x: 60, y: 27 },
     { sprite: phoneCode, x: 22, y: 35, motion: { kind: 'twinkle', periodMs: 2800, min: 0.2 } },

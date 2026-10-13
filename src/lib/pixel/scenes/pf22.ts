@@ -4,10 +4,11 @@
  * A new set, the community hall on a giving day: bunting across the ceiling, a GIVE banner, and on
  * the wall the drive's thermometer, its red risen most of the way to the gold star of its goal. On
  * the trestle table stands the donation box with a red heart on its front, and the figure posts into
- * it not cash but a share certificate, its line rising, the appreciated stock the lesson says to give.
- * A noticeboard rates the charity four stars; boxes of donated tins wait on the floor and the cat
- * sleeps in an empty one. Moving: the certificate, a heart rising, the thermometer's glint, the
- * lamp, the cat's z.
+ * it not cash but a share certificate, a stock card with a $ and its price line rising, the
+ * appreciated stock the lesson says to give. A noticeboard rates the charity four stars and carries
+ * the day's reminder of the tax benefit, a card lettered TAX; boxes of donated tins wait on the floor
+ * and the cat sleeps in an empty one. Moving: the certificate, a heart rising, the thermometer's
+ * glint, the lamp, the cat's z.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -115,7 +116,10 @@ const thermometer: PixelSprite = {
   ],
 };
 
-/** A noticeboard with the charity's rating card pinned up, four gold stars of five. */
+/**
+ * A noticeboard: the charity's rating card pinned up, four gold stars of five, and below it the
+ * giving day's reminder of the tax benefit, a card lettered TAX (the word is stamped on it).
+ */
 const noticeboard: PixelSprite = {
   id: 'pf22-noticeboard',
   name: 'noticeboard',
@@ -131,19 +135,21 @@ const noticeboard: PixelSprite = {
     'OgwwwwwwwwwwwwwgO',
     'OgwwwwwwwwwwwwwgO',
     'OgggggggggggggggO',
-    'OgggwwwwwwwBggggO',
-    'OgggwXXXXwwwggggO',
-    'OgggwwwwwwwwggggO',
-    'OgggwXXXwwwwggggO',
-    'OgggwwwwwwwwggggO',
+    'OgwwwwwwwwwwwwBgO',
+    'OgwwwwwwwwwwwwwgO',
+    'OgwwwwwwwwwwwwwgO',
+    'OgwwwwwwwwwwwwwgO',
+    'OgwwwwwwwwwwwwwgO',
+    'OgwwwwwwwwwwwwwgO',
+    'OgwwwwwwwwwwwwwgO',
     'OgggggggggggggggO',
     'OOOOOOOOOOOOOOOOO',
   ],
 };
 
 /**
- * The donation box: a wooden box with a slot in its lid (columns 7 to 11 of row 1) and a big red
- * heart on its front.
+ * The donation box: a wooden box with a long slot in its lid (columns 2 to 14 of row 1), wide enough
+ * for a share certificate, and a big red heart on its front.
  */
 const donationBox: PixelSprite = {
   id: 'pf22-donation-box',
@@ -151,7 +157,7 @@ const donationBox: PixelSprite = {
   tags: ['scene', 'pf'],
   rows: [
     '.OOOOOOOOOOOOOOOO.',
-    'OyGGGGGKKKKKGGGGgO',
+    'OyKKKKKKKKKKKKKGgO',
     'OOOOOOOOOOOOOOOOOO',
     'OGgggggggggggggggO',
     'OGggggRRggRRgggggO',
@@ -167,12 +173,22 @@ const donationBox: PixelSprite = {
 };
 
 /**
- * The share certificate posted into the slot, a LAYER only: its top four rows show above the lid
- * (the rest is already in the box), held, let go, sliding in row by row, a glint, then another.
+ * The share certificate posted into the slot, a LAYER only: a stock card 13 wide in a green border, a
+ * gold $ at its left and its price line rising to an arrowhead at the right, the appreciated stock
+ * the lesson says to give. Held over the slot, let go, sliding in row by row, a glint, then another.
  */
-const CERT = ['wwwwN', 'wwwNw', 'wNwNw', 'NwNww'];
-const NO_CERT = '.....';
-const certAt = (shift: number) => Array.from({ length: 4 }, (_, i) => (i < shift ? NO_CERT : CERT[i - shift]));
+const CERT = [
+  'nnnnnnnnnnnnn',
+  'nwggwwwwwwNNn',
+  'nggwwwwwwwwNn',
+  'nwgwwwwwwwNwn',
+  'nwggwwNwwNwwn',
+  'nggwwNwNNwwwn',
+  'nwwwNwwwwwwwn',
+  'nnnnnnnnnnnnn',
+];
+const NO_CERT = '.............';
+const certAt = (shift: number) => Array.from({ length: 8 }, (_, i) => (i < shift ? NO_CERT : CERT[i - shift]));
 const certificate: PixelSprite = {
   id: 'pf22-certificate',
   name: 'certificate',
@@ -182,14 +198,15 @@ const certificate: PixelSprite = {
     certAt(0),
     certAt(0),
     certAt(0),
-    certAt(1),
+    certAt(0),
     certAt(2),
-    certAt(3),
-    [NO_CERT, NO_CERT, '..y..', '.yWy.'],
-    [NO_CERT, NO_CERT, NO_CERT, '..w..'],
     certAt(4),
+    certAt(6),
+    [NO_CERT, NO_CERT, NO_CERT, NO_CERT, NO_CERT, '......y......', '.....yWy.....', '......y......'],
+    [NO_CERT, NO_CERT, NO_CERT, NO_CERT, NO_CERT, NO_CERT, '......w......', NO_CERT],
+    certAt(8),
   ],
-  frameMs: 260,
+  frameMs: 240,
 };
 
 /** A small heart rising off the box. */
@@ -273,6 +290,7 @@ const base = pfCompose('pf22-opener-base', 80, 60, pfKitchen.rows, [
   [banner, 31, 9],
   [pfText('pf22-give', 'GIVE', 'w'), 34, 11],
   [noticeboard, 59, 9],
+  [pfText('pf22-tax', 'TAX', 'n'), 62, 20],
   [bunting(80), 0, 0],
   [pfPendantLamp, 18, 0],
   [pfSaverReach, 14, 12],
@@ -286,15 +304,15 @@ const base = pfCompose('pf22-opener-base', 80, 60, pfKitchen.rows, [
 
 export const pf22Opener: SceneArt = {
   id: 'pf22-opener',
-  label: 'In a community hall hung with bunting and a GIVE banner, a person posts a share certificate with a rising line into a donation box with a red heart on it, beside a fundraising thermometer nearly at its goal, a four star rating card, boxes of donated tins and the cat asleep in an empty box.',
+  label: 'In a community hall hung with bunting and a GIVE banner, a person posts a stock certificate with a rising chart into a donation box with a red heart on it, beside a fundraising thermometer nearly at its goal, a noticeboard with a four star rating card and a card marked TAX, boxes of donated tins and the cat asleep in an empty box.',
   width: 80,
   height: 60,
   base,
   layers: [
-    // The certificate is in the hand (figure at 14,12; hand at column 22, row 10), its lower part
-    // already through the slot (box at 27,25; slot at columns 7 to 11 of row 1).
-    { sprite: certificate, x: 34, y: 22 },
-    { sprite: heart, x: 40, y: 21, motion: { kind: 'rise', amp: 6, periodMs: 2600, phase: 0.2 } },
+    // The certificate hangs from the hand (figure at 14,12; hand at column 22, row 10) over the long
+    // slot (box at 27,25; slot at columns 2 to 14 of row 1), its foot just above the lid.
+    { sprite: certificate, x: 30, y: 18 },
+    { sprite: heart, x: 43, y: 21, motion: { kind: 'rise', amp: 6, periodMs: 2600, phase: 0.2 } },
     { sprite: pfSparkle, x: 6, y: 9, motion: { kind: 'twinkle', periodMs: 1800, min: 0.35 } },
     { sprite: pfLampGlow, x: 19, y: 9, motion: { kind: 'twinkle', periodMs: 3000, min: 0.55 } },
     { sprite: pfZzz, x: 60, y: 43, motion: { kind: 'rise', amp: 3, periodMs: 2800, phase: 0.3 } },

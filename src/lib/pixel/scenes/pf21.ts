@@ -11,7 +11,6 @@
 import type { PixelSprite } from '../types';
 import { pfCat, pfCompose, pfKitchen, pfSparkle, pfTable, pfZzz } from './pf-kit';
 import { pfSaverHold } from './pf-kit-a';
-import { pfText } from './pf-kit-b';
 import { pfKeepsake } from './pf1-finish';
 import { pfBackdrop } from './pf-backdrop';
 import type { LessonArtSet, SceneArt } from './types';
@@ -162,6 +161,21 @@ const spark: PixelSprite = {
 };
 
 /**
+ * WILL in capitals with a five-column W, since the font's three-column W reads as an H: a one-column
+ * I and Ls `lw` columns wide, a one-column gap between letters, ink on transparent.
+ */
+function willWord(id: string, lw: 2 | 3, ink: string): PixelSprite {
+  const W = ['X...X', 'X...X', 'X.X.X', 'X.X.X', '.X.X.'];
+  const L = (r: number) => (r < 4 ? 'X' + '.'.repeat(lw - 1) : 'X'.repeat(lw));
+  return {
+    id,
+    name: id,
+    tags: ['scene', 'pf'],
+    rows: W.map((w, r) => [w, 'X', L(r), L(r)].join('.').replace(/X/g, ink)),
+  };
+}
+
+/**
  * The will, held up in both hands: a long sheet with WILL across the top (stamped on it), lines of
  * terms, the signature in blue ink and a red wax seal at the lower right.
  */
@@ -246,21 +260,20 @@ function bookcase(width: number, height: number): PixelSprite {
   };
 }
 
-/** Lesson 21's emblem: the will as a scroll, rolled top and bottom, with lines of terms and a red seal. */
-const emblemScroll: PixelSprite = {
-  id: 'pf21-emblem-scroll',
-  name: 'pf21-emblem-scroll',
+/**
+ * Lesson 21's emblem: the will itself, a sheet filling the window with WILL across its top (the same
+ * five-column W as the opener's), the signature in blue ink and the red wax seal at its foot.
+ */
+const emblemWill: PixelSprite = {
+  id: 'pf21-emblem-will',
+  name: 'pf21-emblem-will',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    '.wwwwwwwwwwwx.',
-    'xwxxxxxxxxxxXx',
-    '.wwwwwwwwwwwx.',
-    '.wXXXXXXXwwwx.',
-    '.wwwwwwwwRRwx.',
-    '.wXXXXXwRssRx.',
-    '.wwwwwwwRRRRx.',
-    'xwxxxxxxxrxrXx',
-    '.wwwwwwwwwwwx.',
+    'wwwwwwwwwwwwwx',
+    ...willWord('pf21-emblem-word', 2, 'K').rows.map((r) => 'w' + r.replace(/\./g, 'w')),
+    'wwwwwwwwwrRrwx',
+    'wbwbbwbwrRsRrx',
+    'xxxxxxxxxrRrxx',
   ],
 };
 
@@ -274,7 +287,7 @@ const base = pfCompose('pf21-opener-base', 80, 60, pfKitchen.rows, [
   [bookcase(16, 34), 63, 2],
   [pfSaverHold, 46, 12],
   [will, 45, 22],
-  [pfText('pf21-will-word', 'WILL', 'K'), 46, 24],
+  [willWord('pf21-will-word', 3, 'K'), 46, 24],
   [pfTable(42, 12), 36, 36],
   [inkwell, 38, 28],
   [folders, 64, 31],
@@ -301,8 +314,8 @@ export const pf21Opener: SceneArt = {
 
 export const pf21Finish = pfKeepsake(
   'pf21-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a rolled scroll with a red wax seal, with small sparkles around it.',
-  emblemScroll,
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a sheet lettered WILL, signed in blue and sealed with red wax, with small sparkles around it.',
+  emblemWill,
 );
 
 export const art: LessonArtSet = { opener: pf21Opener, backdrop: pfBackdrop, finish: pf21Finish };

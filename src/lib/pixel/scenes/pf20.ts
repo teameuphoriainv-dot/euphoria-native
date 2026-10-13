@@ -2,9 +2,9 @@
  * Personal Finance lesson 20, Understanding Inflation & Purchasing Power: the same money buys less.
  *
  * A new set, the evening market, seen over the figure's shoulder: they stand with their back to us,
- * holding up a bill, and look at the bread stall's chalkboard, where last year's $2 is struck out in
- * red and $3 is chalked beside it under a red arrow up. The same bill, a smaller loaf of the year.
- * Bread on the shelves, apples in a crate, string lights under a striped awning, and the cat sat on
+ * holding up a bill, and look at the bread stall's chalkboard, where the old $2 is struck out in
+ * red and $3 is chalked beside it, followed by a red arrow up. The same bill buys less bread.
+ * Bread on a shelf, apples in a crate, string lights under a striped awning, and the cat sat on
  * the counter. Moving: the lights, the lamp, a star, the bill, the cat's tail.
  */
 import type { PixelSprite } from '../types';
@@ -84,7 +84,7 @@ const saverBack: PixelSprite = {
   ],
 };
 
-/** The same bill as last year, held up to the board, its edge flicking. A LAYER only. */
+/** The same bill as before, held up to the board, its edge flicking. A LAYER only. */
 const BILL_REST = [
   'nnnnnnn',
   'nmNNNmn',
@@ -134,7 +134,7 @@ const lampGlow: PixelSprite = {
   ],
 };
 
-/** The stall's striped awning, 59 wide: red and white bands lit from the left, scalloped below. */
+/** The stall's striped awning, 59 wide: red and white bands lit along the top, scalloped below. */
 function awning(width: number): PixelSprite {
   const band = (x: number) => (Math.floor(x / 4) % 2 === 0 ? 'r' : 'w');
   return {
@@ -211,7 +211,7 @@ function dollar(id: string, ink: string): PixelSprite {
   };
 }
 
-/** The red stroke through last year's price, and the red arrow up beside this year's. */
+/** The red stroke through the old price, and the red arrow up beside the new one. */
 const strike: PixelSprite = {
   id: 'pf20-strike',
   name: 'strike',
@@ -349,7 +349,7 @@ const base = pfCompose('pf20-opener-base', 80, 60, street(), [
 
 export const pf20Opener: SceneArt = {
   id: 'pf20-opener',
-  label: 'At an evening market, seen from behind, a person holds up a bill to a bread stall whose chalkboard shows the old price of two dollars struck out in red and three dollars written beside it under a red arrow, with string lights, apples and bread on the counter and the cat sitting on it.',
+  label: 'At an evening market, seen from behind, a person holds up a bill to a bread stall whose chalkboard reads BREAD and shows the old price of two dollars struck out in red and three dollars written beside it, followed by a red arrow pointing up, with string lights under the awning, apples and bread on the counter and the cat sitting on it.',
   width: 80,
   height: 60,
   base,

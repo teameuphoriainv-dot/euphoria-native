@@ -4,9 +4,9 @@
  * A new set, a balcony at sunset: the glass door of home on the left (the cat watching from inside),
  * the parapet across the front, and past the building's corner the sun going down behind the roofs.
  * On the parapet the pathway's sprout has grown into a sapling in a big pot, and the figure waters it
- * from a can that pours coins, the lesson's steady $200 a month; the first little sprout still stands
- * at the end of the ledge. Moving: the coins, the sapling and the sprout swaying, the sun's glow, a
- * bird, the cat's tail.
+ * from a can that pours gold coins, the lesson's steady $200 a month, onto soil where an earlier coin
+ * already lies; a small sprout in its own pot stands at the end of the ledge. Moving: the coins, the
+ * sapling and the sprout swaying, the sun's glow, a bird, the cat's tail.
  */
 import type { PixelSprite } from '../types';
 import { pfBird, pfCompose, pfPot, pfSaverReach, pfSprout } from './pf-kit';
@@ -107,20 +107,38 @@ const wateringCan: PixelSprite = {
   ],
 };
 
-/** Coins pouring from the rose onto the soil just under the sprite: falling, landing with a glint. */
+/**
+ * Coins pouring from the rose into the big pot, the kit's coin outlined in deep gold so it shows on the
+ * sunset: out of the rose, down in a short arc onto the soil, a glint where it goes in, then the next.
+ */
+const COIN = ['.OO.', 'OyGO', 'OGgO', '.OO.'];
+function coinAt(cx: number, cy: number): string[] {
+  const rows = Array.from({ length: 7 }, () => [...'.......']);
+  COIN.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') rows[cy + j][cx + i] = ch; }));
+  return rows.map((r) => r.join(''));
+}
 const pour: PixelSprite = {
   id: 'pf15-pour',
   name: 'pour',
   tags: ['scene', 'pf'],
-  rows: ['yG', 'Gg', '..', '..'],
+  rows: coinAt(0, 0),
   frames: [
-    ['yG', 'Gg', '..', '..'],
-    ['..', 'yG', 'Gg', '..'],
-    ['..', '..', 'yG', 'Gg'],
-    ['..', '..', '..', 'yW'],
-    ['..', '..', '..', '..'],
+    coinAt(0, 0),
+    coinAt(1, 1),
+    coinAt(2, 2),
+    coinAt(3, 3),
+    ['.......', '.......', '.......', '....y..', '...yWy.', '....y..', '.......'],
+    ['.......', '.......', '.......', '.......', '....w..', '.......', '.......'],
   ],
-  frameMs: 200,
+  frameMs: 240,
+};
+
+/** A coin poured before, lying on the soil on the far side of the trunk. */
+const soilCoin: PixelSprite = {
+  id: 'pf15-soil-coin',
+  name: 'soil coin',
+  tags: ['scene', 'pf'],
+  rows: COIN,
 };
 
 /** The low sun's glow, a ring for a slow twinkle. */
@@ -153,18 +171,20 @@ const emblemSapling: PixelSprite = {
   ],
 };
 
-// Order is depth: the can behind the hand that holds it, the figure behind the parapet, pots on it.
+// Order is depth: the can behind the hand that holds it, the figure behind the parapet, pots on it,
+// then the coin already on the big pot's soil.
 const base = pfCompose('pf15-opener-base', 80, 60, balcony(), [
   [balconyDoor, 1, 4],
-  [wateringCan, 35, 21],
-  [pfSaverReach, 15, 12],
+  [wateringCan, 33, 19],
+  [pfSaverReach, 13, 10],
   [pfPotLarge, 45, 29],
+  [soilCoin, 52, 25],
   [pfPot, 66, 31],
 ]);
 
 export const pf15Opener: SceneArt = {
   id: 'pf15-opener',
-  label: 'On a balcony at sunset, a person waters a young sapling in a big pot with a can that pours gold coins, beside the small sprout it grew from, while the cat watches through the glass door.',
+  label: 'On a balcony at sunset, a person waters a young sapling in a big pot with a can that pours gold coins, beside a small sprout in its own pot, while the cat watches through the glass door.',
   width: 80,
   height: 60,
   base,
@@ -172,8 +192,9 @@ export const pf15Opener: SceneArt = {
     // The sapling stands on the big pot's soil (pot at 45,29); the sprout on the small pot's (66,31).
     { sprite: pfSapling, x: 44, y: 14 },
     { sprite: pfSprout, x: 66, y: 26 },
-    // The coins leave the can's rose (can at 35,21; rose at column 11, row 4) and land on the soil (row 29).
-    { sprite: pour, x: 46, y: 25 },
+    // Each coin leaves the can's rose (can at 33,19; rose at column 11, row 4) and arcs down onto the
+    // soil's near half (pot at 45,29; soil on row 29), clear of the sapling's trunk at columns 50 and 51.
+    { sprite: pour, x: 43, y: 22 },
     { sprite: sunGlow, x: 56, y: 23, motion: { kind: 'twinkle', periodMs: 3000, min: 0.3 } },
     { sprite: pfBird, x: 70, y: 11, motion: { kind: 'drift', amp: 2, periodMs: 5200 } },
     // The cat sits on the floor inside the door, watching.

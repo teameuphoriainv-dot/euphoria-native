@@ -159,21 +159,24 @@ const jarCoin: PixelSprite = {
   frameMs: 170,
 };
 
-/** Lesson 10's emblem: three stacks of coins, each taller than the last. */
+/**
+ * Lesson 10's emblem: the opener's row of jars in little, filled in order: the first two glass jars
+ * full and heaped with gold, a coin dropping into the empty third.
+ */
 const emblemWealth: PixelSprite = {
   id: 'pf10-emblem-wealth',
   name: 'pf10-emblem-wealth',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
     '...........OO.',
-    '..........OyGO',
-    '..........OggO',
-    '......OO..OGGO',
-    '.....OyGO.OggO',
-    '.OO..OggO.OGGO',
-    'OyGO.OGGO.OggO',
-    'OggO.OggO.OGGO',
-    'OGGO.OGGO.OggO',
+    '.yG...yG..OyGO',
+    'yGGg.yGGg.OGgO',
+    'xGGX.xGGX.xOOX',
+    'xwgX.xwgX.xw.X',
+    'xGGX.xGGX.xw.X',
+    'xwgX.xwgX.x..X',
+    'xGgX.xGgX.x..X',
+    '.xX...xX...xX.',
   ],
 };
 
@@ -218,7 +221,7 @@ export const pf10Opener: SceneArt = {
 
 export const pf10Finish = pfKeepsakeGold(
   'pf10-finish',
-  'A gold house-shaped key fob with a gold roof, on a key ring with a brass key, its window showing three stacks of coins growing taller, with small sparkles around it.',
+  'A gold house-shaped key fob with a gold roof, on a key ring with a brass key, its window showing three glass jars in a row, the first two full of gold and a coin dropping into the empty third, with small sparkles around it.',
   emblemWealth,
 );
 

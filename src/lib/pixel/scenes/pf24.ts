@@ -217,21 +217,24 @@ const firefly: PixelSprite = {
   ],
 };
 
-/** Lesson 24's emblem: the three jars, spend, save and give, their lids orchid, gold and red. */
+/**
+ * Lesson 24's emblem: the three jars, spend, save and give, under their orchid, gold and red lids and
+ * marked as on the stand, a shopping bag, a pink piggy and a red heart, coins in the bottom of each.
+ */
 const emblemThreeJars: PixelSprite = {
   id: 'pf24-emblem-three-jars',
   name: 'pf24-emblem-three-jars',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    'PPPP.GGGG.RRRR',
-    'pppp.gggg.rrrr',
-    'xwwX.xwwX.xwwX',
-    'xw.X.xwyX.xw.X',
-    'xw.X.xGgX.xw.X',
-    'xw.X.xyGX.xyGX',
-    'xyGX.xGgX.xGgX',
-    'xGgX.xyGX.xyGX',
-    '.xX...xX...xX.',
+    '.PPP.GGG.RRR.',
+    '.ppp.ggg.rrr.',
+    'xxxxxxxxxxxxX',
+    'xw.wxwFwxR.RX',
+    'xPPPxFFFxRRRX',
+    'xPqPxFwFxwRwX',
+    'xPPPxI.IxwwwX',
+    'xGyGxGyGxGyGX',
+    '.xxxxxxxxxxX.',
   ],
 };
 
@@ -272,7 +275,7 @@ export const pf24Opener: SceneArt = {
 
 export const pf24Finish = pfKeepsake(
   'pf24-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing three little jars of coins with orchid, gold and red lids, with small sparkles around it.',
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing three little jars under orchid, gold and red lids, marked with a shopping bag, a piggy bank and a heart, with small sparkles around it.',
   emblemThreeJars,
 );
 

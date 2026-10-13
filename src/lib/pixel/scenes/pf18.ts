@@ -21,7 +21,10 @@ function nurseryRoom(): string[] {
   );
 }
 
-/** Two gold rings linked, a stone catching the light on one, in a gilt frame: the wedding. */
+/**
+ * The wedding in a gilt frame: two rings clearly linked, a gold band and a white-gold one with its
+ * stone catching the light, the gold passing over the white at the top and under it at the bottom.
+ */
 const ringsPicture: PixelSprite = {
   id: 'pf18-rings-picture',
   name: 'rings picture',
@@ -29,13 +32,13 @@ const ringsPicture: PixelSprite = {
   rows: [
     'OOOOOOOOOOOOO',
     'OgggggggggggO',
-    'OgEEEEEWEEEgO',
-    'OgEEEEyyyEEgO',
-    'OgEyyyEEEGEgO',
-    'OgyEEyGEEGEgO',
-    'OgyEEGGEEgEgO',
-    'OgGEEEgggEEgO',
-    'OgEgggEEEEEgO',
+    'OgEEEEEEEEEgO',
+    'OgEyyGEWEEEgO',
+    'OgyEEEGwxEEgO',
+    'OgGEEwGEExEgO',
+    'OgGEExGEExEgO',
+    'OgEGGxEEExEgO',
+    'OgEEEExxxEEgO',
     'OgggggggggggO',
     'OOOOOOOOOOOOO',
   ],

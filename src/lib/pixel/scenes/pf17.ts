@@ -2,10 +2,10 @@
  * Personal Finance lesson 17, Side Hustles & Multiple Income Streams: more than one way in.
  *
  * The spare room late at night, the moon in the window, the day job's pay envelope pinned on the wall.
- * The figure works at a laptop after hours; beside the desk a camera on a tripod is recording and a stack of parcels waits to ship, so three
- * hustles run at once, and a coin rises from each of them: the lesson's several streams. The cat has
- * taken the one open box. Moving: the three coins, the laptop's logo, the camera's red light, the
- * coffee's steam, the lamp, a star, the cat's z.
+ * The figure works at a laptop after hours; beside the desk a camera on a tripod is recording and a
+ * stack of parcels waits to ship, so three hustles run at once, and a coin rises from each of them:
+ * the lesson's several streams. The cat has taken the one open box. Moving: the three coins, the
+ * laptop's logo, the camera's red light, the coffee's steam, the lamp, a star, the cat's z.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -172,21 +172,24 @@ const pin: PixelSprite = {
   ],
 };
 
-/** Lesson 17's emblem: a laptop open, a gold coin on its teal screen. */
+/**
+ * Lesson 17's emblem: the opener's three hustles in little, a camera, a laptop and a parcel, with a
+ * gold coin over each, one for every stream.
+ */
 const emblemSideHustle: PixelSprite = {
   id: 'pf17-emblem-side-hustle',
   name: 'pf17-emblem-side-hustle',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    '..XXXXXXXXXX..',
-    '..XttttttttX..',
-    '..XtttOOtttX..',
-    '..XttOyGOttX..',
-    '..XttOGgOttX..',
-    '..XtttOOtttX..',
-    '..XXXXXXXXXX..',
-    'XxxxxxxxxxxxxX',
-    '.XXXXXXXXXXXX.',
+    '.OO...OO...OO.',
+    'OyGO.OyGO.OyGO',
+    'OGgO.OGgO.OGgO',
+    '.OO...OO...OO.',
+    '..............',
+    '.XD..XXXX.OOOO',
+    'XXXX.XTtX.OyyO',
+    'XbBX.XXXX.OgyO',
+    'XXXX.xxxx.OOOO',
   ],
 };
 
@@ -235,7 +238,7 @@ export const pf17Opener: SceneArt = {
 
 export const pf17Finish = pfKeepsake(
   'pf17-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing an open laptop with a gold coin on its screen, with small sparkles around it.',
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing three gold coins over a camera, a laptop and a parcel, one coin for each income stream, with small sparkles around it.',
   emblemSideHustle,
 );
 

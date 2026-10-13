@@ -3,14 +3,15 @@
  *
  * A new set, a dorm room at dusk: a bookcase with the cat sitting up on top, fairy lights strung along
  * the wall, a pennant, and through the window the campus clock tower. The figure, in cap and tassel,
- * holds its diploma up. On the desk a balance weighs the degree (a stack of books) against a first
- * year's pay (a wad of bills) and hangs level, the lesson's rule that the loans should not outweigh the
- * first salary. Moving: the tassel, the lights in turn, a glint by the diploma, the cat's tail.
+ * holds its diploma up. On the desk a big balance weighs the loan (a white slip stamped LOAN in red)
+ * against a first year's pay (the pathway's pay envelope) and hangs level, the lesson's rule that the
+ * loans should not outweigh the first salary. Moving: the tassel, the lights in turn, a glint by the
+ * diploma, the cat's tail.
  */
 import type { PixelSprite } from '../types';
-import { pfCompose, pfKitchen, pfSparkle, pfTable } from './pf-kit';
+import { pfCompose, pfKitchen, pfPayEnvelope, pfSparkle, pfTable } from './pf-kit';
 import { pfCatSit } from './pf-kit-a';
-import { pfSaverRaise } from './pf-kit-b';
+import { pfSaverRaise, pfText } from './pf-kit-b';
 import { pfKeepsake } from './pf1-finish';
 import { pfBackdrop } from './pf-backdrop';
 import type { LessonArtSet, SceneArt } from './types';
@@ -158,31 +159,53 @@ const scroll: PixelSprite = {
 };
 
 /**
- * The balance, level: a beam on a post, chains to two pans. In the left pan the degree, a stack of
- * books; in the right a first year's pay, a wad of bills.
+ * The balance, level and big enough to read: a beam on a post, chains in a V to two pans 17 wide. The
+ * loan (LOAN_SLIP) stands in the left pan and a first year's pay (the pathway's pay envelope) in the
+ * right; both are stamped after the balance, over the lower chains. Pan rims on row 12, foot on row 20.
  */
-const balance: PixelSprite = {
-  id: 'pf13-balance',
-  name: 'balance',
+const BAL_W = 37;
+function balance(): PixelSprite {
+  const rows = Array.from({ length: 21 }, () => Array.from({ length: BAL_W }, () => '.'));
+  const put = (x: number, y: number, ch: string) => { rows[y][x] = ch; };
+  put(18, 0, 'y');
+  put(17, 1, 'G'); put(18, 1, 'y'); put(19, 1, 'G');
+  for (let x = 6; x <= 30; x++) put(x, 2, x === 6 ? 'g' : x === 30 ? 'g' : 'G');
+  // The post, lit on its left, from the beam to the base.
+  for (let y = 3; y <= 17; y++) { put(18, y, 'G'); put(19, y, 'O'); }
+  // Each pan's chains: an apex under the beam's end, opening one column each side per row.
+  for (const c of [8, 28]) {
+    for (let y = 3; y <= 11; y++) {
+      const d = y - 3;
+      put(c - d, y, 'X');
+      put(c + d, y, 'X');
+    }
+    for (let x = c - 8; x <= c + 8; x++) {
+      put(x, 12, x === c - 8 || x === c + 8 ? 'O' : 'G');
+      if (x > c - 8 && x < c + 8) put(x, 13, x === c - 7 || x === c + 7 ? 'O' : 'g');
+    }
+  }
+  for (let x = 16; x <= 20; x++) put(x, 18, x === 16 || x === 20 ? 'O' : 'G');
+  for (let x = 14; x <= 22; x++) {
+    put(x, 19, x === 14 || x === 22 ? 'O' : x === 21 ? 'g' : 'G');
+    put(x, 20, 'O');
+  }
+  return { id: 'pf13-balance', name: 'balance', tags: ['scene', 'pf'], rows: rows.map((r) => r.join('')) };
+}
+
+/** The loan: a white slip 17 wide, LOAN stamped across it in red (the word is stamped after). */
+const loanSlip: PixelSprite = {
+  id: 'pf13-loan-slip',
+  name: 'loan slip',
   tags: ['scene', 'pf'],
   rows: [
-    '..........y..........',
-    '.........GyG.........',
-    '.gGGGGGGGGGGGGGGGGGg.',
-    '...X......GO.....X...',
-    '..X.X.....GO....X.X..',
-    '.PPPPP....GO...nNmNn.',
-    '.BBBBB....GO...NNNNN.',
-    '.RRRRR....GO...nNmNn.',
-    'X.....X...GO..X.....X',
-    'OGGGGGO...GO..OGGGGGO',
-    '.OgggO....GO...OgggO.',
-    '..........GO.........',
-    '..........GO.........',
-    '..........GO.........',
-    '........OGGGO........',
-    '......OGGGGGGgO......',
-    '......OOOOOOOOO......',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwx',
+    'xxxxxxxxxxxxxxxxx',
   ],
 };
 
@@ -219,25 +242,29 @@ const backpack: PixelSprite = {
   ],
 };
 
-/** Lesson 13's emblem: the mortarboard, its gold tassel hanging at the left. */
+/**
+ * Lesson 13's emblem: the mortarboard, and hung from its tassel cord a red price tag with a white
+ * eyelet, the debt the degree comes with.
+ */
 const emblemCap: PixelSprite = {
   id: 'pf13-emblem-cap',
   name: 'pf13-emblem-cap',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    '.....qqqq.....',
-    '..qqPPPPPPqq..',
-    'GGGGGGGyPPPPqq',
-    'G.EEPPPPPPEE..',
-    'G...EEEEEE....',
-    'G...EppppE....',
-    'yG..EppppE....',
-    'GGg..EEEE.....',
-    '.g............',
+    '.......qqqq...',
+    '....qqPPPPPPqq',
+    '..GGGGGGGyPPPP',
+    '..G.EEPPPPPPEE',
+    '..G...EEEEEE..',
+    '.RRR..EppppE..',
+    'RRwRRrEppppE..',
+    'RRRRRr.EEEE...',
+    '.rrrr.........',
   ],
 };
 
-// Order is depth: the scroll behind the raised hand, the figure behind the desk, the balance on the top.
+// Order is depth: the scroll behind the raised hand, the figure behind the desk, the balance on the
+// top, then the slip and its word and the pay envelope standing in its pans.
 const base = pfCompose('pf13-opener-base', 80, 60, pfKitchen.rows, [
   [campusWindow, 56, 1],
   [lightString, 17, 0],
@@ -247,14 +274,17 @@ const base = pfCompose('pf13-opener-base', 80, 60, pfKitchen.rows, [
   [pfSaverRaise, 24, 12],
   [mortarboard, 25, 8],
   [pfTable(62, 12), 18, 36],
-  [balance, 55, 21],
+  [balance(), 42, 17],
+  [loanSlip, 42, 21],
+  [pfText('pf13-loan', 'LOAN', 'R'), 43, 22],
+  [pfPayEnvelope, 65, 21],
   [textbooks, 19, 32],
   [backpack, 27, 48],
 ]);
 
 export const pf13Opener: SceneArt = {
   id: 'pf13-opener',
-  label: 'In a dorm room at dusk, a new graduate in a cap holds up a diploma beside a balance that weighs a stack of books against a wad of pay and hangs level, with the campus clock tower in the window and the cat watching from the bookcase.',
+  label: 'In a dorm room at dusk, a new graduate in a cap holds up a diploma beside a big balance that weighs a slip stamped LOAN against a pay envelope and hangs level, with the campus clock tower in the window and the cat watching from the bookcase.',
   width: 80,
   height: 60,
   base,
@@ -271,7 +301,7 @@ export const pf13Opener: SceneArt = {
 
 export const pf13Finish = pfKeepsake(
   'pf13-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a graduation cap with a gold tassel, with small sparkles around it.',
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing a graduation cap with a red price tag hanging from its tassel, with small sparkles around it.',
   emblemCap,
 );
 

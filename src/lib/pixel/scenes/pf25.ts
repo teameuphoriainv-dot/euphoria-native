@@ -136,21 +136,24 @@ function firework(id: string, bright: string, dim: string): PixelSprite {
 const fireworkPink = firework('pf25-firework-pink', 'F', 'f');
 const fireworkTeal = pfLater(firework('pf25-firework-teal', 'T', 't'), 'pf25-firework-teal-later', 4, 230);
 
-/** Lesson 25's emblem: the key to the house, its bow a little house with a window, its blade toothed. */
-const emblemHouseKey: PixelSprite = {
-  id: 'pf25-emblem-house-key',
-  name: 'pf25-emblem-house-key',
+/**
+ * Lesson 25's emblem: lesson 1's four pillars together, as they stand on the table, each trimmed in
+ * gold: the pay envelope and the wallet above, the piggy bank and the sprout in its pot below.
+ */
+const emblemPillarsGilded: PixelSprite = {
+  id: 'pf25-emblem-pillars-gilded',
+  name: 'pf25-emblem-pillars-gilded',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    '...WG.........',
-    '..yGGg........',
-    '.yGGGGg.......',
-    'yGGGGGGg......',
-    '.yGGGGg.......',
-    '.yG..GgyyyyyyG',
-    '.yG..GgGGGGGGg',
-    '.yGGGGg..Gg.Gg',
-    '.gggggg..gg.gg',
+    '.nNNNn..bBBb..',
+    'GxwwwxG.GPPPPG',
+    'GwxwxwG.GPPPGW',
+    'GGGGGGG.GGGGGG',
+    '..............',
+    '..G.GG...NN.NN',
+    '.GFFFFFG..NnN.',
+    'GFwFFFFG.G433G',
+    '.G.G.G.G..G33G',
   ],
 };
 
@@ -193,8 +196,8 @@ export const pf25Opener: SceneArt = {
 
 export const pf25Finish = pfKeepsakeGold(
   'pf25-finish',
-  'A gold house-shaped key fob with a gold roof, on a key ring with a brass key, its window showing a golden house key whose bow is a little house, with small sparkles around it.',
-  emblemHouseKey,
+  'A gold house-shaped key fob with a gold roof, on a key ring with a brass key, its window showing the pay envelope, the wallet, the piggy bank and the sprout from the kitchen table together, each trimmed in gold, with small sparkles around it.',
+  emblemPillarsGilded,
 );
 
 /* ── the street, every window lit ─────────────────────────────────────────────────────────────── */

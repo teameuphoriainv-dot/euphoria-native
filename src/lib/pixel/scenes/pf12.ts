@@ -126,8 +126,9 @@ const cart: PixelSprite = {
 };
 
 /**
- * The hourglass, held up at the chest: pale glass, gold sand running from the top bulb to the bottom,
- * then over again. Each bulb is given as 5-wide rows of sand; `.` is empty glass.
+ * The hourglass, held up at the chest: pale glass outlined in ink so it stands off the blue sweater,
+ * gold sand running from the top bulb to the bottom, then over again. Each bulb is given as 5-wide
+ * rows of sand; `.` is empty glass.
  */
 const HG_TOP = 'OOOOOOOOO';
 const HG_CAP = '.gGGGGGg.';
@@ -137,14 +138,14 @@ function hourglassFrame(top: readonly string[], stream: boolean, bottom: readonl
   return [
     HG_TOP,
     HG_CAP,
-    `.x${glass(top[0])}x.`,
-    `.x${glass(top[1])}x.`,
-    `..x${glass(top[2].slice(1, 4))}x..`,
-    `...x${fall}x...`,
-    `..xw${fall}wx..`,
-    `.xww${fall}wwx.`,
-    `.x${glass(bottom[0])}x.`,
-    `.x${glass(bottom[1])}x.`,
+    `.K${glass(top[0])}K.`,
+    `.K${glass(top[1])}K.`,
+    `..K${glass(top[2].slice(1, 4))}K..`,
+    `...K${fall}K...`,
+    `..Kw${fall}wK..`,
+    `.Kww${fall}wwK.`,
+    `.K${glass(bottom[0])}K.`,
+    `.K${glass(bottom[1])}K.`,
     HG_CAP,
     HG_TOP,
   ];

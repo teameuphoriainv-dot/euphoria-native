@@ -4,8 +4,8 @@
  * A new set, the street at nightfall: on the left a grey rented block under a flat cornice, its teal
  * door signed RENT; on the right a teal house under a gable, its orchid door signed BUY. Between them,
  * behind a planter of flowers, the figure holds up a key, the decision the lesson's 5% rule weighs. The
- * cat waits on the house's step. Moving: a glint on the key, both porch lamps, a moth at one of them,
- * two stars, the cat's tail.
+ * cat sits on the pavement in front of the planter, midway between the doors, taking neither side.
+ * Moving: a glint on the key, both porch lamps, a moth at one of them, two stars, the cat's tail.
  */
 import type { PixelSprite } from '../types';
 import { pfCompose, pfSparkle } from './pf-kit';
@@ -173,15 +173,18 @@ const planter: PixelSprite = {
   ],
 };
 
-/** Lesson 14's emblem: the two doors side by side, the rented teal one and the bought orchid one. */
+/**
+ * Lesson 14's emblem: the two homes side by side, each with its own roof line: the rented block under
+ * a flat cornice with its teal door, and the bought house under a gable with its orchid door.
+ */
 const emblemDoors: PixelSprite = {
   id: 'pf14-emblem-doors',
   name: 'pf14-emblem-doors',
   tags: ['scene', 'pf', 'emblem'],
   rows: [
-    'XXXXXX..XXXXXX',
-    'XKKKKX..XEEEEX',
-    'XtTTtX..XpPPpX',
+    'xxxxxx....xX..',
+    'XXXXXX...xxXX.',
+    'XtTTtX..xxxXXX',
     'XtTTtX..XpPPpX',
     'XtttyX..XpppyX',
     'XtTTtX..XpPPpX',
@@ -211,7 +214,7 @@ const base = pfCompose('pf14-opener-base', 80, 60, street(), [
 
 export const pf14Opener: SceneArt = {
   id: 'pf14-opener',
-  label: 'On a street at nightfall, a person holds up a key between two front doors, a teal one signed rent on a grey block and an orchid one signed buy on a house with a gabled roof, behind a planter of flowers, with the cat waiting on the house step.',
+  label: 'On a street at nightfall, a person holds up a key between two front doors, a teal one signed rent on a grey block and an orchid one signed buy on a house with a gabled roof, behind a planter of flowers, with the cat sitting in front of the planter between them.',
   width: 80,
   height: 60,
   base,
@@ -222,14 +225,14 @@ export const pf14Opener: SceneArt = {
     { sprite: moth, x: 57, y: 20, motion: { kind: 'drift', amp: 2, periodMs: 1800 } },
     { sprite: pfStar, x: 30, y: 1, motion: { kind: 'twinkle', periodMs: 2300, min: 0.2 } },
     { sprite: pfStar, x: 46, y: 2, motion: { kind: 'twinkle', periodMs: 3100, min: 0.2, phase: 0.5 } },
-    // The cat sits on the house's step (row 46), in front of the orchid door.
-    { sprite: pfCatSit, x: 64, y: 35 },
+    // The cat sits on the pavement in front of the planter, midway between the two doors.
+    { sprite: pfCatSit, x: 34, y: 40 },
   ],
 };
 
 export const pf14Finish = pfKeepsake(
   'pf14-finish',
-  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing two front doors side by side, one teal and one orchid, with small sparkles around it.',
+  'A gold house-shaped key fob with a teal roof on a key ring with a brass key, its window showing two homes side by side, a flat-topped block with a teal door and a gabled house with an orchid door, with small sparkles around it.',
   emblemDoors,
 );
 
