@@ -3,14 +3,17 @@
  * its keepsake, as one set loaded on demand.
  *
  * The opener is the sitting room on a stormy night: blue-striped walls over the kit's panelling,
- * the curtained window (wm-kit-a.ts) with lightning in it, a reading lamp, and the father asleep in
- * a teal wing chair on an orchid rug. Beside him, on a side table, a brass clockwork machine is
- * doing his investing: its gears turn and it drops a coin into a glass jar on every turn, whatever
- * the weather. The lesson's point is that the investor's own brain is the risk, so the defence is
- * a system (a written policy, automatic contributions, a coach) that keeps going while the panic
- * outside cannot get a vote. What moves: rain and a fork of lightning in the window, the gears, the
- * coin dropping into the jar, Z's rising from the sleeper, the lamp breathing. The keepsake carries
- * an anchor.
+ * the curtained window (wm-kit-a.ts) with lightning in it, a reading lamp, and the father sitting up
+ * in a teal wing chair on an orchid rug, his written investment policy (a sealed scroll) held in his
+ * lap. The storm is the market's panic, and beside his chair stands the temptation: a sell lever
+ * with a red knob. His free hand drifts toward it and comes back to the armrest, again and again,
+ * never touching it. Beyond it, on a side table, a brass clockwork machine keeps investing for him
+ * (the automatic contribution): its gears turn and it drops a coin into a glass jar on every turn,
+ * whatever the weather. The lesson's point is that the investor's own brain is the risk, so the
+ * defence is a system (a written policy, automation, a coach) that keeps going while the urge to
+ * sell gets no vote. What moves: rain and a fork of lightning in the window, his hand reaching and
+ * drawing back, a glint on the red knob, the gears, the coin dropping into the jar, the lamp
+ * breathing. The keepsake carries the machine's brass gear: the system over the impulse.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -24,19 +27,28 @@ const WIN_X = 4;
 const WIN_Y = 6;
 
 /** The machine's top-left; its gears, nozzle and jar are placed from it. */
-const MACH_X = 61;
+const MACH_X = 60;
 const MACH_Y = 29;
 
-const CHAIR_X = 35;
+const CHAIR_X = 33;
 const CHAIR_Y = 34;
 
+/** The sell lever's top-left, on the floor between the chair and the machine's table. */
+const LEVER_X = 52;
+const LEVER_Y = 39;
+
+/** The reaching arm's layer: from his left shoulder out over the chair's arm toward the lever. */
+const ARM_X = CHAIR_X + 11;
+const ARM_Y = CHAIR_Y + 4;
+
 /**
- * The father asleep in a teal wing chair: the chair's back, wings and rolled arms, and him in it,
- * hands on his lap, shoes on the rug. 18x21.
+ * The father awake in a teal wing chair: the chair's back, wings and rolled arms, and him sitting
+ * up in it, his right hand holding the written policy (a scroll with a red seal) in his lap, his
+ * left hand at his side by the chair's arm, shoes on the rug. 18x21.
  */
-const dozing: PixelSprite = {
-  id: 'wm17-opener-dozing',
-  name: 'wm17-opener-dozing',
+const sitting: PixelSprite = {
+  id: 'wm17-opener-sitting',
+  name: 'wm17-opener-sitting',
   tags: ['scene', 'wm17'],
   palette: WM_INKS,
   rows: [
@@ -50,10 +62,10 @@ const dozing: PixelSprite = {
     '.tTTTTTbwRwbTTTTt.',
     '.tTTTTbBBRBbbTTTt.',
     'TTTtTTBBBRBbbtTTTt',
-    'tttTTTBBBBBbbTttth',
-    'tttTTCBBBBBbUTttth',
-    'tttTTTbBBBbbTTttth',
-    'hhhTTbBBBBBbbTThhh',
+    'tttTTTgGGGgbbTttth',
+    'tttTTCyOOOybUTttth',
+    'tttTTTyOOyybTTttth',
+    'hhhTTbgGGGgRbTThhh',
     'hhhtttbBBBbbttthhh',
     'hhhtttkkttkkttthhh',
     'hhhtttkkttkkttthhh',
@@ -61,6 +73,29 @@ const dozing: PixelSprite = {
     '.UO..KKK..KKK..OU.',
     '.UO............OU.',
     '.KK............KK.',
+  ],
+};
+
+/** The temptation: a brass sell lever with a red ball knob, standing up from an iron box. 6x14. */
+const lever: PixelSprite = {
+  id: 'wm17-opener-lever',
+  name: 'wm17-opener-lever',
+  tags: ['scene', 'wm17'],
+  rows: [
+    '.sRr..',
+    '.RRr..',
+    '.rrI..',
+    '..Gg..',
+    '..Gg..',
+    '..Gg..',
+    '..Gg..',
+    '..Gg..',
+    '..Og..',
+    '.DXXD.',
+    'DxXXXD',
+    'xXXXXD',
+    'XXXXkD',
+    'DDDDDD',
   ],
 };
 
@@ -130,9 +165,10 @@ const base = wmCompose('wm17-opener-base', [
   ...wmBands(80, [['K', 1], ['O', 2], ['U', 1], ['O', 2], ['U', 1], ['O', 2], ['U', 1], ['O', 1]]),
 ], [
   { sprite: wmWindow, x: WIN_X, y: WIN_Y },
-  { sprite: rug, x: 30, y: 51 },
-  { sprite: lamp, x: 27, y: 22 },
-  { sprite: dozing, x: CHAIR_X, y: CHAIR_Y },
+  { sprite: rug, x: 28, y: 51 },
+  { sprite: lamp, x: 25, y: 22 },
+  { sprite: sitting, x: CHAIR_X, y: CHAIR_Y },
+  { sprite: lever, x: LEVER_X, y: LEVER_Y },
   { sprite: sideTable, x: MACH_X, y: MACH_Y + 13 },
   { sprite: machine, x: MACH_X, y: MACH_Y },
   { sprite: jar, x: MACH_X + 12, y: MACH_Y + 7 },
@@ -220,18 +256,33 @@ const coinDrop: PixelSprite = {
   frameMs: 280,
 };
 
-/** Z's for the sleeper. */
-const bigZ: PixelSprite = {
-  id: 'wm17-opener-big-z',
-  name: 'wm17-opener-big-z',
+/* ── the urge to sell, kept off ───────────────────────────────────────────────────────────────── */
+
+/**
+ * His left arm, 9x9 from (ARM_X, ARM_Y): resting at his side (nothing drawn, the base shows the
+ * hand), lifting, then reaching over the chair's arm toward the lever's knob and stopping a pixel
+ * short of it. While it is raised, the resting hand under it is painted over with his coat.
+ */
+const ARM_REST = wmBands(9, [['.', 9]]);
+const ARM_LIFT = ['.........', '.........', '.........', '.........', '.....CC..', '...BBCU..', '..BBbb...', '.b.......', '.........'];
+const ARM_REACH = ['.........', '......CC.', '.....BCU.', '....BBb..', '...BBb...', '..BBb....', '..Bb.....', '.b.......', '.........'];
+const reach: PixelSprite = {
+  id: 'wm17-opener-reach',
+  name: 'wm17-opener-reach',
   tags: ['scene', 'wm17'],
-  rows: ['wwww', '..w.', '.w..', 'wwww'],
+  palette: WM_INKS,
+  blurb: 'His hand drifting toward the red sell lever and drawing back without touching it.',
+  rows: ARM_REST,
+  frames: [ARM_REST, ARM_REST, ARM_LIFT, ARM_REACH, ARM_REACH, ARM_LIFT, ARM_REST, ARM_REST],
+  frameMs: 430,
 };
-const smallZ: PixelSprite = {
-  id: 'wm17-opener-small-z',
-  name: 'wm17-opener-small-z',
+
+/** A glint on the red knob. */
+const knobGlint: PixelSprite = {
+  id: 'wm17-opener-knob-glint',
+  name: 'wm17-opener-knob-glint',
   tags: ['scene', 'wm17'],
-  rows: ['xxx', '.x.', 'xxx'],
+  rows: ['W'],
 };
 
 /** Light spilling under the lamp's shade. */
@@ -244,7 +295,7 @@ const lampGlow: PixelSprite = {
 
 export const wm17Opener: SceneArt = {
   id: 'wm17-opener',
-  label: 'A father dozes in a wing chair by a lamp while a storm flashes at the window, and beside him a brass clockwork machine keeps dropping coins into a glass jar on its own.',
+  label: 'On a stormy night a father sits in a wing chair with his written plan in his lap, his hand drifting toward a red sell lever and drawing back without pulling it, while a brass machine beside him keeps dropping coins into a glass jar.',
   width: 80,
   height: 60,
   base,
@@ -253,38 +304,38 @@ export const wm17Opener: SceneArt = {
     { sprite: gear, x: MACH_X + 1, y: MACH_Y + 4 },
     { sprite: gearLater, x: MACH_X + 6, y: MACH_Y + 4 },
     { sprite: coinDrop, x: MACH_X + 13, y: MACH_Y + 5 },
-    { sprite: smallZ, x: CHAIR_X + 12, y: CHAIR_Y - 3, motion: { kind: 'rise', amp: 7, periodMs: 3000, phase: 0 } },
-    { sprite: bigZ, x: CHAIR_X + 14, y: CHAIR_Y - 7, motion: { kind: 'rise', amp: 8, periodMs: 3000, phase: 0.5 } },
-    { sprite: lampGlow, x: 28, y: 26, motion: { kind: 'twinkle', periodMs: 3200, min: 0.45 } },
+    { sprite: reach, x: ARM_X, y: ARM_Y },
+    { sprite: knobGlint, x: LEVER_X + 1, y: LEVER_Y, motion: { kind: 'twinkle', periodMs: 1700, min: 0 } },
+    { sprite: lampGlow, x: 26, y: 26, motion: { kind: 'twinkle', periodMs: 3200, min: 0.45 } },
   ],
 };
 
-/** An anchor: holding steady through the storm. */
-const emblemAnchor: PixelSprite = {
-  id: 'wm17-emblem-anchor',
-  name: 'wm17-emblem-anchor',
+/** The machine's brass gear, eight teeth round a white hub: the system that runs over the impulse. 13x13. */
+const emblemGear: PixelSprite = {
+  id: 'wm17-emblem-gear',
+  name: 'wm17-emblem-gear',
   tags: ['scene', 'wm17'],
   rows: [
-    '.....wyGg.....',
-    '.....G..g.....',
-    '.....yGGO.....',
-    '..yGGGGGGGGg..',
-    '......Gg......',
-    '......Gg......',
-    '......Gg......',
-    '......Gg......',
-    'yg....Gg....yg',
-    'yG....Gg....Gg',
-    '.yG...Gg...Gg.',
-    '..yGGGGGGGGg..',
-    '....gggggg....',
+    '.....yGg.....',
+    '.yg..yGg..Gg.',
+    '.yGGyGGGGGgg.',
+    '..yGGGGGGGg..',
+    '..yGGOOOGGg..',
+    'yyGGOwwwOGGgg',
+    'yGGGOwwwOGggg',
+    'yGGGOwwwOgggO',
+    '..GGgOOOggg..',
+    '..gGGGggggO..',
+    '.gGGgggggggO.',
+    '.gO..ggO..gO.',
+    '.....ggO.....',
   ],
 };
 
 export const wm17Finish: SceneArt = wmKeepsake(
   'wm17-finish',
-  emblemAnchor,
-  'A green crest with a gold rim bearing an anchor, framed by laurel over a purple banner, with sparkles around it.',
+  emblemGear,
+  'A green crest with a gold rim bearing a brass gear with a white hub, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm17Opener, backdrop: wmBackdrop, finish: wm17Finish };

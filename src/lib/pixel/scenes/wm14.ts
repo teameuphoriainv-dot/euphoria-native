@@ -4,27 +4,34 @@
  *
  * The opener is a stone cottage the family lets, down the lane from the estate under a crescent
  * moon: a slate roof, a chimney, two lamplit windows, a lantern by the door, a picket fence with
- * the garden gate open onto the cobbles. The father who owns it holds up its key, and a letting
- * sign with a little gold house swings from its post. The lesson's point is a building that pays
- * while it stands, so the cottage's chimney puffs gold coins up into the night like smoke: rent,
- * month after month. What moves: the coins and a wisp of smoke, the windows breathing, the door
- * lantern, the sign, a firefly, stars. The keepsake carries a house.
+ * the garden gate open onto the cobbles. The father who owns it stands at the gate holding up its
+ * key in one hand, the other held out open toward the door, beside a letting sign with a little
+ * gold house swinging from its post. The lesson's point is a building that pays while it stands,
+ * so the rent comes to him: a gold coin hops out of the door, standing ajar on the lamplit hall,
+ * and drops into his open hand, month after month, while the chimney sends up only plain smoke.
+ * What moves: the rent coin, two puffs of smoke, the windows breathing, the door lantern, the sign,
+ * a firefly, stars. The keepsake carries a house.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
 import { wmBackdrop } from './wm-backdrop';
-import { wmBands, wmCoinMote, wmCompose, wmFirefly, wmLampFlame, wmStar, wmStarDot, WM_INKS } from './wm-kit';
+import { wmBands, wmCompose, wmFirefly, wmLampFlame, wmStar, wmStarDot, WM_INKS } from './wm-kit';
 import { wmTreeline } from './wm-kit-a';
 import { wmAshlar, wmCobbles, wmCottageGlow, wmCottageWindow, wmSkyDots } from './wm-kit-b';
+import { wmCoinFlight } from './wm-kit-c';
 import { wmKeepsake } from './wm1-finish';
 
 /** The cottage walls' top-left; windows, door and lantern are placed from it. */
 const WALL_X = 38;
 const WALL_Y = 32;
 
-/** The chimney pot's top, where the coins and smoke start. */
+/** The chimney pot's top, where the smoke starts. */
 const POT_X = 60;
 const POT_Y = 11;
+
+/** Where the father stands at the gate; the rent coin lands in his open hand. */
+const FATHER_X = 39;
+const FATHER_Y = 45;
 
 const skyDots = wmSkyDots('wm14-opener-sky-dots', 80, 30, [
   [24, 4, 'X'],
@@ -85,13 +92,13 @@ const chimney: PixelSprite = {
   rows: ['.UCU.', '.UCU.', 'xXXXD', 'xXDXD', 'xXXXD', 'xDXXD', 'xXXXD', 'xXXDD', 'xXXXD', 'xXXXD'],
 };
 
-/** A panelled front door with a brass knob, on a stone step. 6x11. */
+/** The front door standing ajar on its left hinges: the leaf, its brass knob, lamplight in the gap, a stone step. 6x11. */
 const door: PixelSprite = {
   id: 'wm14-opener-door',
   name: 'wm14-opener-door',
   tags: ['scene', 'wm14'],
   palette: WM_INKS,
-  rows: ['xXXXXD', 'xOUUOD', 'xUCCUD', 'xUCCUD', 'xUUUUD', 'xUCCGD', 'xUCCUD', 'xUCCUD', 'xUUUUD', 'xOOOOD', 'XXXXXX'],
+  rows: ['xXXXXD', 'xOUyGD', 'xUCyGD', 'xUCyGD', 'xUUyGD', 'xUGyGD', 'xUCyGD', 'xUCyGD', 'xUUyGD', 'xOOgOD', 'XXXXXX'],
 };
 
 /** An iron wall lantern; its glass (x 1, y 1, 3x3) takes wmLampFlame. 5x5. */
@@ -138,26 +145,29 @@ const signPost: PixelSprite = {
   ],
 };
 
-/** The father holding up the cottage's key in his raised right hand. 9x13. */
+/**
+ * The father holding up the cottage's key in one raised hand, the other held out open toward the
+ * door for the rent. 11x13.
+ */
 const parentWithKey: PixelSprite = {
   id: 'wm14-opener-parent-key',
   name: 'wm14-opener-parent-key',
   tags: ['scene', 'wm14'],
   palette: WM_INKS,
   rows: [
-    '..kkk..yG',
-    '.kkkkk.Gg',
-    '.kCCCk.g.',
-    '.CkCkU.C.',
-    '..CCU..b.',
-    '.bwRwbb..',
-    'bBBRBbb..',
-    'BBBRBbb..',
-    'CBBBBb...',
-    '.bBBbb...',
-    '.kk.kk...',
-    '.kk.kk...',
-    '.KK.KK...',
+    'yG..kkk....',
+    'Gg.kkkkk...',
+    '.g.kCCCk...',
+    '.C.CkCkU...',
+    '.b..CCU....',
+    '..bbwRwb...',
+    '..bBBRBbb..',
+    '..BBBRBbbCU',
+    '...BBBBb...',
+    '...bBBbb...',
+    '...kk.kk...',
+    '...kk.kk...',
+    '...KK.KK...',
   ],
 };
 
@@ -177,7 +187,7 @@ const base = wmCompose('wm14-opener-base', wmBands(80, [['K', 40], ['h', 20]]), 
   { sprite: fence('wm14-opener-fence-right', 22), x: 58, y: 45 },
   { sprite: { id: 'wm14-opener-lane', name: 'wm14-opener-lane', tags: ['scene', 'wm14'], rows: wmCobbles(80, 8) }, x: 0, y: 52 },
   { sprite: signPost, x: 21, y: 33 },
-  { sprite: parentWithKey, x: 41, y: 45 },
+  { sprite: parentWithKey, x: FATHER_X, y: FATHER_Y },
 ]);
 
 /** The letting sign: a green board edged in gold with a little gold house on it. 9x6. */
@@ -207,17 +217,32 @@ const smoke: PixelSprite = {
   rows: ['.kk.', 'kDDk', '.kk.'],
 };
 
+/**
+ * The rent: a gold coin hopping out through the lit gap of the open door, over the fence and down
+ * into the father's open hand, then a glint where it lands and a rest. The layer runs from the
+ * hand's column to the gap's, 9x13 from (RENT_X, RENT_Y).
+ */
+const RENT_X = FATHER_X + 9;
+const RENT_Y = 40;
+const rentFlight = wmCoinFlight('wm14-opener-rent', 9, 13, [[6, 3], [5, 1], [3, 1], [2, 3], [1, 6], [0, 9]], 0, 260);
+const rentLanded = [...wmBands(9, [['.', 13]])].map((row, j) => (j === 10 ? 'y.y......' : j === 9 ? '.W.......' : row));
+const rent: PixelSprite = {
+  ...rentFlight,
+  blurb: 'A gold coin of rent hopping from the cottage door into the owner\'s open hand.',
+  rows: rentFlight.frames?.[3] ?? rentFlight.rows,
+  frames: [...(rentFlight.frames ?? []), rentLanded, ...Array.from({ length: 4 }, () => wmBands(9, [['.', 13]]))],
+};
+
 export const wm14Opener: SceneArt = {
   id: 'wm14-opener',
-  label: 'A stone cottage on a moonlit lane puffs gold coins from its chimney like smoke, its windows lit, as the father who owns it holds up the key by the garden gate beneath a swinging sign.',
+  label: 'A stone cottage on a moonlit lane sends a gold rent coin from its lit door into the open hand of the father who owns it, as he holds up its key at the garden gate beside a swinging letting sign.',
   width: 80,
   height: 60,
   base,
   layers: [
     { sprite: smoke, x: POT_X - 1, y: POT_Y - 4, motion: { kind: 'rise', amp: 6, periodMs: 4200, phase: 0.5 } },
-    { sprite: wmCoinMote, x: POT_X, y: POT_Y - 3, motion: { kind: 'rise', amp: 8, periodMs: 2700, phase: 0 } },
-    { sprite: wmCoinMote, x: POT_X + 2, y: POT_Y - 2, motion: { kind: 'rise', amp: 9, periodMs: 2700, phase: 0.33 } },
-    { sprite: wmCoinMote, x: POT_X - 1, y: POT_Y - 2, motion: { kind: 'rise', amp: 7, periodMs: 2700, phase: 0.66 } },
+    { sprite: smoke, x: POT_X, y: POT_Y - 4, motion: { kind: 'rise', amp: 7, periodMs: 4200, phase: 0 } },
+    { sprite: rent, x: RENT_X, y: RENT_Y },
     { sprite: wmCottageGlow, x: WALL_X + 5, y: WALL_Y + 4, motion: { kind: 'twinkle', periodMs: 4200, min: 0.4 } },
     { sprite: wmCottageGlow, x: WALL_X + 26, y: WALL_Y + 4, motion: { kind: 'twinkle', periodMs: 4800, phase: 0.5, min: 0.4 } },
     { sprite: wmLampFlame, x: WALL_X + 20, y: WALL_Y + 6 },

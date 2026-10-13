@@ -2,14 +2,17 @@
  * Wealth Management lesson 10 (the capstone): its opener, the capstone backdrop and its keepsake,
  * as one set loaded on demand.
  *
- * The opener is the house of five pillars on the night the whole plan comes together: the full
- * temple from the kit (wm-kit.ts) with every frieze mark and the tympanum oak lit at once,
- * fireworks over the pediment, a lamp either side of the forecourt, and the family with their
- * advisor at the foot of the steps, the child waving a sparkler. The lesson's point is integration:
- * earn, save, invest, protect and transfer working as one system. Lesson 1 lit the marks one by
- * one; here they breathe together, and a gold spark runs the length of the architrave beneath them
- * as the thread that joins them. What moves: the marks' glow, the spark, three fireworks out of
- * step, the pennant, both lamps, the sparkler, fireflies, stars.
+ * The opener is the forecourt of the house of five pillars on the night the whole plan comes
+ * together, seen as a family occasion rather than lesson 1's view of the house: a long table in an
+ * orchid cloth set across the forecourt, the grandmother, the father and the child seated at it side
+ * by side, two candles burning on it, and the advisor standing at its end pointing up at the frieze,
+ * with fireworks going up either side of the pediment. The lesson's point is integration: earn,
+ * save, invest, protect and transfer working as one system, every decision touching every other.
+ * So the frieze carries the joining: a gold thread runs through all five marks, earn to transfer,
+ * turns down at the end of the frieze and runs back along the architrave beneath them, closing into
+ * one ring, and when it closes the five marks shine together. A reader with Reduce Motion sees the
+ * ring closed through the marks. What moves: the thread drawing through the marks and closing,
+ * three fireworks out of step, the pennant, the lamp, the candles, fireflies, stars.
  *
  * The backdrop is the pathway's estate with every window of the manor lit, as the plan allows the
  * two capstones. The keepsake carries a crown set with five jewels, one for each pillar.
@@ -18,8 +21,8 @@ import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt, SceneLayer } from './types';
 import { wmBackdrop } from './wm-backdrop';
 import {
-  wmAdvisor,
   wmBands,
+  wmChild,
   wmCompose,
   wmElder,
   wmFirefly,
@@ -33,13 +36,14 @@ import {
   wmMarkProtect,
   wmMarkSave,
   wmMarkTransfer,
+  wmMirror,
   wmParent,
   wmStar,
   wmStarDot,
   wmTemple,
-  wmTwinkle,
+  WM_INKS,
 } from './wm-kit';
-import { wmTreeline } from './wm-kit-a';
+import { wmAdvisorPointing, wmCandle, wmCandleFlame, wmTreeline } from './wm-kit-a';
 import { wmSkyDots } from './wm-kit-b';
 import { wmKeepsake } from './wm1-finish';
 
@@ -47,9 +51,21 @@ import { wmKeepsake } from './wm1-finish';
 const TX = 10;
 const TY = 6;
 
-/** Where the child stands; the sparkler's spark is placed from it. */
-const CHILD_X = 39;
-const CHILD_Y = 47;
+/** The frieze's left edge and top, where the thread layer is laid. */
+const FRIEZE_X = TX + 5;
+const FRIEZE_Y = TY + 10;
+
+/** The long table's top-left on the forecourt, and the row its top is drawn on. */
+const TABLE_X = 14;
+const TABLE_Y = 49;
+const TABLE_W = 48;
+
+/** Where the family sit behind the table: the top rows of the kit's figures show above its top. */
+const SEATS: readonly { sprite: PixelSprite; x: number; rows: number }[] = [
+  { sprite: wmElder, x: 26, rows: 8 },
+  { sprite: wmParent, x: 35, rows: 8 },
+  { sprite: wmChild, x: 44, rows: 6 },
+];
 
 const skyDots = wmSkyDots('wm10-opener-sky-dots', 80, 30, [
   [14, 2, 'D'],
@@ -91,25 +107,30 @@ const forecourt: PixelSprite = {
   ),
 };
 
-/** The heir in teal holding a sparkler up on a wire stick. The spark itself is a layer. 7x11. */
-const childSparkler: PixelSprite = {
-  id: 'wm10-opener-child-sparkler',
-  name: 'wm10-opener-child-sparkler',
+/**
+ * One long table in the family's orchid cloth, seen from a little above, so it stands clear of the
+ * white steps behind it: the cloth's lit top, its drape with a fold every seven columns, a gold
+ * hem, the legs. 48x10.
+ */
+const table: PixelSprite = {
+  id: 'wm10-opener-table',
+  name: 'wm10-opener-table',
   tags: ['scene', 'wm10'],
+  palette: WM_INKS,
   rows: [
-    '......X',
-    '.....X.',
-    '.ggg.C.',
-    'gCCCgC.',
-    'CkCkUT.',
-    '.CCUT..',
-    'tTTTt..',
-    'CTTt...',
-    '.TTt...',
-    '.k.k...',
-    'KK.KK..',
+    `q${'Q'.repeat(TABLE_W - 2)}q`,
+    `${'q'.repeat(TABLE_W - 1)}P`,
+    ...Array.from({ length: 4 }, () =>
+      Array.from({ length: TABLE_W }, (_, x) => (x === TABLE_W - 1 ? 'p' : x % 7 === 3 ? 'p' : 'P')).join('')),
+    `y${'G'.repeat(TABLE_W - 2)}g`,
+    `..UO${'.'.repeat(TABLE_W - 8)}UO..`,
+    `..UO${'.'.repeat(TABLE_W - 8)}UO..`,
+    `..KK${'.'.repeat(TABLE_W - 8)}KK..`,
   ],
 };
+
+/** The advisor standing at the table's end, his arm up toward the frieze. */
+const advisorPointingUp = wmMirror(wmAdvisorPointing, 'wm10-opener-advisor-pointing');
 
 const base = wmCompose('wm10-opener-base', wmBands(80, [['K', 42], ['h', 18]]), [
   { sprite: skyDots, x: 0, y: 0 },
@@ -117,13 +138,23 @@ const base = wmCompose('wm10-opener-base', wmBands(80, [['K', 42], ['h', 18]]), 
   { sprite: forecourt, x: 0, y: 49 },
   { sprite: flagPole, x: TX + 29, y: TY - 6 },
   { sprite: wmTemple, x: TX, y: TY },
+  { sprite: wmMarkOak, x: TX + 26, y: TY + 3 },
+  ...[wmMarkEarn, wmMarkSave, wmMarkInvest, wmMarkProtect, wmMarkTransfer].map((mark, i) => ({ sprite: mark, x: FRIEZE_X + 1 + 10 * i, y: FRIEZE_Y })),
   { sprite: wmLampPost, x: 1, y: 25 },
-  { sprite: wmLampPost, x: 74, y: 25 },
-  { sprite: wmElder, x: 24, y: 46 },
-  { sprite: wmParent, x: 31, y: 45 },
-  { sprite: childSparkler, x: CHILD_X, y: CHILD_Y },
-  { sprite: wmAdvisor, x: 48, y: 45 },
+  ...SEATS.map(({ sprite, x, rows }) => ({
+    sprite: { ...sprite, rows: sprite.rows.slice(0, rows) },
+    x,
+    y: TABLE_Y - rows,
+  })),
+  { sprite: table, x: TABLE_X, y: TABLE_Y },
+  { sprite: wmCandle, x: TABLE_X + 3, y: TABLE_Y - 6 },
+  { sprite: wmCandle, x: TABLE_X + 41, y: TABLE_Y - 6 },
+  { sprite: advisorPointingUp, x: TABLE_X + TABLE_W + 2, y: 46 },
 ]);
+
+/* ── the thread through the five marks, closing into one ring ──────────────────────────────── */
+
+const MARKS = [wmMarkEarn, wmMarkSave, wmMarkInvest, wmMarkProtect, wmMarkTransfer];
 
 /** A mark lit from inside: every gold step goes one brighter. */
 function litFrom(sprite: PixelSprite): PixelSprite {
@@ -132,33 +163,53 @@ function litFrom(sprite: PixelSprite): PixelSprite {
 }
 
 /**
- * Every mark lit at once, the tympanum oak and the five frieze marks, as one sprite laid from the
- * frieze's left edge and the oak's top. The base leaves the panels bare: the marks live only in
- * this layer, so they breathe between full and half light without a still copy under them, and a
- * reader with Reduce Motion sees them fully lit. Built from the kit's marks, so a redrawn mark
- * keeps its glow.
+ * The frieze is 49x7: five 7x5 panels from x 1, 11, 21, 31, 41, the architrave's white band on row
+ * 5. The thread runs along row 2, the marks' middle, passing behind them, from the frieze's left
+ * edge to its right; turns down the right edge; runs back along the architrave; and climbs the left
+ * edge to where it began. `upTo` is how far along that loop it has been drawn, in its own order.
  */
-const allLit = wmCompose('wm10-opener-all-lit', wmBands(49, [['.', 12]]), [
-  { sprite: litFrom(wmMarkOak), x: 21, y: 0 },
-  ...[wmMarkEarn, wmMarkSave, wmMarkInvest, wmMarkProtect, wmMarkTransfer].map((mark, i) => ({
-    sprite: litFrom(mark),
-    x: 1 + 10 * i,
-    y: 7,
-  })),
-]);
+const THREAD_ROW = 2;
+const ARCHITRAVE = 5;
+const behindMark = (x: number, y: number) => {
+  const i = Math.floor((x - 1) / 10);
+  const mx = x - 1 - 10 * i;
+  return i >= 0 && i < 5 && mx < 7 && y < 5 && MARKS[i].rows[y][mx] !== '.';
+};
+const LOOP: readonly (readonly [number, number])[] = [
+  ...Array.from({ length: 49 }, (_, x) => [x, THREAD_ROW] as const),
+  ...Array.from({ length: ARCHITRAVE - THREAD_ROW }, (_, k) => [48, THREAD_ROW + 1 + k] as const),
+  ...Array.from({ length: 48 }, (_, k) => [47 - k, ARCHITRAVE] as const),
+  ...Array.from({ length: ARCHITRAVE - THREAD_ROW - 1 }, (_, k) => [0, ARCHITRAVE - 1 - k] as const),
+];
 
-/** A gold spark running the white architrave under the frieze, left to right, then a rest. 49x1. */
-const SPARK_STOPS = Array.from({ length: 12 }, (_, i) => 1 + 4 * i);
-const sparkAt = (x: number) => [`${'.'.repeat(x)}yG${'.'.repeat(47 - x)}`];
-const unlitArchitrave = ['.'.repeat(49)];
-const architraveSpark: PixelSprite = {
-  id: 'wm10-opener-architrave-spark',
-  name: 'wm10-opener-architrave-spark',
+function threadFrame(upTo: number, marksLit: boolean): string[] {
+  const grid = wmBands(49, [['.', 7]]).map((row) => [...row]);
+  LOOP.slice(0, upTo).forEach(([x, y]) => {
+    if (!behindMark(x, y)) grid[y][x] = y === ARCHITRAVE ? 'G' : 'y';
+  });
+  if (marksLit) {
+    MARKS.forEach((mark, i) => litFrom(mark).rows.forEach((row, j) => [...row].forEach((ch, k) => {
+      if (ch !== '.') grid[j][1 + 10 * i + k] = ch;
+    })));
+  }
+  return grid.map((row) => row.join(''));
+}
+
+/**
+ * The thread reaching the far side of each mark in turn, then turning and closing the ring; the
+ * marks shine together while it is closed. The still is the closed ring through the marks.
+ */
+const THREAD_STOPS = [0, 10, 20, 30, 40, 49, 49 + 3 + 24, LOOP.length];
+const closedRing = threadFrame(LOOP.length, false);
+const shining = threadFrame(LOOP.length, true);
+const thread: PixelSprite = {
+  id: 'wm10-opener-thread',
+  name: 'wm10-opener-thread',
   tags: ['scene', 'wm10'],
-  blurb: 'A gold spark running under all five marks: the thread that joins the pillars into one plan.',
-  rows: unlitArchitrave,
-  frames: [...SPARK_STOPS.map(sparkAt), ...Array.from({ length: 8 }, () => unlitArchitrave)],
-  frameMs: 100,
+  blurb: 'A gold thread drawn through all five pillar marks and closed into one ring, the marks shining once it closes.',
+  rows: closedRing,
+  frames: [...THREAD_STOPS.map((upTo) => threadFrame(upTo, false)), shining, shining, shining, closedRing],
+  frameMs: 300,
 };
 
 /** A burst of eight rays: tips in the light ink (L), the rays in the mid ink (M); Z is the dark ink. 11x11. */
@@ -242,28 +293,25 @@ const fireworkGold = firework('wm10-opener-firework-gold', 'y', 'G', 'g', 240);
 const fireworkOrchid = wmLater(firework('wm10-opener-firework-orchid', 'Q', 'q', 'P', 270), 'wm10-opener-firework-orchid', 4, 270);
 const fireworkGreen = wmLater(firework('wm10-opener-firework-green', 'm', 'N', 'n', 300), 'wm10-opener-firework-green', 7, 300);
 
-/** The sparkler's spark: the kit's twinkle, quickened. */
-const sparkle = wmLater(wmTwinkle, 'wm10-opener-sparkle', 1, 210);
-const lampFlameLater = wmLater(wmLampFlame, 'wm10-opener-lamp-flame-later', 2, 300);
+const candleLater = wmLater(wmCandleFlame, 'wm10-opener-candle-later', 2, 320);
 
 export const wm10Opener: SceneArt = {
   id: 'wm10-opener',
-  label: 'Fireworks burst over the marble house of five pillars, every mark on its frieze glowing at once, as a grandmother, a father, a child with a sparkler and their advisor gather at the foot of the steps.',
+  label: 'On the forecourt of the marble house of five pillars a grandmother, a father and a child sit together at one long candlelit table while their advisor points up at the frieze, where a gold thread runs through all five marks and closes into one ring, as fireworks burst either side of the roof.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: allLit, x: TX + 5, y: TY + 3, motion: { kind: 'twinkle', periodMs: 2600, min: 0.5 } },
-    { sprite: architraveSpark, x: TX + 5, y: TY + 15 },
+    { sprite: thread, x: FRIEZE_X, y: FRIEZE_Y },
     { sprite: fireworkGold, x: 1, y: 6 },
     { sprite: fireworkOrchid, x: 67, y: 4 },
     { sprite: fireworkGreen, x: 17, y: 0 },
     { sprite: wmFlag, x: TX + 30, y: TY - 6 },
     { sprite: wmLampFlame, x: 2, y: 28 },
-    { sprite: lampFlameLater, x: 75, y: 28 },
-    { sprite: sparkle, x: CHILD_X + 4, y: CHILD_Y - 3 },
+    { sprite: wmCandleFlame, x: TABLE_X + 4, y: TABLE_Y - 9 },
+    { sprite: candleLater, x: TABLE_X + 42, y: TABLE_Y - 9 },
     { sprite: wmFirefly, x: 9, y: 39, motion: { kind: 'rise', amp: 5, periodMs: 3000, phase: 0.2 } },
-    { sprite: wmFirefly, x: 68, y: 37, motion: { kind: 'rise', amp: 6, periodMs: 3400, phase: 0.65 } },
+    { sprite: wmFirefly, x: 70, y: 37, motion: { kind: 'rise', amp: 6, periodMs: 3400, phase: 0.65 } },
     { sprite: wmStar, x: 33, y: 7, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
     { sprite: wmStarDot, x: 57, y: 2, motion: { kind: 'twinkle', periodMs: 1900, phase: 0.4, min: 0.2 } },
   ],

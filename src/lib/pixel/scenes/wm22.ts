@@ -3,13 +3,15 @@
  * pathway backdrop and its keepsake, as one set loaded on demand.
  *
  * The opener is the lawn under the family oak (wm-kit.ts) on a moonlit night, with wind turbines
- * turning on the far hills. The grandmother, drawn large from wm-kit-c.ts, waters a sapling her
- * grandchild has just planted beside the old tree; a spade stands in the turf. The lesson's point
- * is money put to work for returns and for the things the family values at once, measured for its
- * real effect, so the picture is a planting: the old oak was someone's long view, the sapling is
- * this generation's, and the turbines are the kind of thing such money builds. What moves: the
- * turbines turn out of step, water falls from the can's rose, the sapling glints, fireflies rise,
- * stars twinkle. The keepsake carries a sprout.
+ * turning on the far hills, each on a gold hub. The grandmother, drawn large from wm-kit-c.ts,
+ * waters the spot where her grandchild has just planted a gold coin in fresh earth; a spade stands
+ * in the turf. The lesson's point is money put to work for returns and for the things the family
+ * values at once, measured for its real effect, so the picture is a planting of money: the coin is
+ * the seed, a sapling grows up out of it under the water, and the turbines are the kind of thing
+ * such money builds. The old oak was someone's long view; the sapling is this generation's. What
+ * moves: the sapling sprouting from the coin and growing, the turbines turning out of step, water
+ * falling from the can's rose, the coin glinting, fireflies rising, stars twinkling. The keepsake
+ * carries a wind turbine with a gold coin for its hub.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -78,14 +80,17 @@ const can: PixelSprite = {
   rows: ['.XxxX.....', '.X..X...XX', 'xwxxxX.X..', 'xwxxxXX...', 'xxxxxX....', 'XXXXXD....'],
 };
 
-/** The sapling: a round young crown on a thin stem. 5x7. */
-const sapling: PixelSprite = {
-  id: 'wm22-opener-sapling',
-  name: 'wm22-opener-sapling',
+/** The gold coin the grandchild has planted, half sunk in the fresh earth at the top of the mound. 6x3. */
+const plantedCoin: PixelSprite = {
+  id: 'wm22-opener-planted-coin',
+  name: 'wm22-opener-planted-coin',
   tags: ['scene', 'wm22'],
-  palette: WM_INKS,
-  rows: ['.mNN.', 'mNNNn', 'NNNnn', '.nnn.', '..U..', '..U..', '..U..'],
+  rows: ['.yGGg.', 'yGGGgg', '.gggO.'],
 };
+
+/** Where the sapling grows from: its 5x5 box stands on the planted coin, its stem over the coin's middle. */
+const SAPLING_X = CAN_X + 7;
+const SAPLING_Y = 49;
 
 /** Fresh earth heaped round the sapling's roots. 17x4. */
 const mound: PixelSprite = {
@@ -129,9 +134,9 @@ const base = wmCompose('wm22-opener-base', wmBands(80, [['K', 40], ['h', 20]]), 
   { sprite: spade, x: 58, y: 44 },
   { sprite: elderWatering, x: 20, y: 36 },
   { sprite: can, x: CAN_X, y: CAN_Y },
-  { sprite: sapling, x: CAN_X + 7, y: CAN_Y + 4 },
   { sprite: childKneeling, x: CAN_X + 13, y: 44 },
   { sprite: mound, x: CAN_X + 1, y: 54 },
+  { sprite: plantedCoin, x: SAPLING_X, y: 53 },
 ]);
 
 /* ── what moves ─────────────────────────────────────────────────────────────────────────────── */
@@ -143,7 +148,7 @@ function rotorFrame(a0: number): string[] {
     const a = a0 + (k * 2 * Math.PI) / 3;
     for (let r = 1; r <= 4; r += 1) grid[Math.round(4 - r * Math.sin(a))][Math.round(4 + r * Math.cos(a))] = 'x';
   }
-  grid[4][4] = 'w';
+  grid[4][4] = 'G';
   return grid.map((row) => row.join(''));
 }
 const rotor: PixelSprite = {
@@ -170,23 +175,45 @@ const water: PixelSprite = {
   frameMs: 120,
 };
 
+/**
+ * The sapling growing up out of the coin: bare earth, a two-leaved sprout, a young crown, then the
+ * full sapling held while the water falls on it. The still is the full sapling. 5x5.
+ */
+const SPROUTING: readonly (readonly string[])[] = [
+  ['.....', '.....', '.....', '.....', '.....'],
+  ['.....', '.....', '.....', '.m.N.', '..U..'],
+  ['.....', '.....', '.mNN.', '.NNn.', '..U..'],
+  ['.mNN.', 'mNNNn', 'NNNnn', '.nnn.', '..U..'],
+];
+const sapling: PixelSprite = {
+  id: 'wm22-opener-sapling',
+  name: 'wm22-opener-sapling',
+  tags: ['scene', 'wm22'],
+  palette: WM_INKS,
+  blurb: 'A sapling sprouting from the planted coin and growing under the water.',
+  rows: [...SPROUTING[3]],
+  frames: [...SPROUTING, ...Array.from({ length: 6 }, () => SPROUTING[3])].map((rows) => [...rows]),
+  frameMs: 420,
+};
+
 const glint: PixelSprite = {
   id: 'wm22-opener-glint',
   name: 'wm22-opener-glint',
   tags: ['scene', 'wm22'],
-  rows: ['w'],
+  rows: ['W'],
 };
 
 export const wm22Opener: SceneArt = {
   id: 'wm22-opener',
-  label: 'Under the old family oak at night a grandmother waters a sapling her grandchild has just planted, while wind turbines turn on the moonlit hills.',
+  label: 'Under the old family oak at night a grandchild kneels by a gold coin planted in fresh earth as a sapling grows up out of it under the grandmother\'s watering can, while wind turbines turn on the moonlit hills.',
   width: 80,
   height: 60,
   base,
   layers: [
     ...TURBINES.map(([x, y], i) => ({ sprite: rotors[i], x: x - 4, y: y - 4 })),
+    { sprite: sapling, x: SAPLING_X, y: SAPLING_Y },
     { sprite: water, x: CAN_X + 8, y: CAN_Y + 2 },
-    { sprite: glint, x: CAN_X + 8, y: CAN_Y + 4, motion: { kind: 'twinkle', periodMs: 1900, min: 0 } },
+    { sprite: glint, x: SAPLING_X + 1, y: 53, motion: { kind: 'twinkle', periodMs: 1900, min: 0 } },
     { sprite: wmFirefly, x: 12, y: 44, motion: { kind: 'rise', amp: 6, periodMs: 3200, phase: 0.2 } },
     { sprite: wmFirefly, x: 66, y: 46, motion: { kind: 'rise', amp: 5, periodMs: 2800, phase: 0.7 } },
     { sprite: wmStar, x: 45, y: 8, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
@@ -194,32 +221,35 @@ export const wm22Opener: SceneArt = {
   ],
 };
 
-/** A sprout: two leaves opening on a stem from a mound of earth. */
-const emblemSprout: PixelSprite = {
-  id: 'wm22-emblem-sprout',
-  name: 'wm22-emblem-sprout',
+/**
+ * A wind turbine, white blades and a grey tower, with a gold coin for its hub: money put to work in
+ * the kind of thing the family values.
+ */
+const emblemTurbine: PixelSprite = {
+  id: 'wm22-emblem-turbine',
+  name: 'wm22-emblem-turbine',
   tags: ['scene', 'wm22'],
   rows: [
-    '........yGg..',
-    '.yyGg..yGGGg.',
-    'yGGGGg.yGGGGg',
-    '.yGGGGgGGGGg.',
-    '..gGGGgGgg...',
-    '....ggGg.....',
-    '......Gg.....',
-    '......Gg.....',
-    '......Gg.....',
-    '...yyGGGgg...',
-    '..yGGGGGGGg..',
-    '.yGGGGGGGGgg.',
-    'OOOOOOOOOOOOO',
+    '...........ww.',
+    '..........ww..',
+    '.........ww...',
+    '......yGww....',
+    '.wwwwyGGg.....',
+    'wwww.GGgg.....',
+    '......gg.w....',
+    '......xX.ww...',
+    '......xX..ww..',
+    '......xX...ww.',
+    '......xX......',
+    '.....xxXD.....',
+    '....xxXXDD....',
   ],
 };
 
 export const wm22Finish: SceneArt = wmKeepsake(
   'wm22-finish',
-  emblemSprout,
-  'A green crest with a gold rim bearing a sprout, framed by laurel over a purple banner, with sparkles around it.',
+  emblemTurbine,
+  'A green crest with a gold rim bearing a white wind turbine with a gold coin for its hub, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm22Opener, backdrop: wmBackdrop, finish: wm22Finish };

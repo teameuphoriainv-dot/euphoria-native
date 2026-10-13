@@ -6,12 +6,11 @@
  * Two stone steps run down from left to right to the lawn, a wooden pail of coins on each and one on
  * the grass: the big one on the top step is the growth money she will not touch for eight years and
  * more, the middle one the bonds for the years between, the small one at the bottom her cash for this
- * year and next. She sits in a
- * wicker chair at the foot of the steps, drawn large from wm-kit-c.ts, one hand on the small pail,
- * and coins tumble down from pail to pail to keep it full. The kit's hourglass runs beside the big
- * pail, because that bucket's job is time. What moves: two coins tumbling down the steps, the sand,
- * the lamp's flame, a firefly, the stars. The keepsake carries the kit's hourglass, which the plan
- * gives this lesson and lesson 3.
+ * year and next. She sits in a wicker chair at the foot of the steps, drawn large from wm-kit-c.ts,
+ * one hand on the small pail, and coins tumble down from pail to pail to keep it full. The kit's
+ * hourglass runs beside the big pail, because that bucket's job is time. What moves: two coins
+ * tumbling down the steps, the sand, the lamp's flame, a firefly, the stars. The keepsake carries
+ * the three pails in small, big, middling and small, a coin hopping from each to the next.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -19,7 +18,6 @@ import { wmBackdrop } from './wm-backdrop';
 import {
   wmBands,
   wmCompose,
-  wmEmblemHourglass,
   wmFirefly,
   wmHourglass,
   wmLampFlame,
@@ -207,10 +205,55 @@ export const wm23Opener: SceneArt = {
   ],
 };
 
+/* ── the keepsake: the bucket strategy in small ──────────────────────────────────────────────── */
+
+/** The three pails heaped with coins, bound in gold hoops, on one line: growth, bonds, cash. */
+const EMBLEM_PAILS: readonly { rows: readonly string[]; x: number; y: number }[] = [
+  { rows: ['..yG.', '.yGGg', 'yGGGg', 'xxxxX', 'CCUCU', 'GGGGg', 'CCUCU', 'CCUCU', '.UUU.'], x: 0, y: 4 },
+  { rows: ['.yG.', 'yGGg', 'xxxX', 'CUCU', 'GGGg', 'CUCU', '.UU.'], x: 6, y: 6 },
+  { rows: ['yGg', 'xxX', 'CUC', 'GGg', '.U.'], x: 11, y: 8 },
+];
+
+/**
+ * The coin's stops (a 2x2 coin's top-left, or a glint where it lands): off the big heap, onto the
+ * middle one, off it again, onto the small one.
+ */
+type PailStop = readonly [number, number] | readonly [number, number, 'glint'] | null;
+const PAIL_HOPS: readonly PailStop[] = [null, [2, 2], [4, 1], [6, 3], [7, 6, 'glint'], [8, 4], [10, 4], [11, 6], [12, 8, 'glint'], null];
+
+/** The emblem, 14x13, with the hopping coin at `stop`. */
+function pailsAt(stop: PailStop): string[] {
+  const grid = wmBands(14, [['.', 13]]).map((row) => [...row]);
+  const paint = (rows: readonly string[], x: number, y: number) => {
+    rows.forEach((row, j) => [...row].forEach((ch, i) => {
+      if (ch !== '.') grid[y + j][x + i] = ch;
+    }));
+  };
+  EMBLEM_PAILS.forEach(({ rows, x, y }) => paint(rows, x, y));
+  if (stop && stop.length === 3) grid[stop[1]][stop[0]] = 'W';
+  else if (stop) paint(['yG', 'Gg'], stop[0], stop[1]);
+  return grid.map((row) => row.join(''));
+}
+
+/**
+ * The bucket strategy in small: three pails of coins, big, middling and small, a coin hopping from
+ * the big one into the middle one and on into the small one to keep it full. The still is the coin
+ * at the top of its first hop.
+ */
+const emblemPails: PixelSprite = {
+  id: 'wm23-emblem-pails',
+  name: 'wm23-emblem-pails',
+  tags: ['scene', 'wm23'],
+  palette: WM_INKS,
+  rows: pailsAt(PAIL_HOPS[2]),
+  frames: PAIL_HOPS.map(pailsAt),
+  frameMs: 360,
+};
+
 export const wm23Finish: SceneArt = wmKeepsake(
   'wm23-finish',
-  wmEmblemHourglass,
-  'A green crest with a gold rim bearing an hourglass, framed by laurel over a purple banner, with sparkles around it.',
+  emblemPails,
+  'A green crest with a gold rim bearing three wooden pails of gold coins, big, middling and small, a coin hopping from the biggest toward the next, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm23Opener, backdrop: wmBackdrop, finish: wm23Finish };

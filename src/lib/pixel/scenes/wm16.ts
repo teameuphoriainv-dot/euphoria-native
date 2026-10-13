@@ -3,38 +3,68 @@
  * and its keepsake, as one set loaded on demand.
  *
  * The opener is the house's dining room: slate wallpaper over the kit's panelling, the curtained
- * window (wm-kit-a.ts) at the back, and a long table in a white cloth with a gold cord laid down
- * its middle. The two parents stand at either end. On one side of the cord sits a model house, on
- * the other a money bag: the lesson's hidden gap, a home and a retirement account that look equal
- * on paper but are not, because the account's tax is still owed. So the motion is red coins
- * slipping off the money bag and fading, while the model house's windows keep their light. The
- * candles flicker and a star twinkles in the window. The keepsake carries the balance from
- * wm-kit-a.ts.
+ * window (wm-kit-a.ts) at the back, and a long table whose white cloth is cut in two, the halves
+ * pulled apart over a strip of bare wood with a bold gold rope laid down it and hanging off the
+ * front. The two parents stand at the far ends with their backs to the table, each turned away from
+ * the other: the father on the right in his blue suit, the other parent on the left with long
+ * auburn hair and a rose suit, colours the heir never wears. On one half of the cloth sits a model
+ * of the family home; on the other, a padlocked steel box with eight gold coins behind its glass,
+ * the retirement account. The lesson's hidden gap is that the two look equal on paper but the
+ * account's tax is still owed, so three of its eight coins (about the 37% of a $500K 401(k) the
+ * lesson shows going to tax) are red, and their glow pulses where they sit: the share is fixed,
+ * owed once at withdrawal, never a leak. The model house's windows keep their light, the candles
+ * flicker and a star twinkles in the window. The keepsake carries the balance from wm-kit-a.ts.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
 import { wmBackdrop } from './wm-backdrop';
-import { wmBands, wmCompose, wmLater, wmMoneyBag, wmParent, wmStarDot, WM_INKS } from './wm-kit';
+import { wmBands, wmCompose, wmLater, wmStarDot, WM_INKS } from './wm-kit';
 import { wmCandle, wmCandleFlame, wmEmblemScales, wmStripes, wmWainscot, wmWindow } from './wm-kit-a';
 import { wmKeepsake } from './wm1-finish';
 
-/** The table's top-left; the cord runs down its middle. */
+/** The table's top-left; the parting runs down its middle. */
 const TABLE_X = 15;
 const TABLE_Y = 38;
 
-/** Where the model house and the money bag stand on the cloth. */
+/** Where the model house and the account box stand on the two halves of the cloth. */
 const HOUSE_X = 20;
 const HOUSE_Y = 29;
-const BAG_X = 50;
-const BAG_Y = 28;
+const BOX_X = 49;
+const BOX_Y = 26;
 
-/** The cloth's width, and the column of the gold cord that parts it. */
+/** The cloth's width, the first column of the bare strip that parts it, and the strip's width. */
 const TABLE_W = 50;
-const CORD = 25;
+const PART = 22;
+const PART_W = 6;
+
+/** The rope's two columns, row by row: the light strand moves across, so it reads as a twist. */
+const ROPE = ['yG', 'Gg', 'gG', 'Gy'];
 
 /**
- * The dining table under a white cloth: the top seen from a little above, the cord down its middle,
- * the drape with its folds, the legs. 50x16.
+ * One row of the table: the left cloth, the bare strip with the rope down its middle, the right
+ * cloth. `cloth` gives a cloth cell by column, `strip` the strip's two outer cells either side.
+ */
+function tableRow(j: number, cloth: (x: number) => string, strip: readonly [string, string]): string {
+  return Array.from({ length: TABLE_W }, (_, x) => {
+    if (x < PART || x >= PART + PART_W) return cloth(x);
+    const k = x - PART;
+    if (k === 0 || k === PART_W - 1) return strip[0];
+    if (k === 1 || k === PART_W - 2) return strip[1];
+    return ROPE[j % ROPE.length][k - 2];
+  }).join('');
+}
+
+/** A cloth fold every seven columns, the cut edges either side of the strip shadowed. */
+const drape = (x: number) => {
+  if (x === TABLE_W - 1 || x === PART - 1) return 'X';
+  if (x === PART + PART_W) return 'x';
+  return x % 7 === 3 ? 'x' : 'w';
+};
+
+/**
+ * The dining table: two halves of a white cloth seen from a little above, parted by a strip of
+ * bare wood with the gold rope down it and over the front edge to a tassel, the drape with its
+ * folds, the legs. 50x16.
  */
 const table: PixelSprite = {
   id: 'wm16-opener-table',
@@ -42,18 +72,14 @@ const table: PixelSprite = {
   tags: ['scene', 'wm16'],
   palette: WM_INKS,
   rows: [
-    `x${'w'.repeat(CORD - 1)}G${'w'.repeat(TABLE_W - CORD - 2)}X`,
-    `${'w'.repeat(CORD)}G${'w'.repeat(TABLE_W - CORD - 2)}x`,
-    `${'x'.repeat(CORD)}g${'x'.repeat(TABLE_W - CORD - 2)}X`,
-    ...Array.from({ length: 5 }, () =>
-      Array.from({ length: TABLE_W }, (_, x) => {
-        if (x === CORD) return 'g';
-        if (x === TABLE_W - 1) return 'X';
-        return x % 7 === 3 ? 'x' : 'w';
-      }).join(''),
-    ),
-    `${'X'.repeat(CORD)}O${'X'.repeat(TABLE_W - CORD - 1)}`,
-    ...Array.from({ length: 6 }, () => `..UO${'.'.repeat(TABLE_W - 8)}UO..`),
+    tableRow(0, (x) => (x === 0 ? 'x' : x === TABLE_W - 1 ? 'X' : 'w'), ['O', 'U']),
+    tableRow(1, (x) => (x === TABLE_W - 1 ? 'x' : 'w'), ['O', 'U']),
+    tableRow(2, (x) => (x === TABLE_W - 1 ? 'X' : 'x'), ['O', 'U']),
+    ...Array.from({ length: 5 }, (_, j) => tableRow(3 + j, drape, ['K', 'O'])),
+    tableRow(8, () => 'X', ['K', 'O']),
+    `..UO${'.'.repeat(PART - 4)}..yG..${'.'.repeat(TABLE_W - PART - PART_W - 4)}UO..`,
+    `..UO${'.'.repeat(PART - 4)}..gO..${'.'.repeat(TABLE_W - PART - PART_W - 4)}UO..`,
+    ...Array.from({ length: 4 }, () => `..UO${'.'.repeat(TABLE_W - 8)}UO..`),
     `..KK${'.'.repeat(TABLE_W - 8)}KK..`,
   ],
 };
@@ -76,26 +102,76 @@ const modelHouse: PixelSprite = {
   ],
 };
 
-/** The other parent: long auburn hair, a teal suit over a white blouse. 7x13. */
-const partner: PixelSprite = {
-  id: 'wm16-opener-partner',
-  name: 'wm16-opener-partner',
+/**
+ * The retirement account: a steel box with a gold padlock on its lid and eight gold coins behind
+ * its glass, the three still owed in tax drawn red. 12x12.
+ */
+const accountBox: PixelSprite = {
+  id: 'wm16-opener-account-box',
+  name: 'wm16-opener-account-box',
+  tags: ['scene', 'wm16'],
+  rows: [
+    '....DXXD....',
+    '....X..X....',
+    'xwwwyGGgwwwX',
+    'xXXXGkGgXXXD',
+    'xKKKgggOKKkD',
+    'xKyGsRsRsRkD',
+    'xKGgRrRrRrkD',
+    'xKKKKKKKKKkD',
+    'xKyGyGyGyGkD',
+    'xKGgGgGgGgkD',
+    'xKKKKKKKKKkD',
+    'XkkkkkkkkkkD',
+  ],
+};
+
+/** The father in profile, turned to our right, away from the table: blue suit, red tie. 7x13. */
+const fatherTurned: PixelSprite = {
+  id: 'wm16-opener-father-turned',
+  name: 'wm16-opener-father-turned',
   tags: ['scene', 'wm16'],
   palette: WM_INKS,
   rows: [
-    '..Ogg..',
-    '.OgggO.',
-    '.OSSSO.',
-    'OSkSkMO',
-    'O.SSM.O',
-    'OtTwTtO',
-    'tTTwTTt',
-    'TTTTTtt',
-    'STTTTtM',
-    '.tTTtt.',
-    '.kk.kk.',
-    '.kk.kk.',
-    '.KK.KK.',
+    '..kkk..',
+    '.kkkkk.',
+    '.kkkCC.',
+    '.kkCkCC',
+    '..CCCU.',
+    '...CU..',
+    '..bBwR.',
+    '.bBBBR.',
+    '.bBBBb.',
+    '.bBCBb.',
+    '..bBb..',
+    '..kk...',
+    '..KKK..',
+  ],
+};
+
+/**
+ * The other parent in profile, turned to our left, away from the table: long auburn hair, a rose
+ * suit over a white blouse. Neither colour is the heir's teal or sandy gold. 7x13.
+ */
+const partnerTurned: PixelSprite = {
+  id: 'wm16-opener-partner-turned',
+  name: 'wm16-opener-partner-turned',
+  tags: ['scene', 'wm16'],
+  palette: WM_INKS,
+  rows: [
+    '..2221.',
+    '.222221',
+    '.SS2221',
+    'SkSS221',
+    '.SSM221',
+    '..SM21.',
+    '.wFFF1.',
+    '.wFFFf.',
+    '.FFFFf.',
+    '.FSFFf.',
+    '..FFf..',
+    '...kk..',
+    '..KKk..',
   ],
 };
 
@@ -108,19 +184,20 @@ const base = wmCompose('wm16-opener-base', [
   { sprite: wmWindow, x: 30, y: 6 },
   { sprite: table, x: TABLE_X, y: TABLE_Y },
   { sprite: modelHouse, x: HOUSE_X, y: HOUSE_Y },
-  { sprite: wmMoneyBag, x: BAG_X, y: BAG_Y },
-  { sprite: wmCandle, x: 33, y: 32 },
+  { sprite: accountBox, x: BOX_X, y: BOX_Y },
+  { sprite: wmCandle, x: 32, y: 32 },
   { sprite: wmCandle, x: 44, y: 32 },
-  { sprite: partner, x: 6, y: 41 },
-  { sprite: wmParent, x: 67, y: 41 },
+  { sprite: partnerTurned, x: 5, y: 41 },
+  { sprite: fatherTurned, x: 68, y: 41 },
 ]);
 
-/** A coin in red: tax still owed on the account, slipping away. 2x2. */
-const taxCoin: PixelSprite = {
-  id: 'wm16-opener-tax-coin',
-  name: 'wm16-opener-tax-coin',
+/** The three owed coins lit up, laid over them: they pulse where they sit and never move. 6x2. */
+const owedGlow: PixelSprite = {
+  id: 'wm16-opener-owed-glow',
+  name: 'wm16-opener-owed-glow',
   tags: ['scene', 'wm16'],
-  rows: ['Rr', 'rI'],
+  blurb: 'The tax still owed on the account: three of its eight coins, glowing red in place.',
+  rows: ['WsWsWs', 'sRsRsR'],
 };
 
 /** Lamplight brightening in the model house's two windows. */
@@ -135,15 +212,14 @@ const flameLater = wmLater(wmCandleFlame, 'wm16-opener-flame-later', 2, 320);
 
 export const wm16Opener: SceneArt = {
   id: 'wm16-opener',
-  label: 'Two parents stand at either end of a dining table parted down the middle by a gold cord, a model house on one side and a money bag on the other, red tax coins slipping away from the bag.',
+  label: 'Two parents stand at the far ends of a dining table, turned away from each other, its white cloth parted down the middle by a gold rope, with a model house on one half and on the other a padlocked box of eight coins, three of them glowing red for the tax still owed.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: taxCoin, x: BAG_X + 2, y: BAG_Y - 1, motion: { kind: 'rise', amp: 10, periodMs: 2800, phase: 0 } },
-    { sprite: taxCoin, x: BAG_X + 5, y: BAG_Y, motion: { kind: 'rise', amp: 11, periodMs: 2800, phase: 0.5 } },
+    { sprite: owedGlow, x: BOX_X + 4, y: BOX_Y + 5, motion: { kind: 'twinkle', periodMs: 2600, min: 0.1 } },
     { sprite: houseGlow, x: HOUSE_X + 3, y: HOUSE_Y + 5, motion: { kind: 'twinkle', periodMs: 3400, min: 0.3 } },
-    { sprite: wmCandleFlame, x: 34, y: 29 },
+    { sprite: wmCandleFlame, x: 33, y: 29 },
     { sprite: flameLater, x: 45, y: 29 },
     { sprite: wmStarDot, x: 36, y: 9, motion: { kind: 'twinkle', periodMs: 2100, phase: 0.3, min: 0.2 } },
   ],

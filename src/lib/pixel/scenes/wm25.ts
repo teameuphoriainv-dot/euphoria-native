@@ -2,15 +2,17 @@
  * Wealth Management lesson 25 (the advanced capstone, the pathway's last lesson): its opener, the
  * capstone backdrop and its keepsake, as one set loaded on demand.
  *
- * The opener is the house of five pillars at daybreak. Lesson 1 met it at night and lesson 10 lit it
- * with fireworks; here the sky over it pales from night to rose, the sun is coming up over the trees
- * on the left (the light every piece in the kit has always been drawn from), and the whole family
- * stands on the forecourt drawn large from wm-kit-c.ts: the grandmother, the father, the heir waving
- * at us, the advisor with his briefcase. The lesson's point is the five pillars run as one system, so
- * the marks light up in the order the lesson teaches them (earn, save, invest, protect, transfer),
- * stay lit together, and then the star in the pediment blazes: the plan complete. A reader with
- * Reduce Motion sees every mark and the star lit. What moves: the marks and the star, the sun's rays,
- * the pennant, the child's waving hand, two birds crossing the dawn.
+ * The opener is the house of five pillars at daybreak. Lesson 1 met it at night and lesson 10 sat
+ * the family at a table on its forecourt; here the sky over it pales from night to rose, the sun is
+ * coming up over the trees on the left (the light every piece in the kit has always been drawn
+ * from), and the family stands on the forecourt drawn large from wm-kit-c.ts. The lesson's point is
+ * the complete action plan and its annual review, so the father and the advisor hold the year's
+ * blueprint open between them, the house of five pillars drawn on it in white lines, while the
+ * grandmother and the heir, waving at us, stand beside them. The frieze's five marks are lit
+ * together and stay lit, and the star in the pediment glows over them: the plan complete. What
+ * moves: a band of morning light sweeping across the blueprint, then a gold seal setting on its
+ * corner (the year's review signed off), the star's glow, the sun's rays, the pennant, the child's
+ * waving hand, two birds crossing the dawn.
  *
  * The backdrop is lesson 10's, the estate with every manor window lit, as the plan allows the two
  * capstones. The keepsake carries a five-pointed star, the pathway's last crest.
@@ -39,8 +41,15 @@ const TX = 11;
 const TY = 6;
 
 /** Where the child stands; the waving hand is placed from it. */
-const CHILD_X = 40;
+const CHILD_X = 13;
 const CHILD_Y = 43;
+
+/** The father and the advisor, and the blueprint they hold open between them. */
+const FATHER_X = 24;
+const ADVISOR_X = 55;
+const CAST_Y = 35;
+const PLAN_X = FATHER_X + 13;
+const PLAN_Y = CAST_Y + 4;
 
 /** The sun, coming up behind the trees on the left: a pale hot core in an amber rim. 11x11. */
 const sun: PixelSprite = {
@@ -91,21 +100,53 @@ const childWaving = wmRepose(wmChildTall, 'wm25-opener-child-waving', {
   10: '....tTTTtUU',
 }, 2, 0);
 
-const base = wmCompose('wm25-opener-base', wmBands(80, [['K', 7], ['k', 7], ['E', 7], ['p', 6], ['I', 6], ['f', 5], ['h', 22]]), [
-  { sprite: sun, x: 1, y: 28 },
-  { sprite: trees, x: 0, y: 31 },
-  { sprite: forecourt, x: 0, y: TY + 43 },
-  { sprite: flagPole, x: TX + 29, y: TY - 6 },
-  { sprite: wmTemple, x: TX, y: TY },
-  { sprite: wmElderTall, x: 13, y: 36 },
-  { sprite: wmParentTall, x: 27, y: 35 },
-  { sprite: childWaving, x: CHILD_X, y: CHILD_Y },
-  { sprite: wmAdvisorTall, x: 53, y: 35 },
-]);
+/** The father holding the blueprint's left roll out at his side. 13x23. */
+const fatherHolding = wmRepose(wmParentTall, 'wm25-opener-father-holding', {
+  11: 'BBbBBRBBbbbCU',
+  12: 'BBbBBRBBb....',
+  13: 'BBbBBBBBb....',
+  14: 'BBbBBBBBb....',
+  15: 'CCbBBBBBb....',
+}, 0, 2);
 
-/* ── the marks lighting up, one system ──────────────────────────────────────────────────────── */
+/** The advisor holding the blueprint's right roll, his briefcase in the other hand. 16x23. */
+const advisorHolding = wmRepose(wmAdvisorTall, 'wm25-opener-advisor-holding', {
+  11: 'SMxxDXXGXXDDD...',
+  12: '....DXXGXXDDD...',
+  13: '....DXXXXXDDD...',
+  14: '....DXXXXXDDD...',
+  15: '....DXXXXXDMM...',
+}, 2, 0);
 
-/** A mark lit from inside: every gold step goes one brighter. */
+/**
+ * The year's blueprint held open: a blue sheet between two rolls, the house of five pillars drawn
+ * on it in white (the pediment, the entablature, five columns, the base). 18x13.
+ */
+const PLAN_SHEET = [
+  'bbbbbbbbbbbbbb',
+  'bbbbbbwwbbbbbb',
+  'bbbbwwbbwwbbbb',
+  'bbwwbbbbbbwwbb',
+  'bwwwwwwwwwwwwb',
+  'bbbwbwbwbwbwbb',
+  'bbbwbwbwbwbwbb',
+  'bbbwbwbwbwbwbb',
+  'bwwwwwwwwwwwwb',
+  'bbbbbbbbbbbbbb',
+  'bbbbbbbbbbbbbb',
+];
+const blueprint: PixelSprite = {
+  id: 'wm25-opener-blueprint',
+  name: 'wm25-opener-blueprint',
+  tags: ['scene', 'wm25'],
+  rows: [
+    `xX${'.'.repeat(14)}xX`,
+    ...PLAN_SHEET.map((row) => `Bb${row}Bb`),
+    `xX${'.'.repeat(14)}xX`,
+  ],
+};
+
+/** The frieze's five marks, lit together and steady: no order to them now, the plan runs as one. */
 function litFrom(sprite: PixelSprite): PixelSprite {
   const up: Record<string, string> = { O: 'g', g: 'G', G: 'y', y: 'w' };
   return { ...sprite, rows: sprite.rows.map((row) => [...row].map((ch) => up[ch] ?? ch).join('')) };
@@ -121,27 +162,64 @@ const markStar: PixelSprite = {
 
 const MARKS = [wmMarkEarn, wmMarkSave, wmMarkInvest, wmMarkProtect, wmMarkTransfer];
 
-/**
- * The tympanum and the frieze, 49x12, laid from the frieze's left edge and the star's top: the
- * first `lit` marks lit and the rest plain, the star plain, lit or blazing. The base leaves the
- * panels bare, so the marks live only in this layer and no still copy shows under a frame.
- */
-function frieze(lit: number, star: 0 | 1 | 2): string[] {
-  const starred = star === 0 ? markStar : star === 1 ? litFrom(markStar) : litFrom(litFrom(markStar));
-  return wmCompose('wm25-opener-marks', wmBands(49, [['.', 12]]), [
-    { sprite: starred, x: 21, y: 0 },
-    ...MARKS.map((mark, i) => ({ sprite: i < lit ? litFrom(mark) : mark, x: 1 + 10 * i, y: 7 })),
-  ]).rows;
-}
+const base = wmCompose('wm25-opener-base', wmBands(80, [['K', 7], ['k', 7], ['E', 7], ['p', 6], ['I', 6], ['f', 5], ['h', 22]]), [
+  { sprite: sun, x: 1, y: 28 },
+  { sprite: trees, x: 0, y: 31 },
+  { sprite: forecourt, x: 0, y: TY + 43 },
+  { sprite: flagPole, x: TX + 29, y: TY - 6 },
+  { sprite: wmTemple, x: TX, y: TY },
+  { sprite: litFrom(markStar), x: TX + 26, y: TY + 3 },
+  ...MARKS.map((mark, i) => ({ sprite: litFrom(mark), x: TX + 6 + 10 * i, y: TY + 10 })),
+  { sprite: wmElderTall, x: 1, y: 36 },
+  { sprite: childWaving, x: CHILD_X, y: CHILD_Y },
+  { sprite: fatherHolding, x: FATHER_X, y: CAST_Y },
+  { sprite: advisorHolding, x: ADVISOR_X, y: CAST_Y },
+  { sprite: blueprint, x: PLAN_X, y: PLAN_Y },
+]);
 
-const marks: PixelSprite = {
-  id: 'wm25-opener-marks',
-  name: 'wm25-opener-marks',
+/* ── the year's review: light sweeps the plan, then the seal sets ─────────────────────────────── */
+
+/** The review over the sheet, 14x11 between the rolls: a two-column band of morning light, or the seal. */
+const SWEEP_STOPS = [0, 2, 4, 6, 8, 10, 12];
+function reviewFrame(band: number | null, sealed: boolean): string[] {
+  const grid = wmBands(14, [['.', 11]]).map((row) => [...row]);
+  if (band !== null) {
+    PLAN_SHEET.forEach((row, j) => [...row].forEach((ch, i) => {
+      if (i === band || i === band + 1) grid[j][i] = ch === 'w' ? 'W' : 'B';
+    }));
+  }
+  if (sealed) {
+    grid[8][10] = 'y';
+    grid[8][11] = 'G';
+    grid[9][10] = 'G';
+    grid[9][11] = 'g';
+    grid[8][12] = 'w';
+  }
+  return grid.map((row) => row.join(''));
+}
+const review: PixelSprite = {
+  id: 'wm25-opener-review',
+  name: 'wm25-opener-review',
   tags: ['scene', 'wm25'],
-  blurb: 'The five pillar marks lighting in the lesson\'s order and staying lit, then the star above them blazing.',
-  rows: frieze(5, 1),
-  frames: [frieze(0, 0), frieze(1, 0), frieze(2, 0), frieze(3, 0), frieze(4, 0), frieze(5, 0), frieze(5, 1), frieze(5, 2), frieze(5, 1), frieze(5, 2), frieze(5, 1)],
-  frameMs: 420,
+  blurb: 'Morning light sweeping across the year\'s blueprint, then a gold seal setting on its corner: the annual review signed off.',
+  rows: reviewFrame(null, true),
+  frames: [
+    ...SWEEP_STOPS.map((x) => reviewFrame(x, false)),
+    reviewFrame(null, false),
+    reviewFrame(null, true),
+    reviewFrame(null, true),
+    reviewFrame(null, true),
+    reviewFrame(null, true),
+  ],
+  frameMs: 260,
+};
+
+/** The pediment star's glow: its rays, laid round the lit star, breathing. 9x7. */
+const starGlow: PixelSprite = {
+  id: 'wm25-opener-star-glow',
+  name: 'wm25-opener-star-glow',
+  tags: ['scene', 'wm25'],
+  rows: ['....w....', '.........', 'w.......w', '.........', '.........', '.........', '.w.....w.'],
 };
 
 /** Rays off the rising sun, a short ring of them over the clear sky left of the house. 15x10. */
@@ -183,12 +261,13 @@ const bird: PixelSprite = {
 
 export const wm25Opener: SceneArt = {
   id: 'wm25-opener',
-  label: 'At sunrise the marble house of five pillars lights its five marks one by one and then the star above them, as a grandmother, a father, a waving child and their advisor stand together on the forecourt.',
+  label: 'At sunrise in front of the marble house of five pillars, its five marks and the star above them lit, a father and the advisor hold the year\'s blueprint of the house open between them while a grandmother and a waving child stand beside them on the forecourt.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: marks, x: TX + 5, y: TY + 3 },
+    { sprite: review, x: PLAN_X + 2, y: PLAN_Y + 1 },
+    { sprite: starGlow, x: TX + 25, y: TY + 2, motion: { kind: 'twinkle', periodMs: 2400, min: 0.2 } },
     { sprite: rays, x: 0, y: 23, motion: { kind: 'twinkle', periodMs: 2800, min: 0.3 } },
     { sprite: wmFlag, x: TX + 30, y: TY - 6 },
     { sprite: wave, x: CHILD_X - 1, y: CHILD_Y },

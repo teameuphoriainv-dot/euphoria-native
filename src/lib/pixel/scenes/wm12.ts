@@ -3,13 +3,14 @@
  * backdrop and its keepsake, as one set loaded on demand.
  *
  * The opener is the estate's gate on the lane at night: stone piers with lanterns, the iron gates
- * open on a drive that climbs to the lit house on its rise, low walls either side, a full moon.
- * The grandmother sits on a bench outside with an hourglass beside her, and by the lane stands the
- * mailbox where the monthly check arrives. The lesson's claiming decision is the picture: every
- * year she waits, the check grows. What moves: the sand runs while the envelope in the mailbox grows
- * from a slip to a fat sealed letter and the red flag goes up, then the year starts again; the gate
- * lanterns flicker, the house windows glow, a firefly rises, stars twinkle. The keepsake carries a
- * sealed envelope.
+ * open on a drive that climbs to the manor on its rise (the backdrop's house in small: two wings
+ * and a white pediment over the door), low walls either side, a full moon. The grandmother sits on
+ * a bench outside with an hourglass beside her, and by the lane stands the mailbox where the
+ * monthly check arrives. The lesson's claiming decision is the picture: every year she waits, the
+ * check grows. What moves: the sand runs while the envelope in the mailbox grows from a slip to a
+ * fat sealed letter, then the year starts again; the mailbox's red flag stays down, because a raised
+ * flag means mail going out. The gate lanterns flicker, the manor's windows glow, a firefly rises,
+ * stars twinkle. The keepsake carries a sealed envelope.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -30,11 +31,11 @@ import { wmTreeline } from './wm-kit-a';
 import { wmAshlar, wmCobbles, wmSkyDots } from './wm-kit-b';
 import { wmKeepsake } from './wm1-finish';
 
-/** The far house's top-left; its window glow is placed from it. */
-const HOUSE_X = 37;
-const HOUSE_Y = 28;
+/** The far manor's top-left, between the gate piers; its window glow is placed from it. */
+const HOUSE_X = 34;
+const HOUSE_Y = 27;
 
-/** The mailbox's top-left; the envelope and flag layer is placed from it. */
+/** The mailbox's top-left; the envelope layer is placed from it. */
 const MAILBOX_X = 61;
 const MAILBOX_Y = 32;
 
@@ -69,19 +70,23 @@ const moon: PixelSprite = {
 /** The rise the house stands on, behind the gate. */
 const mound = wmTreeline('wm12-opener-mound', 31, 6, [[15, 15, 5]]);
 
-/** The house far up the drive: a slate roof, dim windows the glow layer lights, the door. 12x7. */
+/**
+ * The manor far up the drive, the backdrop's house in small: a white pediment on two columns over
+ * the door, slate roofs over the two wings, dim windows the glow layer lights. 16x8.
+ */
 const house: PixelSprite = {
   id: 'wm12-opener-house',
   name: 'wm12-opener-house',
   tags: ['scene', 'wm12'],
   rows: [
-    '...kkkkkk...',
-    '..kkkkkkkk..',
-    '.DDDDDDDDDD.',
-    '.DkOkkkkOkD.',
-    '.DkkkOOkkkD.',
-    '.DkOkOOkOkD.',
-    '.DDDDDDDDDD.',
+    '.......xX.......',
+    '.....xwwwwX.....',
+    '...kxwwwwwwXk...',
+    'kkkkDDDDDDDDkkkk',
+    'DkOkDXkkkkXDkOkD',
+    'DkkkDXkOOkXDkkkD',
+    'DkOkDXkOOkXDkOkD',
+    'DDDDDDDDDDDDDDDD',
   ],
 };
 
@@ -182,7 +187,10 @@ const elderSitting: PixelSprite = {
   ],
 };
 
-/** The mailbox, side on: a rounded tin box open at its left end. 12x7. */
+/**
+ * The mailbox, side on: a rounded tin box open at its left end, its red flag lowered along its
+ * side, as it stays: the flag goes up only for mail going out. 12x7.
+ */
 const mailbox: PixelSprite = {
   id: 'wm12-opener-mailbox',
   name: 'wm12-opener-mailbox',
@@ -191,8 +199,8 @@ const mailbox: PixelSprite = {
     '..xxxxxxxx..',
     '.xXXXXXXXXD.',
     'KkXXXXXXXXXD',
-    'KkXXXXXXXXXD',
-    'KkXXXXXXXXXD',
+    'KkXXXRXXXXXD',
+    'KkXXXRrrrrXD',
     '.DDDDDDDDDD.',
     '....DXXD....',
   ],
@@ -229,7 +237,7 @@ const base = wmCompose('wm12-opener-base', wmBands(80, [['K', 38], ['h', 22]]), 
   { sprite: mailbox, x: MAILBOX_X, y: MAILBOX_Y },
 ]);
 
-/* ── the check: it grows while she waits, then the flag goes up ───────────────────────────────── */
+/* ── the check: it grows while she waits ─────────────────────────────────────────────────────── */
 
 /** Envelopes poking out of the mailbox's open end, smallest to largest, right edges flush. */
 const ENVELOPES: readonly (readonly string[])[] = [
@@ -238,31 +246,21 @@ const ENVELOPES: readonly (readonly string[])[] = [
   ['wwwwwwwx', 'wxwwwwxx', 'wwxGyxwx', 'xxxxxxxX'],
 ];
 
-/** The layer runs from here: the envelope's reach to the left and the raised flag's top. 21x13. */
-const MAIL_LAYER_X = MAILBOX_X - 8;
-const MAIL_LAYER_Y = MAILBOX_Y - 6;
+/** The layer covers the biggest envelope's reach out of the box's mouth. 8x4. */
+const MAIL_LAYER_X = MAILBOX_X - 6;
+const MAIL_LAYER_Y = MAILBOX_Y + 1;
 
-function mailFrame(size: number, flagUp: boolean): string[] {
-  const grid = wmBands(21, [['.', 13]]).map((row) => [...row]);
-  const put = (x: number, y: number, ink: string) => {
-    grid[y - MAIL_LAYER_Y][x - MAIL_LAYER_X] = ink;
-  };
+/** The mouth of the box with the envelope of `size` in it, or empty for -1. */
+function mailFrame(size: number): string[] {
+  const grid = wmBands(8, [['.', 4]]).map((row) => [...row]);
   const envelope = ENVELOPES[size];
   if (envelope) {
     const width = envelope[0].length;
     envelope.forEach((row, j) => {
-      [...row].forEach((ch, i) => put(MAILBOX_X + 2 - width + i, MAILBOX_Y + 5 - envelope.length + j, ch));
+      [...row].forEach((ch, i) => {
+        grid[MAILBOX_Y + 5 - envelope.length + j - MAIL_LAYER_Y][MAILBOX_X + 2 - width + i - MAIL_LAYER_X] = ch;
+      });
     });
-  }
-  if (flagUp) {
-    for (let y = MAILBOX_Y - 2; y <= MAILBOX_Y + 3; y += 1) put(MAILBOX_X + 9, y, 'r');
-    put(MAILBOX_X + 9, MAILBOX_Y - 2, 'R');
-    put(MAILBOX_X + 10, MAILBOX_Y - 2, 'R');
-    put(MAILBOX_X + 10, MAILBOX_Y - 1, 'r');
-  } else {
-    for (let x = MAILBOX_X + 6; x <= MAILBOX_X + 9; x += 1) put(x, MAILBOX_Y + 4, 'r');
-    put(MAILBOX_X + 5, MAILBOX_Y + 3, 'R');
-    put(MAILBOX_X + 5, MAILBOX_Y + 4, 'R');
   }
   return grid.map((row) => row.join(''));
 }
@@ -271,25 +269,25 @@ const mail: PixelSprite = {
   id: 'wm12-opener-mail',
   name: 'wm12-opener-mail',
   tags: ['scene', 'wm12'],
-  blurb: 'The monthly check growing the longer she waits, until the flag goes up.',
-  rows: mailFrame(2, true),
-  frames: [mailFrame(0, false), mailFrame(1, false), mailFrame(2, false), mailFrame(2, true), mailFrame(2, true), mailFrame(-1, false)],
+  blurb: 'The monthly check growing the longer she waits.',
+  rows: mailFrame(2),
+  frames: [mailFrame(0), mailFrame(1), mailFrame(2), mailFrame(2), mailFrame(2), mailFrame(-1)],
   frameMs: 650,
 };
 
-/** Lamplight in the far house's four windows. */
+/** Lamplight in the far manor's four wing windows. */
 const houseGlow: PixelSprite = {
   id: 'wm12-opener-house-glow',
   name: 'wm12-opener-house-glow',
   tags: ['scene', 'wm12'],
-  rows: ['G....G', '......', 'G....G'],
+  rows: ['G..........G', '............', 'G..........G'],
 };
 
 const lanternLater = wmLater(wmLampFlame, 'wm12-opener-lantern-later', 2, 300);
 
 export const wm12Opener: SceneArt = {
   id: 'wm12-opener',
-  label: 'A grandmother waits on a bench by the estate gate at night, an hourglass running beside her, while the envelope in the mailbox grows bigger and its red flag goes up.',
+  label: 'A grandmother waits on a bench outside the estate gate at night, an hourglass running beside her, while the envelope in the mailbox by the lane grows bigger the longer she waits.',
   width: 80,
   height: 60,
   base,
@@ -298,7 +296,7 @@ export const wm12Opener: SceneArt = {
     { sprite: mail, x: MAIL_LAYER_X, y: MAIL_LAYER_Y },
     { sprite: wmLampFlame, x: 28, y: 19 },
     { sprite: lanternLater, x: 52, y: 19 },
-    { sprite: houseGlow, x: HOUSE_X + 3, y: HOUSE_Y + 3, motion: { kind: 'twinkle', periodMs: 3800, min: 0.3 } },
+    { sprite: houseGlow, x: HOUSE_X + 2, y: HOUSE_Y + 4, motion: { kind: 'twinkle', periodMs: 3800, min: 0.3 } },
     { sprite: wmFirefly, x: 23, y: 45, motion: { kind: 'rise', amp: 5, periodMs: 3100, phase: 0.3 } },
     { sprite: wmStar, x: 63, y: 8, motion: { kind: 'twinkle', periodMs: 2500, min: 0.3 } },
     { sprite: wmStarDot, x: 40, y: 13, motion: { kind: 'twinkle', periodMs: 1900, phase: 0.6, min: 0.2 } },

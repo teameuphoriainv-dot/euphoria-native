@@ -10,7 +10,8 @@
  * silver bar of the bonds into the purple, the green sprout of the fastest grower into the green,
  * each chest's pin lighting on the map as it is filled, and all three shining once every asset is
  * home. The advisor points the way. The clock's pendulum swings (location pays over decades) and
- * the candles flicker. The keepsake carries a map pin.
+ * the candles flicker. The keepsake carries the same three chests in small, the coin, the bar and
+ * the sprout dropping into them one after another.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -317,32 +318,81 @@ export const wm11Opener: SceneArt = {
   ],
 };
 
-/** A map pin: where each asset belongs. */
-const emblemPin: PixelSprite = {
-  id: 'wm11-emblem-pin',
-  name: 'wm11-emblem-pin',
+/* ── the keepsake: the three chests in small, each asset going into its own ───────────────────── */
+
+/**
+ * A small chest, 4 wide: its lid thrown back over a dark mouth, then the front (a gold rim, the body
+ * with a gold lock). A token resting in it is drawn between the two, so it shows in the mouth and
+ * the front hides anything that has sunk lower. `light` and `dark` are its colour.
+ */
+function emblemChest(light: string, dark: string): { back: string[]; front: string[] } {
+  const ink = (rows: string[]) => rows.map((row) => row.replace(/A/g, light).replace(/Z/g, dark));
+  return { back: ink(['ZAAZ', 'KKKK']), front: ink(['yGGg', 'AAAZ', 'AGgZ', 'AAZZ']) };
+}
+
+/** Left to right as in the opener: taxable (blue), tax-deferred (purple), tax-free (green). */
+const EMBLEM_CHESTS = [emblemChest('B', 'b'), emblemChest('P', 'p'), emblemChest('N', 'n')];
+
+/** The chests' lids are on this row, their mouths on the next; the gold table runs under them. */
+const EMBLEM_LID = 5;
+const EMBLEM_TABLE = ['yGGGGGGGGGGGGg', 'gggggggggggggO'];
+
+/** Each chest's token, its left edge in the emblem and its top when it rests in the chest's mouth. */
+const EMBLEM_TOKENS: readonly { rows: readonly string[]; x: number; rest: number }[] = [
+  { rows: ['.yG.', 'yGGg', 'GGgg', '.gg.'], x: 0, rest: EMBLEM_LID - 2 },
+  { rows: ['wwwx', 'XXXD'], x: 5, rest: EMBLEM_LID },
+  { rows: ['Nm.mN', '.NnN.', '..n..', '..n..'], x: 9, rest: EMBLEM_LID - 2 },
+];
+
+/** A token's place: hanging over its chest, halfway down, or home in its mouth. */
+type EmblemStage = 'hang' | 'drop' | 'home';
+const EMBLEM_LIFT: Readonly<Record<EmblemStage, number>> = { hang: 3, drop: 1, home: 0 };
+
+/** The emblem, 14x13, with each token at its stage: chest backs, tokens, chest fronts, the table. */
+function chestsAt(stages: readonly EmblemStage[]): string[] {
+  const grid = wmBands(14, [['.', 13]]).map((row) => [...row]);
+  const paint = (rows: readonly string[], x: number, y: number) => {
+    rows.forEach((row, j) => {
+      [...row].forEach((ch, i) => {
+        if (ch !== '.' && y + j >= 0 && y + j < 13) grid[y + j][x + i] = ch;
+      });
+    });
+  };
+  EMBLEM_CHESTS.forEach(({ back }, i) => paint(back, 5 * i, EMBLEM_LID));
+  EMBLEM_TOKENS.forEach(({ rows, x, rest }, i) => paint(rows, x, rest - EMBLEM_LIFT[stages[i]]));
+  EMBLEM_CHESTS.forEach(({ front }, i) => paint(front, 5 * i, EMBLEM_LID + 2));
+  paint(EMBLEM_TABLE, 0, EMBLEM_LID + 6);
+  return grid.map((row) => row.join(''));
+}
+
+/**
+ * Asset location in small: the coin of the tax-efficient fund drops into the blue chest, the silver
+ * bar of the bonds into the purple, the sprout of the fastest grower into the green, one after
+ * another, and then all three rest home. The still is every asset in its own chest.
+ */
+const emblemChests: PixelSprite = {
+  id: 'wm11-emblem-chests',
+  name: 'wm11-emblem-chests',
   tags: ['scene', 'wm11'],
-  rows: [
-    '....yyGGgg....',
-    '...yyGGGGGg...',
-    '..yGGGGGGGGg..',
-    '..yGGGOOGGGg..',
-    '..yGGOwwOGGg..',
-    '..yGGOwwOGgg..',
-    '..yGGGOOGGgg..',
-    '...yGGGGGGg...',
-    '....GGGGGg....',
-    '.....GGgg.....',
-    '......Gg......',
-    '......gO......',
-    '....OOOOOO....',
+  rows: chestsAt(['home', 'home', 'home']),
+  frames: [
+    chestsAt(['hang', 'hang', 'hang']),
+    chestsAt(['drop', 'hang', 'hang']),
+    chestsAt(['home', 'hang', 'hang']),
+    chestsAt(['home', 'drop', 'hang']),
+    chestsAt(['home', 'home', 'hang']),
+    chestsAt(['home', 'home', 'drop']),
+    chestsAt(['home', 'home', 'home']),
+    chestsAt(['home', 'home', 'home']),
+    chestsAt(['home', 'home', 'home']),
   ],
+  frameMs: 420,
 };
 
 export const wm11Finish: SceneArt = wmKeepsake(
   'wm11-finish',
-  emblemPin,
-  'A green crest with a gold rim bearing a map pin, framed by laurel over a purple banner, with sparkles around it.',
+  emblemChests,
+  'A green crest with a gold rim bearing three small chests, blue, purple and green, holding a gold coin, a silver bar and a green sprout, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm11Opener, backdrop: wmBackdrop, finish: wm11Finish };

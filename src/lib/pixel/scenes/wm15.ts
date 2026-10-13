@@ -9,7 +9,8 @@
  * the business's earnings into the family's wealth on purpose (salary, retirement plans, a planned
  * sale), so the motion is a gold coin hopping out of the shop door in an arc and into his case,
  * again and again. The sign swings, the windows glow, the street lamp flickers, stars twinkle. The
- * keepsake carries a briefcase.
+ * keepsake carries the shop itself in small: its fascia with the coin mark, the orchid and white
+ * awning, the lit window and the door.
  */
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
@@ -297,30 +298,36 @@ export const wm15Opener: SceneArt = {
   ],
 };
 
-/** A briefcase with a white clasp: the owner's plans. */
-const emblemBriefcase: PixelSprite = {
-  id: 'wm15-emblem-briefcase',
-  name: 'wm15-emblem-briefcase',
+/**
+ * The family shop in small, as the opener draws it: a fascia carrying the coin mark, the striped
+ * orchid and white awning, a lit window with a gold mullion, the shop door. The business is the
+ * family's wealth, which is the lesson's starting point.
+ */
+const emblemShop: PixelSprite = {
+  id: 'wm15-emblem-shop',
+  name: 'wm15-emblem-shop',
   tags: ['scene', 'wm15'],
   rows: [
-    '.....yGGg.....',
-    '.....G..g.....',
-    '.yyGGGGGGGGgg.',
-    'yGGGGGGGGGGGgg',
-    'yGGGGGGGGGGGgg',
-    'gggggOwwOggggO',
-    'yGGGGOwwOGGGgg',
-    'yGGGGGGGGGGGgg',
-    'yGGGGGGGGGGGgg',
-    'gGGGGGGGGGGggO',
-    '.gggggggggggO.',
+    '.yGGGGGGGGGGg.',
+    '.yOOOOyGOOOOg.',
+    '.yOOOOGgOOOOg.',
+    '.ggggggggggOO.',
+    'PPwwPPwwPPwwPP',
+    'PPwwPPwwPPwwPP',
+    'P.w.P.w.P.w.P.',
+    '.yGGGGGg.yGg..',
+    '.ywwGwwg.yOg..',
+    '.ywwGwwg.yOg..',
+    '.yGGGGGg.yyg..',
+    '.yggggggOyOg..',
+    'OOOOOOOOOOOOOO',
   ],
 };
 
 export const wm15Finish: SceneArt = wmKeepsake(
   'wm15-finish',
-  emblemBriefcase,
-  'A green crest with a gold rim bearing a briefcase with a white clasp, framed by laurel over a purple banner, with sparkles around it.',
+  emblemShop,
+  'A green crest with a gold rim bearing a small shop front with a coin on its sign, a striped purple and white awning, a lit window and a door, framed by laurel over a purple banner, with sparkles around it.',
 );
 
 export const art: LessonArtSet = { opener: wm15Opener, backdrop: wmBackdrop, finish: wm15Finish };
