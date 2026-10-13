@@ -27,7 +27,7 @@ import { bfBackdrop } from './bf-backdrop';
 import { bfKeepsake } from './bf1-finish';
 import type { LessonArtSet, SceneArt } from './types';
 
-/** The left eye: a roulette wheel turning one way while the ball runs round the other. */
+/** The left eye: a roulette wheel, its one green zero among the reds and blacks, turning one way while the ball runs round the other. */
 const wheel: PixelSprite = {
   id: 'bf18-opener-wheel',
   name: 'bf18-opener-wheel',
@@ -35,7 +35,7 @@ const wheel: PixelSprite = {
   rows: [
     '.....OOOOO.....',
     '...OOgggggOO...',
-    '..OggKKRRRggO..',
+    '..OggKKNRRggO..',
     '.OggKKKRRRRggO.',
     '.OgRKKOOORKKgO.',
     'OgRRROOGOOKKKgO',
@@ -53,7 +53,7 @@ const wheel: PixelSprite = {
     [
       '.....OOOOO.....',
       '...OOgggggOO...',
-      '..OggKKRRRggO..',
+      '..OggKKNRRggO..',
       '.OggKKKRRRRggO.',
       '.OgRKKOOORKKgO.',
       'OgRRROOGOOKKKgO',
@@ -75,7 +75,7 @@ const wheel: PixelSprite = {
       '.OgRRROOORRRgO.',
       'OgKRROOGOORRKgO',
       'OgKKOOGyGOOKKgO',
-      'OgKKOGyyyGOKKgO',
+      'OgKKOGyyyGOKNgO',
       'OgKKOOGyGOOKKgO',
       'OgKRROOGOORRKgO',
       '.OgRRROOORRRgO.',
@@ -97,7 +97,7 @@ const wheel: PixelSprite = {
       'OgRRROOGOOKKKgO',
       '.OgRRKOOORRKgO.',
       '.OggKKKKRRRggO.',
-      '..OggKKKRRggO..',
+      '..OggKKNRRggO..',
       '...OOgggggOO...',
       '.....OOOOO.....',
     ],
@@ -109,7 +109,7 @@ const wheel: PixelSprite = {
       '.OgKKKOOOKKKgO.',
       'OgRKKOOGOOKKRgO',
       'OgRROOGyGOORRgO',
-      'OgRROGyyyGORRgO',
+      'OgNROGyyyGORRgO',
       'OgRROOGyGOORRgO',
       'OgRKKOOGOOKKRgO',
       '.OgKKKOOOKKKgO.',
