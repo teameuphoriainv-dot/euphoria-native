@@ -33,7 +33,14 @@ const cacheSet = (sprite: PixelSprite, key: string, v: CompiledSprite) => {
   byPalette.set(key, v);
   cache.set(sprite, byPalette);
 };
-const framesCache = new WeakMap<PixelSprite, CompiledSprite[]>();
+// Frames are keyed the same way, by sprite and canvas: a flat cache here was the same bug for animated
+// sprites, which kept the first theme's colours after a theme switch.
+const framesCache = new WeakMap<PixelSprite, Map<PixelCanvas, CompiledSprite[]>>();
+const framesSet = (sprite: PixelSprite, canvas: PixelCanvas, v: CompiledSprite[]) => {
+  const byCanvas = framesCache.get(sprite) ?? new Map<PixelCanvas, CompiledSprite[]>();
+  byCanvas.set(canvas, v);
+  framesCache.set(sprite, byCanvas);
+};
 
 export class PixelSpriteError extends Error {}
 
@@ -88,13 +95,13 @@ export function compileSprite(sprite: PixelSprite, canvas: PixelCanvas = 'dark')
  * sprite, so callers never branch on whether animation exists.
  */
 export function compileFrames(sprite: PixelSprite, canvas: PixelCanvas = 'dark'): CompiledSprite[] {
-  const hit = framesCache.get(sprite);
+  const hit = framesCache.get(sprite)?.get(canvas);
   if (hit) return hit;
 
   const { width, height } = validate(sprite);
   if (!sprite.frames?.length) {
     const out = [compileSprite(sprite, canvas)];
-    framesCache.set(sprite, out);
+    framesSet(sprite, canvas, out);
     return out;
   }
 
@@ -115,7 +122,7 @@ export function compileFrames(sprite: PixelSprite, canvas: PixelCanvas = 'dark')
     return mesh(rows, palette, width, height);
   });
 
-  framesCache.set(sprite, out);
+  framesSet(sprite, canvas, out);
   return out;
 }
 

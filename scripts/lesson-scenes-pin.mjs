@@ -17,6 +17,7 @@ import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 
 import { compileFrames, compileSprite } from '../src/lib/pixel/compile.ts';
+import { EUPHORIA_PIXEL_PALETTE, PIXEL_PALETTE_LIGHT } from '../src/lib/pixel/palette.ts';
 import { LESSON_ART_LOADERS } from '../src/lib/pixel/scenes/index.ts';
 import { COURSES } from '../src/lib/curriculum/courseIndex.ts';
 
@@ -106,6 +107,12 @@ for (const key of keys) {
     }
   }
 }
+
+// The frames cache is keyed by canvas as well as sprite: a flat one handed a light-canvas request the
+// dark mesh, so animated sprites kept the first theme's colours after a theme switch.
+const swap = Object.keys(EUPHORIA_PIXEL_PALETTE).find((c) => PIXEL_PALETTE_LIGHT[c] && PIXEL_PALETTE_LIGHT[c] !== EUPHORIA_PIXEL_PALETTE[c]);
+const probe = { id: 'pin-frames-canvas', name: 'probe', tags: [], rows: [swap], frames: [[swap], [swap]] };
+check(compileFrames(probe, 'dark')[0].rects[0].fill !== compileFrames(probe, 'light')[0].rects[0].fill, 'compileFrames: a light-canvas compile returned the dark mesh (frames cache not keyed by canvas)');
 
 assert.ok(scenes > 0, 'no lesson scenes found; this pin cannot see what it guards');
 assert.deepEqual(failures, [], `lesson scenes break their contract:\n  ${failures.join('\n  ')}`);
