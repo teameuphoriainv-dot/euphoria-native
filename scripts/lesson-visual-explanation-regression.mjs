@@ -16,6 +16,10 @@ const { visualRows } = await import(pathToFileURL(join(ROOT, 'src/lib/lesson-ste
  * slide under that key, where the phone shows it as a chart card. Its "without" visual is gone by
  * the owner's decision, so the corpus lost those 300 (and the two stakes cards with no visual at
  * all): header sprites 491 -> 390, interactive visuals 822 -> 692, explanation targets 3322 -> 2846.
+ *
+ * RE-MEASURED 2026-10-13: Behavioral Finance lesson 8's auto-enrollment chart lost four broken
+ * duplicate bars (euphoriaweb#4, synced in 66af161), and their four explanations went with them:
+ * explanation targets 2846 -> 2842. Every other count is unchanged.
  */
 const VISUAL_KEYS = ['visual', 'diagramVisual', 'withVisual', 'withoutVisual', 'stakesVisual'];
 const expectedHeadersByType = {
@@ -53,7 +57,7 @@ deepStrictEqual(headersByType, expectedHeadersByType, 'live-49e visual header-sp
 strictEqual(Object.values(headersByType).reduce((sum, count) => sum + count, 0), 390, 'supported header-sprite total drifted');
 strictEqual(headersByType.pie + headersByType.comparison + headersByType.stack + headersByType.line, 12, 'newly recovered header-sprite total drifted');
 strictEqual(interactiveVisuals, 692, 'interactive visual count drifted');
-strictEqual(explanationTargets, 2846, 'visual explanation target count drifted');
+strictEqual(explanationTargets, 2842, 'visual explanation target count drifted');
 
 match(
   source,
