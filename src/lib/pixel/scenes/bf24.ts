@@ -3,11 +3,13 @@
  *
  * Patterns that should not exist, played as hook-a-duck. Most of the ducks bobbing round the pond are
  * shiny gold, the glamour stocks everyone wants, and System 1 has grabbed one and holds it up high. The
- * tortoise fishes from behind the pond and lands the plain grey duck nobody wanted, and that is the one
- * with the prize: the value premium, paid for by the crowd's overreaction. Anomalies with a behavioral
- * root like this one tend to survive being discovered. The stage and its lights are bf-kit-a.ts.
+ * tortoise, one grey duck already riding on its shell, fishes from behind the pond and lands another
+ * plain grey duck nobody wanted, and that is the kind with the prize rosette under it: the value
+ * premium, paid for by the crowd's overreaction and collected by tilting toward the plain ones, not by
+ * one lucky pick. Anomalies with a behavioral root like this one tend to survive being discovered. The
+ * stage and its lights are bf-kit-a.ts.
  *
- * The keepsake jar holds a compass: anomaly knowledge as a direction to tilt, not a map of every wiggle.
+ * The keepsake jar holds the plain grey duck wearing its gold prize rosette.
  */
 import type { PixelSprite } from '../types';
 import { bfShadowNarrow, bfSparkle, bfTortoise } from './bf-kit';
@@ -38,6 +40,23 @@ const goldDuck: PixelSprite = {
 
 /** The same duck in plain grey: unloved, cheap, overlooked. */
 const greyDuck = bfRecolor(goldDuck, 'bf24-grey-duck', { O: 'D', y: 'w', G: 'x', g: 'X' });
+
+/** The prize mark a hook-a-duck duck carries underneath: a gold rosette with two tails. */
+const rosette: PixelSprite = {
+  id: 'bf24-rosette',
+  name: 'bf24-rosette',
+  tags: ['prop', 'bf24'],
+  rows: [
+    '.yGg.',
+    'yGGGg',
+    '.gGg.',
+    '.G.g.',
+    'G...g',
+  ],
+};
+
+/** The grey duck on the line, its prize rosette hanging under it so the two bob together. */
+const greyPrizeDuck = bfStamp(greyDuck, 'bf24-grey-prize-duck', rosette, 2, 9);
 
 /** The game's pond: a strip of water over a pink and white striped trough. */
 const pond: PixelSprite = {
@@ -98,7 +117,7 @@ const goldDuckLeft = bfMirror(goldDuck, 'bf24-gold-duck-left');
 
 export const bf24Opener: SceneArt = {
   id: 'bf24-opener',
-  label: 'At a night fairground hook-a-duck game, a hare holds up a shiny gold duck while a calm tortoise fishes the one plain grey duck out of the pond, and it sparkles as the prize.',
+  label: 'At a night fairground hook-a-duck game, a hare holds up a shiny gold duck while a calm tortoise, one plain grey duck already riding on its shell, lifts another grey duck out of the pond with a sparkling gold prize rosette hanging under it.',
   width: 80,
   height: 60,
   base: bfFairground,
@@ -107,8 +126,9 @@ export const bf24Opener: SceneArt = {
     { sprite: bfTortoise, x: 0, y: 31 },
     { sprite: rod, x: 36, y: 25 },
     { sprite: line, x: 48, y: 26 },
-    { sprite: greyDuck, x: 44, y: 31, motion: { kind: 'bob', amp: 1, periodMs: 900 } },
-    { sprite: bfSparkle, x: 37, y: 22, motion: { kind: 'twinkle', periodMs: 1500, min: 0.4 } },
+    { sprite: greyDuck, x: 7, y: 24 },
+    { sprite: greyPrizeDuck, x: 44, y: 31, motion: { kind: 'bob', amp: 1, periodMs: 900 } },
+    { sprite: bfSparkle, x: 45, y: 38, motion: { kind: 'twinkle', periodMs: 1500, min: 0.4 } },
     { sprite: pond, x: 12, y: 45 },
     { sprite: goldDuck, x: 12, y: 39, motion: { kind: 'drift', amp: 2, periodMs: 2600 } },
     { sprite: goldDuckLeft, x: 36, y: 39, motion: { kind: 'drift', amp: 1, periodMs: 3100, phase: 0.4 } },
@@ -118,93 +138,35 @@ export const bf24Opener: SceneArt = {
   ],
 };
 
-/** The keepsake emblem: a compass, red needle north, swinging a little before it settles. */
-const emblemCompass: PixelSprite = {
-  id: 'bf24-emblem-compass',
-  name: 'bf24-emblem-compass',
-  tags: ['emblem', 'bf', 'lesson-24'],
-  blurb: "Lesson 24's emblem: market anomalies caught as a compass, the durable premiums to steer by.",
+/** The keepsake emblem: the plain grey duck nobody wanted, wearing the gold prize rosette. */
+const emblemPrizeDuck: PixelSprite = {
+  id: 'bf24-emblem-prize-duck',
+  name: 'bf24-emblem-prize-duck',
+  tags: ['prop', 'bf24'],
   rows: [
-    '......OOOO......',
-    '....OOGGGGOO....',
-    '..OOGGGXXGGGOO..',
-    '..OGGwwRRwwGgO..',
-    '.OGGwwwRRwwwggO.',
-    '.OGwwwRRRRwwwgO.',
-    'OGGwwwRsRRwwwggO',
-    'OGXwwwRyORwwwXgO',
-    'OGXwwwDOODwwwXgO',
-    'OGGwwwDDDDwwwggO',
-    '.OGwwwDDDDwwwgO.',
-    '.OGGwwwDDwwwggO.',
-    '..OggwwDDwwggO..',
-    '..OOgggXXgggOO..',
-    '....OOggggOO....',
-    '......OOOO......',
+    '..........DDD...',
+    '.........DwxxD..',
+    '.........DxKxD33',
+    '.........DxxxD3.',
+    'D.........DxD...',
+    'DwD......DxxD...',
+    'DwwDDDDDDxxxxD..',
+    'DwwwwxxxxxxxxxD.',
+    'DxwwxxxxxxxxxXD.',
+    'DxxxxxxxxxxxxXD.',
+    '.DXxxxxxxxxxXXD.',
+    '..DDDDyGgDDDDD..',
+    '.....yGGGg......',
+    '......gGg.......',
+    '......G.g.......',
+    '.....G...g......',
   ],
-  frames: [
-    [
-      '......OOOO......',
-      '....OOGGGGOO....',
-      '..OOGGGXXGGGOO..',
-      '..OGGwwRRwwGgO..',
-      '.OGGwwwRRwwwggO.',
-      '.OGwwwRRRRwwwgO.',
-      'OGGwwwRsRRwwwggO',
-      'OGXwwwRyORwwwXgO',
-      'OGXwwwDOODwwwXgO',
-      'OGGwwwDDDDwwwggO',
-      '.OGwwwDDDDwwwgO.',
-      '.OGGwwwDDwwwggO.',
-      '..OggwwDDwwggO..',
-      '..OOgggXXgggOO..',
-      '....OOggggOO....',
-      '......OOOO......',
-    ],
-    [
-      '......OOOO......',
-      '....OOGGGGOO....',
-      '..OOGGGXXGGGOO..',
-      '..OGGwwwRRwGgO..',
-      '.OGGwwwwRRwwggO.',
-      '.OGwwwwRRRwwwgO.',
-      'OGGwwwRsRRwwwggO',
-      'OGXwwwRyORwwwXgO',
-      'OGXwwwDOODwwwXgO',
-      'OGGwwwDDDDwwwggO',
-      '.OGwwwDDDwwwwgO.',
-      '.OGGwwDDwwwwggO.',
-      '..OggwDDwwwggO..',
-      '..OOgggXXgggOO..',
-      '....OOggggOO....',
-      '......OOOO......',
-    ],
-    [
-      '......OOOO......',
-      '....OOGGGGOO....',
-      '..OOGGGXXGGGOO..',
-      '..OGGwwRRwwGgO..',
-      '.OGGwwwRRwwwggO.',
-      '.OGwwwRRRRwwwgO.',
-      'OGGwwwRsRRwwwggO',
-      'OGXwwwRyORwwwXgO',
-      'OGXwwwDOODwwwXgO',
-      'OGGwwwDDDDwwwggO',
-      '.OGwwwDDDDwwwgO.',
-      '.OGGwwwDDwwwggO.',
-      '..OggwwDDwwggO..',
-      '..OOgggXXgggOO..',
-      '....OOggggOO....',
-      '......OOOO......',
-    ],
-  ],
-  frameMs: 700,
 };
 
 export const bf24Finish: SceneArt = bfKeepsake(
   'bf24-finish',
-  'A corked glass jar with a paper tag, holding a gold rimmed compass whose red needle swings and settles north, with bubbles rising inside and sparkles around it.',
-  emblemCompass,
+  'A corked glass jar with a paper tag, holding a plain grey duck with a gold prize rosette hanging under it, with bubbles rising inside and sparkles around it.',
+  emblemPrizeDuck,
 );
 
 export const art: LessonArtSet = { opener: bf24Opener, backdrop: bfBackdrop, finish: bf24Finish };
