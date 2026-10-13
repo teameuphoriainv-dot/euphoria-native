@@ -5,12 +5,13 @@
  * Opener: the securitisation machine. A heap of little houses (the pool of mortgages) sits on the
  * floor at the left, and an inclined belt carries them up one by one into the side of a big steel
  * machine, its gears turning behind a window and its stack letting off steam. Out of the other
- * side comes a slab in three layers on a walnut stand: blue senior on top, teal mezzanine, red
- * equity at the bottom to take the first loss. The CFO stands by it. The three tranche colours are
- * the brightest things in the picture, repeated as three lamps on the machine. Only small layers
- * move: houses riding the belt, two gears, steam, the three lamps in turn.
+ * side comes a slab in three layers on a walnut stand, sized like the lesson's pool at 70/20/10:
+ * seven rows of blue senior on top, two of teal mezzanine, one of red equity at the bottom to take
+ * the first loss. The CFO stands by it. The three tranche colours are the brightest things in the
+ * picture, repeated as three lamps on the machine. Only small layers move: houses riding the belt,
+ * two gears, steam, the three lamps in turn.
  *
- * Keepsake: a house whose walls are three tranches.
+ * Keepsake: a house whose walls are three tranches, mostly blue senior over thinner teal and red.
  */
 import type { PixelSprite } from '../types';
 import { cfBackdrop } from './cf-backdrop';
@@ -96,7 +97,10 @@ const HEAP: readonly (readonly [PixelSprite, number, number])[] = [
   [houseBlue, 3, 44],
 ];
 
-/** The slab the machine turns out: blue senior, teal mezzanine, red equity, outlined and lit. */
+/**
+ * The slab the machine turns out: blue senior, teal mezzanine, red equity, outlined and lit. Its
+ * bands are 7, 2 and 1 rows, the lesson's $700M, $200M and $100M slices of a $1B pool (70/20/10).
+ */
 const slab: PixelSprite = {
   id: 'cf24-slab',
   name: 'cf24-slab',
@@ -105,13 +109,17 @@ const slab: PixelSprite = {
   rows: [
     'DDDDDDDDDDDD',
     'DBBBBBBBBBbD',
+    'DBBBBBBBBBbD',
+    'DBBBBBBBBBbD',
+    'DBBBBBBBBBbD',
+    'DBBBBBBBBBbD',
+    'DBBBBBBBBBbD',
     'DBbbbbbbbbbD',
     'DDDDDDDDDDDD',
     'DTTTTTTTTTtD',
     'DTtttttttttD',
     'DDDDDDDDDDDD',
     'DRRRRRRRRRrD',
-    'DRrrrrrrrrrD',
     'DDDDDDDDDDDD',
   ],
 };
@@ -138,7 +146,7 @@ const base = cfCompose('cf24-opener-base', cfHall, [
   ...HEAP,
   [lip, MACHINE.x + MACHINE.w, 40],
   [stand, 54, 43],
-  [slab, 55, 33],
+  [slab, 55, 29],
   [cfShadowShort, 70, 57],
   [cfCfo, 67, 31],
 ], 'The still works floor: the machine with its stack and gear window, the belt, the heap of houses, the slab of tranches on its stand, the CFO.');
@@ -207,7 +215,7 @@ const LAMPS_AT = { x: MACHINE.x + 7, y: MACHINE.y + 22 } as const;
 
 export const cf24Opener: SceneArt = {
   id: 'cf24-opener',
-  label: 'Little houses ride a belt up into a big steel machine with turning gears, and out of its other side comes a slab in three layers, blue, teal and red, while the finance chief stands by.',
+  label: 'Little houses ride a belt up into a big steel machine with turning gears. Out of its other side comes a slab in three layers: a thick blue layer on top that makes up most of it, a thinner teal layer, and a red layer at the bottom, the thinnest of all. The finance chief stands by.',
   width: 80,
   height: 60,
   base,
@@ -222,7 +230,10 @@ export const cf24Opener: SceneArt = {
   ],
 };
 
-/** Lesson 24's emblem: a house with a white roof whose walls are three tranches, blue, teal and red. */
+/**
+ * Lesson 24's emblem: a house under a low white roof whose walls are three tranches, 7 rows of
+ * blue, 2 of teal and 1 of red: the lesson's 70/20/10, like the slab.
+ */
 const emblemTranches: PixelSprite = {
   id: 'cf24-emblem-tranches',
   name: 'cf24-emblem-tranches',
@@ -230,19 +241,19 @@ const emblemTranches: PixelSprite = {
   blurb: 'A house whose walls are three bands: blue, teal and red.',
   rows: [
     '.......OO.......',
-    '......OwwO......',
-    '.....OwwwxO.....',
-    '....OwwwwxxO....',
-    '...OwwwwwxxxO...',
-    '..OwwwwwwxxxxO..',
+    '.....OOwwOO.....',
+    '...OOwwwwxxOO...',
+    '.OOwwwwwwxxxxOO.',
     '.OOOOOOOOOOOOOO.',
+    '.DBBBBBBBBBBBbD.',
+    '.DBBBBBBBBBBBbD.',
+    '.DBBBBBBBBBBBbD.',
+    '.DBBBBBBBBBBBbD.',
     '.DBBBBBBBBBBBbD.',
     '.DBBBBBBBBBBBbD.',
     '.DbbbbbbbbbbbbD.',
     '.DTTTTTTTTTTTtD.',
-    '.DTTTTTTTTTTTtD.',
     '.DttttttttttttD.',
-    '.DRRRRRRRRRRRrD.',
     '.DRRRRRRRRRRRrD.',
     '.DDDDDDDDDDDDDD.',
   ],
@@ -250,7 +261,7 @@ const emblemTranches: PixelSprite = {
 
 export const cf24Finish = cfKeepsake(
   'cf24-finish',
-  'A crystal award on a gold stand with a house inside whose walls are three bands of blue, teal and red, and small sparkles around it.',
+  'A crystal award on a gold stand with small sparkles around it. Inside is a house whose walls are three bands: a thick blue band on top, a thinner teal band, and a red band at the bottom, the thinnest of all.',
   emblemTranches,
 );
 

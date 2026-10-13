@@ -3,7 +3,7 @@
  *
  * Opener: the view from head office has changed. A tall gold-framed window fills the wall, and
  * outside, under a blue morning sky, three wind turbines turn on green hills where the stacks used
- * to be. The CFO presents them; beside him a young tree in a walnut pot hangs with gold coins under
+ * to be. The CFO presents them; across the room a young tree in a walnut pot hangs with gold coins under
  * the lit invest sign: investing green can pay. The bright window is the picture's light. Only
  * small layers move: the three rotors, two birds, the invest sign lighting, a leaf rising off the
  * tree, the sun.
@@ -175,7 +175,7 @@ const leaf: PixelSprite = { id: 'cf19-opener-leaf', name: 'cf19-opener-leaf', ta
 
 export const cf19Opener: SceneArt = {
   id: 'cf19-opener',
-  label: 'Through a tall window in the head office, wind turbines turn on green hills under a blue sky, while the finance chief presents them beside a young tree hung with gold coins under the lit invest sign.',
+  label: 'Through a tall window in the head office, wind turbines turn on green hills under a blue sky, while the finance chief presents them from the left and a young tree hung with gold coins stands at the right under the lit invest sign.',
   width: 80,
   height: 60,
   base,
