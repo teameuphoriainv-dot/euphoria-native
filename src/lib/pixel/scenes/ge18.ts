@@ -1,73 +1,300 @@
 /**
- * Global Economics lesson 18: the economics of climate change, on the terraces at dawn.
+ * Global Economics lesson 18: the economics of climate change, on the harbor shore at midday.
  *
- * The sun comes up over the energy transition. On the shore terrace an old plant's red and white
- * chimney still puffs dark smoke into everyone's sky, a cost nobody paid for at the till (the
- * externality a carbon price puts back on the bill); up the hill, solar panels catch the first light
- * and two wind turbines turn, the investment that is replacing it. Only small layers move: the two
- * rotors, the smoke, the glints on the panels, the sun on the water and two gulls.
+ * Climate change is the lesson's biggest market failure: the cost of the smoke lands on everyone
+ * except the one who makes it. So the power station's red brick chimney pours a long dark plume that
+ * drifts across the sky and sinks in a haze over the town's homes, people who never bought its power.
+ * Hanging from the chimney is a price tag marked with a dollar sign: a carbon price, which puts that
+ * cost back on the plant's own bill (the lesson's 50 dollars a ton, which costs coal about 25 dollars
+ * more a megawatt hour, enough to lose to solar on price). On the green hill beyond, under clean sky,
+ * stand what it switches to: two wind turbines and rows of tilted solar panels. Only small layers
+ * move: the turbines' blades, the smoke rising from the chimney and drifting along the plume, the tag,
+ * the boats, the glints on the panels and two gulls.
  *
- * The keepsake's emblem is a wind turbine turning on a green hill.
+ * The keepsake's emblem is a smokestack with a price tag hanging from it.
  */
 import type { PixelSprite } from '../types';
 import { geBackdrop } from './ge-backdrop';
-import { GE_PALETTE, geCompose, geGull, geLater, geShimmer, geSmoke, geTint } from './ge-kit';
-import { geGroundDawn } from './ge-kit-a';
+import { GE_PALETTE, geCompose, geGull, geLater, geSmoke, geTint } from './ge-kit';
 import { geKeepsake } from './ge1-finish';
 import type { LessonArtSet, SceneArt } from './types';
 
 /* ── one-off props ──────────────────────────────────────────────────────────────────────────── */
 
 /**
- * Everything standing on the terraces: the plant's shed and chimney on the shore terrace, three
- * solar panels on the second, the big turbine's tower on the third and the far one's on the top.
+ * The harbor shore at midday, 80x60: blue sky, a green hill rising on the right, the town's low land
+ * on rows 31 to 36, the bay from row 37 and a shingle beach from row 50. Across the sky the plume
+ * leaves the chimney top at (9, 3), billows bigger and paler as it drifts right, and sinks into a grey
+ * haze over the town (rows 21 to 30, x 17 to 51); it stops short of the hill, where the sky is clean.
  */
-const works: PixelSprite = {
-  id: 'ge18-opener-works',
-  name: 'chimney, panels and turbine towers',
-  tags: ['ge18', 'prop'],
-  blurb: 'An old shed with a red and white chimney, three solar panels on legs and two white turbine towers.',
+const shore: PixelSprite = {
+  id: 'ge18-opener-shore',
+  name: 'harbor shore at midday',
+  tags: ['ge18', 'ground'],
+  blurb: 'A blue sky crossed by a dark smoke plume that sinks into a haze over the town, a green hill, the bay and a beach.',
   palette: GE_PALETTE,
   rows: [
-    '........................................................................zzx',
-    '........................................................................xxD',
-    '...........................................................................',
-    '.....................................................zzzx..............zx..',
-    '.....................................................xxxD..............zx..',
-    '.......................................................................zx..',
-    '.DDDDD.............................................zx..................zx..',
-    '.DRr1D.............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..zxX..............................................zx..................zx..',
-    '..Rr1..............................................zx..................zx..',
-    '..Rr1..............................................zx.................XXXX.',
-    '..Rr1..............................................zx......................',
-    '..zxX..............................................zx......................',
-    '..zxX..............................................zx......................',
-    '..zxX..............................................zx......................',
-    '..Rr1..............................................zx......................',
-    '..Rr1.............................................XXXX.....................',
-    '..Rr1......................................................................',
-    '..zxX.....................DDDDD.DDDDD.DDDDD................................',
-    '..zxX....................DBbBbDDBbBbDDBbBbD................................',
-    '..zxX....................DbhbhDDbhbhDDbhbhD................................',
-    'DDDDDDDDDDDD.............DDDDD.DDDDD.DDDDD.................................',
-    'XXXXXXXXXXXD..............D..D..D..D..D..D.................................',
-    'XXXXXXXXXXXD...............................................................',
-    'XOOXXOOXOOXD...............................................................',
-    'XggXXggXggXD...............................................................',
-    'XXXXXDDXXXXD...............................................................',
-    'XXXXXDDXXXXD...............................................................',
-    'DDDDDDDDDDDD...............................................................',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbxxxbxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbXXXxXXXXxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbXXXXXXXXXbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbDDDXDDDXXxxxbbxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbDDDbDDDXXxxxXXxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbXXXXXXXXXXXxxxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbXXXXXXXXXXXXXXxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbDDDXXDDDXXXXXXXXXxxxbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'BBBBBBBBBBBBBBBDDDDDDDDDXXXXXXXxxxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBDDDBBDDDDDXXXXXXXxxxxxxBBxxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBDDDDXXXXXXXXxxxXXxxxxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBDDDXXXXXXXXXXXXXXXXxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDXXXXXXXXXXXXXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDDXXXXXXXXXXXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDDDDXXDDDXXXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDDDDDDDDDDDxxxxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDDDDDDDXXXXxxxBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDBBDDXXXXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBXXXXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBDDDXXXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB',
+    'BBBBBBBBBBBBBBBBBBBxBxBxBxBxBxBxBxBxBxBxBxBDDDDDXXBBBBBBBBBBBBBBBBBBBBBBBBBBBBBN',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxDDDDDxxxBBBBBBBBBBBBBBBBBBBBBBBBBNNn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBBBBBBBBBBBBBNNnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBBBBBBBBBBNNNnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBBBBBBBBNNnnnnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBBBBBNNNnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBBBNNnnnnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBBBBNNnnnnnnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBBBNNNnnnnnnnnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBBxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxBBBBBBNNnnnnnnnnnnnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNnnnnnnnnnnnnnnnnnnnnnn',
+    'BBBBBBBBBBBBBBBBnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnNNnnnnnnnnnnnnnnnnnnnnnnnnn',
+    'NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNnnnnnnnnnnnnnnnnnnnnnnnnnnn',
+    'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
+    'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
+    'nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbBBBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddddbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbBBBBBBbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddddbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbBBBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbBBBBBbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbddddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbBBBbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbBBBBbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbddddbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb',
+    'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS',
+    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
+    'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS',
+    'SSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSS',
+    'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS',
+    'SSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSSSSSSSSoSSSSS',
+    'SSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSSSSSXSS',
+    'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS',
+    'SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS',
+  ],
+};
+
+/** The power station's hall, 19x11: red brick under a sawtooth roof, on the shore at the left. */
+const hall: PixelSprite = {
+  id: 'ge18-opener-hall',
+  name: 'power station hall',
+  tags: ['ge18', 'prop'],
+  blurb: 'A red brick power station hall with a sawtooth roof.',
+  palette: GE_PALETTE,
+  rows: [
+    '.D...D...D...D.....',
+    'DD..DD..DD..DD.....',
+    'DDDDDDDDDDDDDDDDDD.',
+    'r1r1r1r1r1r1r1r1r1.',
+    'rrrrrrrrrrrrrrrrr1.',
+    'rKKrrKKrrKKrrKKrr1.',
+    'rrrrrrrrrrrrrrrrr1.',
+    'rrrrrrrrrrrrrrrrr1.',
+    'rrrrOOrrrrrrrrrrr1.',
+    'rrrrOOrrrrrrrrrrr1.',
+    'DDDDDDDDDDDDDDDDDD.',
+  ],
+};
+
+/** Its chimney, 9x36: plain red brick, no bands, a soot-dark rim, and the bracket the tag hangs from. */
+const chimney: PixelSprite = {
+  id: 'ge18-opener-chimney',
+  name: 'brick chimney',
+  tags: ['ge18', 'prop'],
+  blurb: 'A tall red brick chimney with a dark rim and an iron bracket with a string hanging from it.',
+  palette: GE_PALETTE,
+  rows: [
+    'DDDDDD...',
+    'DkkkkD...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11DDD',
+    'Rrrrr1..X',
+    'Rrrrr1..X',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+    '1r1r11...',
+    'Rrrrr1...',
+    'Rrrrr1...',
+  ],
+};
+
+/** A house in the town under the haze, 7x6. */
+const house: PixelSprite = {
+  id: 'ge18-opener-house',
+  name: 'house',
+  tags: ['ge18', 'prop'],
+  blurb: 'A small cream house with a red roof.',
+  palette: GE_PALETTE,
+  rows: [
+    '...r...',
+    '..rrr..',
+    '.rrrrr.',
+    'rrrrrrr',
+    '.AkAkS.',
+    '.AAOAS.',
+  ],
+};
+
+/** The hill's clean power, 30x28: two white turbine towers and three tilted solar panels on their stands. */
+const cleanPower: PixelSprite = {
+  id: 'ge18-opener-clean-power',
+  name: 'turbine towers and solar panels',
+  tags: ['ge18', 'prop'],
+  blurb: 'Two white wind turbine towers and three big tilted solar panels on stands.',
+  palette: GE_PALETTE,
+  rows: [
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '....................zx........',
+    '..........zx........zx........',
+    '..........zx........zx........',
+    '..........zx........zx........',
+    '..........zx........zx........',
+    '..........zx........zx........',
+    '..........zx........zx..zzzzzz',
+    '..........zx...........zbBbBz.',
+    '..........zx..........zBbBbz..',
+    '..........zx.........zbBbBz...',
+    '..........zx........zzzzzz....',
+    '..........zx.....zzzzDz...D...',
+    '................zbBbBD....D...',
+    '......zzzzzz...zBbBbz.........',
+    '.....zbBbBz...zbBbBz..........',
+    '....zBbBbz...zzzzzz...........',
+    '...zbBbBz.....D....D..........',
+    '..zzzzzz......D....D..........',
+    '...D....D.....................',
+    '...D....D.....................',
+    '..............................',
+  ],
+};
+
+/** The carbon price, 13x9, swinging on its string: a cream tag marked with a dollar sign. */
+const priceTag: PixelSprite = {
+  id: 'ge18-opener-price-tag',
+  name: 'price tag',
+  tags: ['ge18', 'animated'],
+  blurb: 'A cream price tag marked with a dollar sign, swinging on its string.',
+  palette: GE_PALETTE,
+  rows: [
+    '....OOOOOOOO.',
+    '...OAAAKAAAO.',
+    '..OAAAKKKKAO.',
+    '.OAAAKAKAAAO.',
+    'OKAAAAKKKAAO.',
+    '.OAAAAAKAKAO.',
+    '..OAAKKKKAAO.',
+    '...OAAAKAAAO.',
+    '....OOOOOOOO.',
+  ],
+  frames: [
+    [
+      '....OOOOOOOO.',
+      '...OAAAKAAAO.',
+      '..OAAAKKKKAO.',
+      '.OAAAKAKAAAO.',
+      'OKAAAAKKKAAO.',
+      '.OAAAAAKAKAO.',
+      '..OAAKKKKAAO.',
+      '...OAAAKAAAO.',
+      '....OOOOOOOO.',
+    ],
+    [
+      '....OOOOOOOO.',
+      '...OAAAKAAAO.',
+      '..OAAAKKKKAO.',
+      '.OAAAKAKAAAO.',
+      'OKAAAAKKKAAO.',
+      '..OAAAAAKAKAO',
+      '...OAAKKKKAAO',
+      '....OAAAKAAAO',
+      '.....OOOOOOOO',
+    ],
+  ],
+  frameMs: 900,
+};
+
+/** A fishing boat on the bay, 8x5. */
+const boat: PixelSprite = {
+  id: 'ge18-opener-boat',
+  name: 'fishing boat',
+  tags: ['ge18', 'prop'],
+  blurb: 'A small fishing boat with a white sail.',
+  palette: GE_PALETTE,
+  rows: [
+    '...X....',
+    '...XzA..',
+    '...XzzA.',
+    'DDDDDDDD',
+    '.DooooD.',
+  ],
+};
+
+/** A billow of the plume, 6x4, for a slow `drift` along it. */
+const billow: PixelSprite = {
+  id: 'ge18-opener-billow',
+  name: 'smoke billow',
+  tags: ['ge18'],
+  blurb: 'A billow of dark grey smoke.',
+  palette: GE_PALETTE,
+  rows: [
+    '.xxxx.',
+    'xXXXXx',
+    'XXXXXX',
+    '.DDDD.',
   ],
 };
 
@@ -289,12 +516,21 @@ const glint: PixelSprite = {
 
 /* ── the opener ─────────────────────────────────────────────────────────────────────────────── */
 
-const WORKS = { x: 0, y: 8 };
+/** The chimney's top-left; its rim is its first row and the bracket is on its row 12. */
+const CHIMNEY = { x: 6, y: 4 };
+/** The tag hangs from the bracket's string, its hole under the string's foot. */
+const TAG = { x: CHIMNEY.x + 7, y: CHIMNEY.y + 15 };
+const CLEAN = { x: 50, y: 10 };
 /** Each rotor is placed so its hub lands on its tower's top. */
-const BIG_HUB = { x: 52, y: 12 };
-const FAR_HUB = { x: 71, y: 9 };
+const BIG_HUB = { x: CLEAN.x + 20, y: CLEAN.y };
+const FAR_HUB = { x: CLEAN.x + 10, y: CLEAN.y + 8 };
 
-const base = geCompose('ge18-opener-base', geGroundDawn, [{ sprite: works, x: WORKS.x, y: WORKS.y }]);
+const base = geCompose('ge18-opener-base', shore, [
+  { sprite: hall, x: 0, y: 39 },
+  { sprite: chimney, x: CHIMNEY.x, y: CHIMNEY.y },
+  ...[[19, 25], [26, 26], [33, 25], [40, 26], [46, 25]].map(([x, y]) => ({ sprite: house, x, y })),
+  { sprite: cleanPower, x: CLEAN.x, y: CLEAN.y },
+]);
 
 /** Coal smoke, a step darker than the kit's. */
 const smoke = geTint(geSmoke, 'ge18-opener-smoke', { x: 'X', X: 'D' });
@@ -302,132 +538,137 @@ const gullLater = geLater(geGull, 'ge18-opener-gull-later', 1, 520);
 
 export const ge18Opener: SceneArt = {
   id: 'ge18-opener',
-  label: 'At sunrise above the sea, two white wind turbines turn and solar panels catch the light on green terraces, while an old red and white chimney on the shore still puffs dark smoke.',
+  label: 'On a sunny day by the harbor, a red brick power station chimney with a price tag hanging from it pours a long dark plume that sinks in a haze over the town\'s homes, while on the green hill beyond, under clean sky, wind turbines turn beside big solar panels.',
   width: 80,
   height: 60,
   base,
   layers: [
     { sprite: rotorBig, x: BIG_HUB.x - 9, y: BIG_HUB.y - 9 },
     { sprite: rotorFar, x: FAR_HUB.x - 6, y: FAR_HUB.y - 6 },
-    { sprite: smoke, x: 1, y: 10, motion: { kind: 'rise', amp: 6, periodMs: 2800 } },
-    { sprite: smoke, x: 2, y: 10, motion: { kind: 'rise', amp: 6, periodMs: 2800, phase: 0.5 } },
-    { sprite: glint, x: 26, y: 37, motion: { kind: 'twinkle', periodMs: 2200, min: 0.2 } },
-    { sprite: glint, x: 32, y: 37, motion: { kind: 'twinkle', periodMs: 2600, phase: 0.4, min: 0.2 } },
-    { sprite: glint, x: 38, y: 37, motion: { kind: 'twinkle', periodMs: 2400, phase: 0.75, min: 0.2 } },
-    { sprite: geShimmer, x: 24, y: 30 },
-    { sprite: geGull, x: 24, y: 7, motion: { kind: 'drift', amp: 3, periodMs: 7000 } },
-    { sprite: gullLater, x: 33, y: 12, motion: { kind: 'drift', amp: 2, periodMs: 8200, phase: 0.5 } },
+    { sprite: smoke, x: CHIMNEY.x + 1, y: CHIMNEY.y - 3, motion: { kind: 'rise', amp: 3, periodMs: 2400 } },
+    { sprite: smoke, x: CHIMNEY.x + 2, y: CHIMNEY.y - 3, motion: { kind: 'rise', amp: 3, periodMs: 2400, phase: 0.5 } },
+    { sprite: billow, x: 24, y: 6, motion: { kind: 'drift', amp: 2, periodMs: 6000 } },
+    { sprite: billow, x: 35, y: 11, motion: { kind: 'drift', amp: 2, periodMs: 7000, phase: 0.4 } },
+    { sprite: billow, x: 43, y: 15, motion: { kind: 'drift', amp: 2, periodMs: 6600, phase: 0.75 } },
+    { sprite: priceTag, x: TAG.x, y: TAG.y },
+    { sprite: boat, x: 24, y: 38, motion: { kind: 'bob', amp: 1, periodMs: 2600 } },
+    { sprite: boat, x: 41, y: 41, motion: { kind: 'bob', amp: 1, periodMs: 3000, phase: 0.5 } },
+    { sprite: glint, x: CLEAN.x + 5, y: CLEAN.y + 21, motion: { kind: 'twinkle', periodMs: 2200, min: 0.2 } },
+    { sprite: glint, x: CLEAN.x + 16, y: CLEAN.y + 19, motion: { kind: 'twinkle', periodMs: 2600, phase: 0.4, min: 0.2 } },
+    { sprite: glint, x: CLEAN.x + 23, y: CLEAN.y + 14, motion: { kind: 'twinkle', periodMs: 2400, phase: 0.75, min: 0.2 } },
+    { sprite: geGull, x: 44, y: 2, motion: { kind: 'drift', amp: 3, periodMs: 7000 } },
+    { sprite: gullLater, x: 58, y: 40, motion: { kind: 'drift', amp: 2, periodMs: 8200, phase: 0.5 } },
   ],
 };
 
 /* ── the keepsake ───────────────────────────────────────────────────────────────────────────── */
 
-/** Climate: a wind turbine on a green hill, its blades turning. */
-const emblemTurbine: PixelSprite = {
-  id: 'ge18-emblem-turbine',
-  name: 'emblem wind turbine',
+/** Climate economics: a smokestack with a price tag on it, the cost of its smoke put back on its bill. */
+const emblemPricedStack: PixelSprite = {
+  id: 'ge18-emblem-priced-stack',
+  name: 'emblem priced smokestack',
   tags: ['ge', 'emblem', 'animated'],
-  blurb: 'A white wind turbine on a green hill, its three blades turning.',
+  blurb: 'A red brick smokestack puffing grey smoke, a cream price tag marked with a dollar sign swinging from it.',
   palette: GE_PALETTE,
   rows: [
-    '.......z........',
-    '.......z........',
-    '.......zx.......',
-    '.......zx.......',
-    '.......zxzx.....',
-    '....xxxX........',
-    '....xzzxzz......',
-    '...zz..zxxzz....',
-    '...z...zx..z....',
-    '.......zx.......',
-    '.......zx.......',
-    '.......zx.......',
-    '....mmmzxNNN....',
-    '..mmnnnzxnnnNN..',
-    '.mnnnnnnnnnnnnN.',
-    'mnnnnnnnnnnnnnnN',
+    '...xx...........',
+    '..xXXx..........',
+    '...XXx..........',
+    '....x...........',
+    '..DDDDD.........',
+    '..DkkkD.........',
+    '..Rrrrrxxx......',
+    '..11r11..x......',
+    '..Rrrrr.OOOOOO..',
+    '..Rrrrr.OAAKAAO.',
+    '..11r11OAAKKKAO.',
+    '..RrrrrOKAKAAAO.',
+    '..RrrrrOAAKKKAO.',
+    '..11r11.OAAAKAO.',
+    '..Rrrrr.OAKKKAO.',
+    'nnnnnnnnnnnnnnnn',
   ],
   frames: [
     [
-      '.......z........',
-      '.......z........',
-      '.......zx.......',
-      '.......zx.......',
-      '.......zxzx.....',
-      '....xxxX........',
-      '....xzzxzz......',
-      '...zz..zxxzz....',
-      '...z...zx..z....',
-      '.......zx.......',
-      '.......zx.......',
-      '.......zx.......',
-      '....mmmzxNNN....',
-      '..mmnnnzxnnnNN..',
-      '.mnnnnnnnnnnnnN.',
-      'mnnnnnnnnnnnnnnN',
+      '...xx...........',
+      '..xXXx..........',
+      '...XXx..........',
+      '....x...........',
+      '..DDDDD.........',
+      '..DkkkD.........',
+      '..Rrrrrxxx......',
+      '..11r11..x......',
+      '..Rrrrr.OOOOOO..',
+      '..Rrrrr.OAAKAAO.',
+      '..11r11OAAKKKAO.',
+      '..RrrrrOKAKAAAO.',
+      '..RrrrrOAAKKKAO.',
+      '..11r11.OAAAKAO.',
+      '..Rrrrr.OAKKKAO.',
+      'nnnnnnnnnnnnnnnn',
     ],
     [
       '................',
-      '.........zz.....',
-      '.........z......',
-      '........zx......',
-      '....xxx.zxx.....',
-      '..zzzzzXx.......',
-      '.......xz.......',
-      '.......xz.......',
-      '.......xxz......',
-      '.......zxzz.....',
-      '.......zx.......',
-      '.......zx.......',
-      '....mmmzxNNN....',
-      '..mmnnnzxnnnNN..',
-      '.mnnnnnnnnnnnnN.',
-      'mnnnnnnnnnnnnnnN',
+      '...xx...........',
+      '..xXXx..........',
+      '...XX...........',
+      '..DDDDD.........',
+      '..DkkkD.........',
+      '..Rrrrrxxx......',
+      '..11r11..x......',
+      '..Rrrrr.OOOOOO..',
+      '..Rrrrr.OAAKAAO.',
+      '..11r11OAAKKKAO.',
+      '..RrrrrOKAKAAAO.',
+      '..RrrrrOAAKKKAO.',
+      '..11r11.OAAAKAO.',
+      '..Rrrrr.OAKKKAO.',
+      'nnnnnnnnnnnnnnnn',
+    ],
+    [
+      '..xx............',
+      '.xXXx.....x.....',
+      '..XXx....xXx....',
+      '...x.....xx.....',
+      '..DDDDD.........',
+      '..DkkkD.........',
+      '..Rrrrrxxx......',
+      '..11r11..x......',
+      '..Rrrrr..OOOOOO.',
+      '..Rrrrr..OAAKAAO',
+      '..11r11.OAAKKKAO',
+      '..RrrrrOKAKAAAO.',
+      '..Rrrrr.OAAKKKAO',
+      '..11r11..OAAAKAO',
+      '..Rrrrr..OAKKKAO',
+      'nnnnnnnnnnnnnnnn',
     ],
     [
       '................',
-      '................',
-      '...z............',
-      '...zzxx...zz....',
-      '.....zzxzzz.....',
-      '......zXzxx.....',
-      '......xzx.......',
-      '......xzx.......',
-      '......xzx.......',
-      '.......zx.......',
-      '.......zx.......',
-      '.......zx.......',
-      '....mmmzxNNN....',
-      '..mmnnnzxnnnNN..',
-      '.mnnnnnnnnnnnnN.',
-      'mnnnnnnnnnnnnnnN',
-    ],
-    [
-      '................',
-      '....zz..........',
-      '.....zxx........',
-      '......zx........',
-      '......zzzzx.....',
-      '......xXzzzzz...',
-      '.....xzzxxx.....',
-      '.....xzzx.......',
-      '.....zzzx.......',
-      '.....z.zx.......',
-      '.......zx.......',
-      '.......zx.......',
-      '....mmmzxNNN....',
-      '..mmnnnzxnnnNN..',
-      '.mnnnnnnnnnnnnN.',
-      'mnnnnnnnnnnnnnnN',
+      '...xx...........',
+      '..xXXx..........',
+      '...XX...........',
+      '..DDDDD.........',
+      '..DkkkD.........',
+      '..Rrrrrxxx......',
+      '..11r11..x......',
+      '..Rrrrr.OOOOOO..',
+      '..Rrrrr.OAAKAAO.',
+      '..11r11OAAKKKAO.',
+      '..RrrrrOKAKAAAO.',
+      '..RrrrrOAAKKKAO.',
+      '..11r11.OAAAKAO.',
+      '..Rrrrr.OAKKKAO.',
+      'nnnnnnnnnnnnnnnn',
     ],
   ],
-  frameMs: 280,
+  frameMs: 600,
 };
 
 export const ge18Finish: SceneArt = geKeepsake(
   'ge18-finish',
-  'A postage stamp with perforated edges and an emerald frame, showing a white wind turbine on a green hill with its blades turning, with small sparkles around it.',
-  emblemTurbine,
+  'A postage stamp with perforated edges and an emerald frame, showing a red brick smokestack puffing smoke with a price tag marked with a dollar sign hanging from it, with small sparkles around it.',
+  emblemPricedStack,
 );
 
 export const art: LessonArtSet = { opener: ge18Opener, backdrop: geBackdrop, finish: ge18Finish };
