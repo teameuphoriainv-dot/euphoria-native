@@ -3,8 +3,8 @@
  *
  * The opener is the vault gallery (ai-kit.ts) with the lesson's structure made into an object: a
  * stack of nested boxes on the floor, a gold box of coins inside a teal box inside an orchid one,
- * because a fund of funds is a fund that holds funds. A coin lifts off the rim of each layer, the
- * double fee the lesson warns about, while the collector studies the stack through the magnifier.
+ * because a fund of funds is a fund that holds funds. A red fee coin lifts off the rim of each
+ * outer layer, the double fee the lesson warns about, while the collector studies the stack through the magnifier.
  * On the wall a framed chart draws the same thing: one investor, one fund, four funds under it. Only
  * small layers move: the two coins rise, the gold glints, the collector blinks, the lens glints and
  * a mote drifts up. The keepsake is a new emblem: the nested boxes.
@@ -135,15 +135,28 @@ const base = aiCompose('ai18-opener-base', aiGallery.rows, [
   [aiCollector, COLLECTOR[0], COLLECTOR[1]],
 ]);
 
+/**
+ * The fee, in red. In this pathway a rising aiCoin is money paid out to its owner (ai-kit-b.ts), so the
+ * double fee is the same coin recoloured: money taken off each layer, not paid to the investor.
+ */
+const toRed = (row: string) => row.replace(/O/g, 'I').replace(/y/g, 's').replace(/G/g, 'R').replace(/g/g, 'r');
+const feeCoin: PixelSprite = {
+  ...aiCoin,
+  id: 'ai18-fee-coin',
+  name: 'ai18-fee-coin',
+  blurb: 'A small red coin: a fee taken off a fund layer.',
+  rows: aiCoin.rows.map(toRed),
+};
+
 export const ai18Opener: SceneArt = {
   id: 'ai18-opener',
-  label: 'A collector with a magnifying glass studies a stack of nested boxes, a gold box of coins inside a teal box inside an orchid one, a coin rising off each, under a framed chart of one fund holding four.',
+  label: 'A collector with a magnifying glass studies a stack of nested boxes, a gold box of coins inside a teal box inside an orchid one, a red fee coin rising off each of the two outer boxes, under a framed chart of one fund holding four.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: aiCoin, x: STACK[0] + 2, y: STACK[1] + 13, motion: { kind: 'rise', amp: 5, periodMs: 2600, phase: 0.1 } },
-    { sprite: aiCoin, x: STACK[0] + 20, y: STACK[1] + 6, motion: { kind: 'rise', amp: 5, periodMs: 3000, phase: 0.6 } },
+    { sprite: feeCoin, x: STACK[0] + 2, y: STACK[1] + 13, motion: { kind: 'rise', amp: 5, periodMs: 2600, phase: 0.1 } },
+    { sprite: feeCoin, x: STACK[0] + 20, y: STACK[1] + 6, motion: { kind: 'rise', amp: 5, periodMs: 3000, phase: 0.6 } },
     { sprite: aiGlintGold, x: STACK[0] + 11, y: STACK[1] - 3, motion: { kind: 'twinkle', periodMs: 1800, min: 0.35 } },
     { sprite: aiCollectorBlink, x: COLLECTOR[0] + AI_COLLECTOR_EYE[0], y: COLLECTOR[1] + AI_COLLECTOR_EYE[1] },
     { sprite: aiLensGlare, x: COLLECTOR[0] + AI_COLLECTOR_GLARE[0], y: COLLECTOR[1] + AI_COLLECTOR_GLARE[1], motion: { kind: 'twinkle', periodMs: 1500, min: 0.3 } },
