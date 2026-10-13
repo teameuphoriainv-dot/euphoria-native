@@ -1,12 +1,15 @@
 /**
  * Financial Analytics lesson 10, the capstone: one analysis run end to end.
  *
- * OPENER. The whole line on its big night. Every station of lesson 1 runs in pipeline order, left
- * to right: data pours down the ceiling chute into the COLLECT hopper, bubbles through the CLEAN
- * tank, builds the lesson's picture on the ANALYZE screen while the MODEL gauge swings, and
- * leaves the DECIDE slot as a card. The map chases all five stages. The analyst stands at the
- * head of the line this time, lifting the pathway trophy, while confetti in the stage colours
- * falls at both ends of the room.
+ * OPENER. The whole line on its big night, running one analysis end to end: data pours down the
+ * ceiling chute into the COLLECT hopper, bubbles through the CLEAN tank, and on the ANALYZE screen
+ * the capstone's own picture builds, the four toolkits this lesson combines as four small panes
+ * (statistics as lesson 2's bell-shaped histogram, Monte Carlo as lesson 7's fan of futures,
+ * visualization as lesson 8's dashboard tiles and bars, machine learning as lesson 9's network),
+ * then a bracket draws them together into one decision card. The MODEL gauge swings and the
+ * decision leaves the DECIDE slot as a card. The map chases all five stages. The analyst stands at
+ * the head of the line, lifting the pathway trophy, while confetti in the stage colours falls at
+ * both ends of the room.
  *
  * BACKDROP. The capstone night (fa-kit-b faBackdropCapstone): every window lit, every packet gold.
  *
@@ -46,7 +49,7 @@ import { faAnalystCheer, faBackdropCapstone, faChute, faConfetti, FA_CHEER_SCREE
 import type { PixelSprite } from '../types';
 import type { LessonArtSet, SceneArt } from './types';
 
-/* ── the keepsake's emblem (it also fills the analyzer screen) ─────────────────────────────── */
+/* ── the keepsake's emblem ──────────────────────────────────────────────────────────────────── */
 
 /**
  * LESSON 10: the capstone. A stepped pyramid, one course per stage in pipeline order: collect
@@ -73,6 +76,34 @@ export const faEmblemCapstone: PixelSprite = (() => {
   // The capstone catches the light on the beat after it lands.
   frames[5] = frames[5].map((row, y) => (y === 1 ? row.replace('yy', 'ww') : row));
   return { ...drawn, name: 'emblem capstone', blurb: 'A stepped pyramid in the five stage colours, a gold capstone on top.', frames };
+})();
+
+/* ── the integrated analysis ───────────────────────────────────────────────────────────────── */
+
+/**
+ * The analyzer screen's picture, the whole 18 x 13 glass: the lesson's four toolkits as four 5 x 5
+ * panes in a square (a bell-shaped histogram, a fan of futures from one point, two dashboard tiles
+ * over rising bars, a small network of blue inputs, teal hidden nodes and a gold output), a bracket
+ * gathering the square on its right, and the one decision it yields, a white card with a green
+ * arrow up. The panes land one a beat, then the bracket, then the card; it holds, and clears.
+ */
+const PANES = [
+  ['.....', '..B..', '.BBB.', '.BBB.', 'BBBBB'],
+  ['....N', '..NN.', 'wyyyy', '...R.', '....R'],
+  ['yy.GG', '.....', '....T', '..T.T', 'T.T.T'],
+  ['Bb...', '.bT..', 'Bb.by', '.bT..', 'Bb...'],
+] as const;
+const integration: PixelSprite = (() => {
+  const g = Array.from({ length: FA_ANALYZER_GLASS.h }, () => Array.from({ length: FA_ANALYZER_GLASS.w }, () => '.'));
+  const order = new Map<string, number>();
+  const put = (x: number, y: number, ch: string, at: number) => { g[y][x] = ch; order.set(`${String(x)},${String(y)}`, at); };
+  PANES.forEach((rows, k) => {
+    const [x0, y0] = [(k % 2) * 6, 1 + Math.floor(k / 2) * 6];
+    rows.forEach((row, j) => [...row].forEach((ch, i) => { if (ch !== '.') put(x0 + i, y0 + j, ch, k); }));
+  });
+  for (const [x, y] of [[11, 1], [11, 2], [12, 3], [12, 4], [12, 5], [12, 7], [12, 8], [12, 9], [11, 10], [11, 11]] as const) put(x, y, 'x', 4);
+  ['wwwwx', 'wwNwx', 'wNNNx', 'wwNwx', 'wwNwx', 'wwNwx', 'xxxxx'].forEach((row, j) => [...row].forEach((ch, i) => { put(13 + i, 3 + j, ch, 5); }));
+  return faDrawnBy('fa10-integration', g.map((r) => r.join('')), (x, y) => order.get(`${String(x)},${String(y)}`) ?? 0, 380, 6);
 })();
 
 /* ── the line ──────────────────────────────────────────────────────────────────────────────── */
@@ -127,7 +158,7 @@ const trophyScreen: PixelSprite = {
 
 export const fa10Opener: SceneArt = {
   id: 'fa10-opener',
-  label: 'The data plant at night with every station running: data pours into a hopper, bubbles through a cleaning tank, builds a stepped pyramid on the analyzer screen and leaves as a decision card, while the analyst lifts a gold trophy and confetti falls.',
+  label: 'The data plant at night with every station running: data pours into a hopper and bubbles through a cleaning tank, the analyzer screen joins four small charts, a bell curve, a fan of futures, a dashboard and a network, into one decision card that leaves the output slot, and the analyst lifts a gold trophy while confetti falls.',
   width: 80,
   height: 60,
   base,
@@ -140,7 +171,7 @@ export const fa10Opener: SceneArt = {
     { sprite: faBubble, x: FILTER.x + 6, y: FILTER.y + 15, motion: { kind: 'rise', amp: 6, periodMs: 2300, phase: 0.5 } },
     { sprite: faBubble, x: FILTER.x + 5, y: FILTER.y + 13, motion: { kind: 'rise', amp: 4, periodMs: 2000, phase: 0.25 } },
     { sprite: faOutlierDrip, x: FILTER.x + FA_FILTER_DRIP.x, y: FILTER.y + FA_FILTER_DRIP.y },
-    { sprite: faEmblemCapstone, x: ANALYZER.x + FA_ANALYZER_GLASS.x + 1, y: ANALYZER.y + FA_ANALYZER_GLASS.y + 1 },
+    { sprite: integration, x: ANALYZER.x + FA_ANALYZER_GLASS.x, y: ANALYZER.y + FA_ANALYZER_GLASS.y },
     { sprite: faLedChase, x: ANALYZER.x + FA_ANALYZER_LEDS.x, y: ANALYZER.y + FA_ANALYZER_LEDS.y },
     { sprite: faGaugeNeedle, x: ANALYZER.x + FA_ANALYZER_NEEDLE.x, y: ANALYZER.y + FA_ANALYZER_NEEDLE.y },
     { sprite: faDecisionCard, x: OUTPUT.x + 1, y: OUTPUT.y - 9, motion: { kind: 'rise', amp: 5, periodMs: 2880 } },

@@ -4,10 +4,14 @@
  * OPENER. The simulation room. On the left a glass drum of dice tumbles on its cabinet, a counter
  * ticking off the runs and fa-kit's die on the door; the draws stream out of the drum along a pipe
  * into a big screen, where the lesson's picture grows from one starting point: possible futures
- * fanning out to the right, the best in green, the median in gold, the worst in red, ordinary runs
- * in teal and blue between them. The analyst stands under the screen, and the map lights MODEL.
+ * fanning out to the right on a money axis whose floor is zero. Compounding skews them the way the
+ * lesson's retirement fan is skewed: the best (95th percentile, green) climbs far above the median
+ * (gold), which ends only a little above where it started, while the worst (5th percentile, red)
+ * sinks to the floor and runs flat along it, the portfolio spent; ordinary runs in teal and blue
+ * lie between them. The analyst stands under the screen, and the map lights MODEL.
  *
- * KEEPSAKE. The trophy with the fan: five paths leaving one point and spreading as they go.
+ * KEEPSAKE. The trophy with the fan: five straight paths leaving one point and spreading as they
+ * go, green far up, gold a little up, red down to the floor.
  */
 import { faBackdrop } from './fa-backdrop';
 import { faAnalyst, faCompose, faConduit, faDie, faMeter, faPacketRun, faPipelineMap, faTabletLine, FA_ANALYST_TABLET } from './fa-kit';
@@ -23,7 +27,8 @@ type FaPath = readonly [ink: string, end: number, wiggle: number];
 /**
  * Paths leaving (0, `start`) and spreading to the right edge of a `w` x `h` grid, each a straight
  * drift to its end row plus a small zigzag, so they read as random walks and not as rays. Steep
- * steps are filled in, so every path stays joined.
+ * steps are filled in, so every path stays joined. An end past the bottom row is clamped there, so
+ * a path aimed below the floor reaches it early and runs flat along it: a portfolio spent to zero.
  */
 function fan(w: number, h: number, start: number, paths: readonly FaPath[]): string[] {
   const grid = Array.from({ length: h }, () => Array.from({ length: w }, () => '.'));
@@ -87,9 +92,13 @@ const DRUM = { x: 4, y: 8 } as const;
 const CABINET = { x: 4, y: 28 } as const;
 const BOARD = { x: 35, y: 3 } as const;
 const GLASS = { x: BOARD.x + FA_MONITOR_GLASS.x, y: BOARD.y + FA_MONITOR_GLASS.y } as const;
-/** Every path starts here, on the glass's left edge, level with the drum's hub and the pipe. */
-const START = 12;
-const FEED = { x: 24, y: GLASS.y + START - 2, length: 11 } as const;
+/**
+ * Every path starts here, on the glass's left edge and level with the pipe: low on the money axis,
+ * so the screen has room for the long climb of the best runs and only a short drop to the floor.
+ */
+const START = 18;
+/** The pipe leaves the drum's lower right, where its rim crosses the start row. */
+const FEED = { x: 20, y: GLASS.y + START - 2, length: 15 } as const;
 const ANALYST = { x: 55, y: 33 } as const;
 
 const room = faRoom('fa7-opener-room', [
@@ -110,11 +119,16 @@ const base = faCompose('fa7-opener-base', room, [
 
 /* ── moving parts ──────────────────────────────────────────────────────────────────────────── */
 
-/** Ten thousand futures, in seven: they grow from today to the right edge, hold, and clear. */
+/**
+ * Ten thousand futures, in seven: they grow from today to the right edge, hold, and clear. The
+ * lesson's numbers set the ends: a start of $1M five rows above zero, the median at $1.8M (row 14),
+ * the 95th past $4M (the top), and the 5th spent to zero by about year 23 of 30, where the red line
+ * meets the floor and runs flat.
+ */
 const futures: PixelSprite = (() => {
   // Sample runs zigzag; the percentile lines over them (95th, median, 5th) are smooth.
   const full = fan(38, 24, START, [
-    ['b', 3, 1], ['b', 20, 1], ['T', 7, 1], ['T', 16, 1], ['N', 0, 0], ['R', 23, 0], ['y', 9, 0],
+    ['b', 4, 1], ['b', 20, 1], ['T', 9, 1], ['T', 17, 1], ['N', 0, 0], ['R', 24.6, 0], ['y', 14, 0],
   ]);
   return faDrawnBy('fa7-futures', full, (x) => Math.floor(x / 3), 230, 5);
 })();
@@ -147,7 +161,7 @@ const draws = faPacketRun('fa7-draws', FEED.length - 2, [[Infinity, 'w']], 4, 16
 
 export const fa7Opener: SceneArt = {
   id: 'fa7-opener',
-  label: 'A simulation room in the data works: dice tumble in a glass drum and stream out as random draws into a big screen, where many possible futures fan out from today, green at the top, gold in the middle and red at the bottom.',
+  label: 'A simulation room in the data works: dice tumble in a glass drum and stream out as random draws into a big screen, where many possible futures fan out from today, the best in green climbing far above the gold median while the worst in red sinks to the floor and runs flat along it.',
   width: 80,
   height: 60,
   base,
@@ -164,19 +178,21 @@ export const fa7Opener: SceneArt = {
 /* ── the keepsake ──────────────────────────────────────────────────────────────────────────── */
 
 /**
- * LESSON 7: Monte Carlo. Five simulated paths leave one white point and spread as they go, the
- * best in green, the median in gold, the worst in red. They grow from the left together, hold,
- * and the screen clears for the next ten thousand.
+ * LESSON 7: Monte Carlo. Five straight paths leave one white point low on the screen and spread
+ * as they go, skewed the way the opener's are: the best in green climbs to the top, a teal run
+ * under it, the median in gold ends a little above the start, a teal run just under the start,
+ * and the worst in red drops to the floor and runs flat. No zigzags, so each line stands apart.
+ * They grow from the left together, hold, and the screen clears for the next ten thousand.
  */
 export const faEmblemFan: PixelSprite = {
-  ...faDrawnBy('fa-emblem-fan', fan(16, 11, 6, [['T', 2, 1], ['T', 8, 1], ['N', 0, 1], ['R', 10, 1], ['y', 4, 1]]), (x) => Math.floor(x / 2), 260),
+  ...faDrawnBy('fa-emblem-fan', fan(16, 11, 7, [['T', 2.5, 0], ['T', 8.4, 0], ['N', 0, 0], ['R', 10.9, 0], ['y', 5, 0]]), (x) => Math.floor(x / 2), 260),
   name: 'emblem fan',
   blurb: 'Simulated paths fanning out from today.',
 };
 
 export const fa7Finish: SceneArt = faKeepsake(
   'fa7-finish',
-  'A gold terminal trophy on a purple stand, its screen drawing five paths that fan out from one point, green at the top, gold in the middle and red at the bottom, with small sparkles around it.',
+  'A gold terminal trophy on a purple stand, its screen drawing five paths that fan out from one low point, green climbing to the top, gold rising a little and red dropping to the floor, with small sparkles around it.',
   faEmblemFan,
 );
 

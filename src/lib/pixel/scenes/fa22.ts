@@ -10,8 +10,8 @@
  * its widening band. Under the pipe the DECIDE slot issues the trade. The colleague ticks off the
  * validation checks on her clipboard and the analyst points at the forecast. The map lights MODEL.
  *
- * KEEPSAKE. The trophy with a forecast: a green price line, a dashed white line for today, and a
- * gold dashed line climbing on past it.
+ * KEEPSAKE. The trophy with a forecast: a green price line, a dashed white line for today, and past
+ * it a gold forecast inside a band that widens the further ahead it looks, as the opener's does.
  */
 import { faBackdrop } from './fa-backdrop';
 import { faCompose, faConduit, faDecisionCard, faLamp, faOutputSlot, faPipelineMap, FA_OUTPUT_LAMP } from './fa-kit';
@@ -160,19 +160,20 @@ export const fa22Opener: SceneArt = {
 
 /**
  * LESSON 22: predictive modeling. A forecast: a green price line draws itself up to a dashed white
- * line for today, then a gold dashed line climbs on past it to a point that flashes while it
- * holds, and the screen clears.
+ * line for today, then the forecast draws on past it a column at a time, a gold line climbing
+ * gently inside a dim gold band that widens with every step ahead, the uncertainty that most models
+ * underrate; the forecast's last point catches the light while it holds, and the screen clears.
  */
 export const faEmblemForecast: PixelSprite = (() => {
   const full = [
-    '.........w....yy',
-    '.............yG.',
-    '.........w.y.G..',
-    '..........yG....',
-    '........NwG.....',
-    '.......Nn.......',
-    '.....NNn.w......',
-    '.NN.Nnn.........',
+    '.........w....gg',
+    '.............gOO',
+    '.........w..gOyG',
+    '..........ggyGOO',
+    '........NwyGOOOO',
+    '.......Nn.gggOOO',
+    '.....NNn.w...ggO',
+    '.NN.Nnn........g',
     'NnnNn....w......',
     'n..n............',
     '.........w......',
@@ -180,18 +181,18 @@ export const faEmblemForecast: PixelSprite = (() => {
   const step = (x: number, _y: number, ch: string) => {
     if (ch === 'w') return 3;
     if (x <= 8) return Math.floor(x / 3);
-    return x <= 11 ? 4 : x <= 14 ? 5 : 6;
+    return x <= 11 ? 4 : x <= 13 ? 5 : 6;
   };
   const drawn = faDrawnBy('fa-emblem-forecast', full, step, 300, 5);
   const frames = drawn.frames ?? [drawn.rows];
-  // The forecast's point catches the light while it holds.
-  for (const f of [8, 10]) frames[f] = frames[f].map((row, y) => (y === 0 ? row.replace('yy', 'ww') : row));
-  return { ...drawn, name: 'emblem forecast', blurb: 'A price line, a line for today and a dashed forecast climbing past it.', frames };
+  // The forecast's last point catches the light while it holds.
+  for (const f of [8, 10]) frames[f] = frames[f].map((row, y) => (y === 2 ? row.replace('yG', 'ww') : row));
+  return { ...drawn, name: 'emblem forecast', blurb: 'A price line, a line for today and a forecast inside a widening band.', frames };
 })();
 
 export const fa22Finish: SceneArt = faKeepsake(
   'fa22-finish',
-  'A gold terminal trophy on a purple stand, its screen drawing a green price line up to a dashed white line for today, then a gold dashed forecast climbing on past it, with small sparkles around it.',
+  'A gold terminal trophy on a purple stand, its screen drawing a green price line up to a dashed white line for today, then a gold forecast climbing gently past it inside a band that widens the further ahead it looks, with small sparkles around it.',
   faEmblemForecast,
 );
 

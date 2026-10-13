@@ -9,8 +9,8 @@
  * curves draw themselves apart (grey A, green B), the analyst stands at A and the colleague at B
  * with her clipboard, ticking, and the map lights ANALYZE.
  *
- * KEEPSAKE. The trophy with the lesson's test: a blue card and a gold card, and a green tick on
- * the gold one.
+ * KEEPSAKE. The trophy with the lesson's test: a blue card marked A and a gold card marked B, the
+ * opener's two offers, and a green tick over B.
  */
 import { faBackdrop } from './fa-backdrop';
 import { faAnalyst, faBubble, faCompose, faConduit, faLater, faPacketRun, faPipelineMap, faRawBits, faTabletLine, FA_ANALYST_TABLET } from './fa-kit';
@@ -189,32 +189,33 @@ export const fa15Opener: SceneArt = {
 
 /**
  * LESSON 15: A/B testing. Card A (blue, the control) and card B (gold, the test) land side by
- * side, then a bold green tick draws itself over B, it holds, the screen clears.
+ * side, each wearing its letter in white the way the opener's chambers do; then a bold green tick
+ * draws itself over B, it holds, the screen clears.
  */
 export const faEmblemABTest: PixelSprite = (() => {
   const full = [
-    '...............N',
     '..............NN',
-    '.........NN..NN.',
+    '..........N..NN.',
     '..........NNNN..',
     '...........NN...',
-    '................',
     'BBBBBBb..yyyyyyG',
-    'DDDDDDD..DDDDDDD',
-    'BwwBBBb..GwwGGGg',
-    'BBBBBBb..GGGGGGg',
+    'BBBwBBb..GGwwGGg',
+    'BBwBwBb..GGwGwGg',
+    'BBwwwBb..GGwwGGg',
+    'BBwBwBb..GGwGwGg',
+    'BBwBwBb..GGwwGGg',
     'bbbbbbb..ggggggg',
   ];
   return {
-    ...faDrawnBy('fa-emblem-ab-test', full, (x, y, ch) => (ch === 'N' ? 2 + Math.floor((x - 9) / 3) : x < 8 ? 0 : 1), 340, 4),
+    ...faDrawnBy('fa-emblem-ab-test', full, (x, _y, ch) => (ch === 'N' ? 2 + Math.floor((x - 10) / 2) : x < 8 ? 0 : 1), 340, 4),
     name: 'emblem ab test',
-    blurb: 'A blue card and a gold card with a green tick on the gold one.',
+    blurb: 'A blue card marked A and a gold card marked B, with a green tick over B.',
   };
 })();
 
 export const fa15Finish: SceneArt = faKeepsake(
   'fa15-finish',
-  'A gold terminal trophy on a purple stand, its screen showing a blue card and a gold card side by side and a green tick drawing itself over the gold one, with small sparkles around it.',
+  'A gold terminal trophy on a purple stand, its screen showing a blue card marked A and a gold card marked B side by side and a green tick drawing itself over B, with small sparkles around it.',
   faEmblemABTest,
 );
 
