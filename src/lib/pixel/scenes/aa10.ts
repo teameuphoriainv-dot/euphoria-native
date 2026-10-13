@@ -4,9 +4,12 @@
  * The whole hall, and the bookkeeper on their feet in the middle of it holding the gold-bound tenth
  * volume. Five gilt frames hang in a row under a plate reading MASTERY, one for each layer of the
  * integrated analysis: the T-account, the ratio bars, the break-even cross, the auditor's tick and the
- * forensic glass. Banker's lamps stand on piles of the volumes already earned, between cases of
- * ledgers. Moving: the five frames light up one after another, gilt glints on the gold volume, both
- * lamps breathe, dust rises in their light, the bookkeeper blinks.
+ * forensic glass. A gilt line runs down from every frame, the five gathering into two that come down
+ * either side of the bookkeeper and end in their hands at the volume: five layers, one analysis.
+ * Banker's lamps stand on piles of the volumes already earned, between cases of ledgers. Moving: the
+ * five frames light up one after another and then a green tick lights on the volume's plate, the
+ * integrated verdict; gilt glints on the gold volume, both lamps breathe, dust rises in their light,
+ * the bookkeeper blinks.
  *
  * The checkpoint keeps the pathway backdrop but lights it for the occasion (aa10Backdrop): both lamps
  * burn steady, and gilt runs along the cornices and the clock's crest, glinting in turn.
@@ -64,6 +67,35 @@ const FRAME_Y = 10;
 const KEEPER = { x: 31, y: 25 };
 const LAMPS = [{ x: 17, y: 34 }, { x: 50, y: 34 }];
 
+/**
+ * The gilt lines that join the five frames into one analysis, in scene pixels: a stub under each frame,
+ * a rail along under the outer pairs and the middle frame, two drops either side of the bookkeeper,
+ * and a short run into each hand at the volume.
+ */
+const DROP = { left: 30, right: 49, bottom: 46 };
+const chain = (() => {
+  const W = 80;
+  const H = DROP.bottom + 1;
+  const cells: string[][] = Array.from({ length: H }, () => Array.from({ length: W }, () => '.'));
+  const put = (x: number, y: number) => {
+    cells[y][x] = 'G';
+  };
+  FRAME_X.forEach((x) => put(x + 7, FRAME_Y + 14));
+  for (let x = DROP.left; x <= DROP.right; x++) put(x, FRAME_Y + 14);
+  for (let x = FRAME_X[0] + 7; x <= DROP.left; x++) put(x, FRAME_Y + 15);
+  for (let x = DROP.right; x <= FRAME_X[4] + 7; x++) put(x, FRAME_Y + 15);
+  for (let y = FRAME_Y + 14; y <= DROP.bottom; y++) {
+    put(DROP.left, y);
+    put(DROP.right, y);
+  }
+  for (let x = DROP.left; x <= DROP.left + 3; x++) put(x, DROP.bottom);
+  for (let x = DROP.right - 3; x <= DROP.right; x++) put(x, DROP.bottom);
+  return sprite('aa10-chain', cells.map((r) => r.join('')));
+})();
+
+/** The verdict: a green tick on the volume's dark plate once every layer has been read. */
+const verdict = sprite('aa10-verdict', ['...m', 'N.N.', '.N..'], AA_PALETTE);
+
 const base = aaCompose('aa10-opener-base', 80, 60, 'k', [
   { sprite: aaFloor('aa10-floor', 80, [[0, 30], [33, 79]]), x: 0, y: 49 },
   { sprite: aaPlaque('aa10-opener-plate', 'MASTERY'), x: 24, y: 0 },
@@ -71,18 +103,19 @@ const base = aaCompose('aa10-opener-base', 80, 60, 'k', [
     { sprite: aaFrame(`aa10-frame-${String(i + 1)}`, 14, 14, 'K'), x, y: FRAME_Y },
     { sprite: layer(`aa10-layer-${String(i + 1)}`, i, 'g'), x: x + 3, y: FRAME_Y + 3 },
   ]),
-  { sprite: shortCase('aa10-case-left', [12, 28, 36]), x: 0, y: 27 },
+  { sprite: shortCase('aa10-case-left', [28, 4, 36]), x: 0, y: 27 },
   { sprite: shortCase('aa10-case-right', [4, 20, 36]), x: 64, y: 27 },
   { sprite: pile('aa10-pile-left', 3), x: 17, y: 48 },
   { sprite: pile('aa10-pile-right', 3), x: 49, y: 48 },
   ...LAMPS.map((at) => ({ sprite: aaBankersLamp, ...at })),
+  { sprite: chain, x: 0, y: 0 },
   { sprite: aaBookkeeperStanding, ...KEEPER },
   { sprite: heldVolume, x: KEEPER.x, y: KEEPER.y + AA_AT_B.propInHands.y },
 ]);
 
 export const aa10Opener: SceneArt = {
   id: 'aa10-opener',
-  label: 'The bookkeeper stands in the middle of the ledger hall holding a gold-bound ledger, under five gilt frames of the lessons so far and a brass plate reading MASTERY, between green lamps on piles of ledgers.',
+  label: 'The bookkeeper stands in the middle of the ledger hall holding a gold-bound ledger with a green tick on its plate, gilt lines running down to it from five gilt frames of the lessons so far under a brass plate reading MASTERY, between green lamps on piles of ledgers.',
   width: 80,
   height: 60,
   base,
@@ -93,6 +126,7 @@ export const aa10Opener: SceneArt = {
       y: FRAME_Y + 3,
       motion: { kind: 'twinkle' as const, periodMs: 4000, phase: i * 0.2, min: 0.1 },
     })),
+    { sprite: verdict, x: KEEPER.x + 7, y: KEEPER.y + AA_AT_B.propInHands.y + 3, motion: { kind: 'twinkle', periodMs: 4000, phase: 0.9, min: 0 } },
     { sprite: aaGlint, x: KEEPER.x + 11, y: KEEPER.y + 16 },
     { sprite: aaBlink, x: KEEPER.x + AA_AT.blinkOnBookkeeper.x, y: KEEPER.y + AA_AT.blinkOnBookkeeper.y },
     ...LAMPS.map((at, i) => ({

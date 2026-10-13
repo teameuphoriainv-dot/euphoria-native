@@ -5,12 +5,13 @@
  * The hall's great window looks out on the group at night. In the middle stands the parent's tower,
  * gold-crowned and flying its flag, joined by lit skybridges to two subsidiaries under rooftop signs
  * of the share it owns, 100% and 80%; apart from them, joined to nothing, stands an affiliate it owns
- * 30% of. The share owned is the share lit: every window of the first subsidiary, four columns in
- * five of the second (the dark fifth is the non-controlling interest), one in three of the
- * affiliate's. On the desk below lie the subsidiaries' own books and the one set the group reports,
- * under a plate reading GROUP. Moving: stars and the signs' red beacons twinkle, the parent's flag
- * flies, two intercompany lines on the open ledger flash struck out (eliminated on consolidation),
- * gilt catches the light on the window frame.
+ * 30% of. Control brings a whole company in: every window of both subsidiaries burns, but on the 80%
+ * tower the last of its five columns burns blue instead of gold, the fifth that other owners hold
+ * (the non-controlling interest), shown apart. The affiliate is only influenced, not controlled, so
+ * only its owned share is lit, one column in three. On the desk below lie the subsidiaries' own books
+ * and the one set the group reports, under a plate reading GROUP. Moving: stars and the signs' red
+ * beacons twinkle, the parent's flag flies, two intercompany lines on the open ledger flash struck out
+ * (eliminated on consolidation), gilt catches the light on the window frame.
  */
 import type { PixelSprite } from '../types';
 import { AA_PALETTE, aaCompose, aaDesk, aaGlint, aaInkwell, aaLedgerOpen, aaPlaque, aaText } from './aa-kit';
@@ -41,14 +42,15 @@ const sky = sprite('aa18-sky', Array.from({ length: GLASS.h }, (_, dy) => Array.
 
 /**
  * A tower of the group, front on and lit from the left: a window in each of `cols` columns on every
- * other floor, the columns `lit` says burning gold and the rest dark.
+ * other floor, each column burning the colour `ink` gives it (gold, blue for other owners' share) or
+ * dark.
  */
-const tower = (id: string, cols: number, h: number, lit: (col: number) => boolean) => {
+const tower = (id: string, cols: number, h: number, ink: (col: number) => string) => {
   const w = cols * 2 + 3;
   return sprite(id, Array.from({ length: h }, (_, y) => Array.from({ length: w }, (_, x) => {
     if (y === 0 || x === 0) return 'X';
     if (x === w - 1) return 'k';
-    if (y % 2 === 0 && x % 2 === 0 && x <= w - 3) return lit(x / 2 - 1) ? 'G' : 'K';
+    if (y % 2 === 0 && x % 2 === 0 && x <= w - 3) return ink(x / 2 - 1);
     return 'D';
   }).join('')));
 };
@@ -93,12 +95,12 @@ const base = aaCompose('aa18-opener-base', 80, 60, 'k', [
   { sprite: aaPlaque('aa18-opener-plate', 'GROUP'), x: 29, y: 1 },
   { sprite: aaFrame('aa18-window', 74, 30, 'L'), x: 3, y: 10 },
   { sprite: sky, x: GLASS.x, y: GLASS.y },
-  { sprite: tower('aa18-sub-a', 5, 17, () => true), ...SUB_A },
-  { sprite: tower('aa18-parent', 7, 20, () => true), ...PARENT },
+  { sprite: tower('aa18-sub-a', 5, 17, () => 'G'), ...SUB_A },
+  { sprite: tower('aa18-parent', 7, 20, () => 'G'), ...PARENT },
   { sprite: crown, x: PARENT.x, y: PARENT.y - 3 },
   { sprite: pole, x: PARENT.x + 8, y: PARENT.y - 6 },
-  { sprite: tower('aa18-sub-b', 5, 15, (c) => c < 4), ...SUB_B },
-  { sprite: tower('aa18-affiliate', 3, 12, (c) => c === 0), ...AFFILIATE },
+  { sprite: tower('aa18-sub-b', 5, 15, (c) => (c < 4 ? 'G' : 'B')), ...SUB_B },
+  { sprite: tower('aa18-affiliate', 3, 12, (c) => (c === 0 ? 'G' : 'K')), ...AFFILIATE },
   { sprite: bridge, x: 21, y: 27 },
   { sprite: bridge, x: 41, y: 29 },
   { sprite: roofSign('aa18-sign-a', '100%'), x: SUB_A.x - 2, y: SUB_A.y - 9 },
@@ -123,7 +125,7 @@ const strike = sprite('aa18-strike', ['RRRRRRRRRRRR', '............', 'RRRRRRRRR
 
 export const aa18Opener: SceneArt = {
   id: 'aa18-opener',
-  label: "Through a great window, a night city: the parent's gold-crowned tower joined by lit bridges to two subsidiaries signed 100% and 80%, an affiliate signed 30% standing apart, and on the desk below one open ledger under a brass plate reading GROUP.",
+  label: "Through a great window, a night city: the parent's gold-crowned tower joined by lit bridges to two fully lit subsidiaries signed 100% and 80%, the 80% tower's last column of windows lit blue for its other owners, an affiliate signed 30% standing apart with one column lit, and on the desk below one open ledger under a brass plate reading GROUP.",
   width: 80,
   height: 60,
   base,

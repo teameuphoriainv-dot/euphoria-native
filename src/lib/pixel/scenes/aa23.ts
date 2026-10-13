@@ -7,7 +7,8 @@
  * beside them showing the general ledger, GL; on the right a cabinet of modules, one labelled drawer
  * each for GL, AP, AR, PAY and INV. A cable runs from the terminal along the wall to the modules.
  * Moving: the reels turn and the lights blink, the bookkeeper types, the cursor flashes, a pulse runs
- * along the cable and the modules' lamps light one after another, top to bottom.
+ * along the cable, and the lamps of the three modules the lesson's customer order touches light
+ * together as it arrives: GL, AR and INV. AP and PAY, which that order never reaches, stay dark.
  */
 import type { PixelSprite } from '../types';
 import { AA_AT, AA_PALETTE, aaBlink, aaBookkeeper, aaCompose, aaDesk, aaPlaque, aaText } from './aa-kit';
@@ -90,38 +91,45 @@ const typing: PixelSprite = {
 /* ── the modules ────────────────────────────────────────────────────────────────────────────── */
 
 const MODULES = ['GL', 'AP', 'AR', 'PAY', 'INV'];
-/** A cabinet of modules, 18 x 44: a drawer each, a lamp at its left, a white card naming it. */
+/** The modules a customer order updates (the lesson's own example): the ledger, receivables, stock. */
+const TOUCHED = ['GL', 'AR', 'INV'];
+/**
+ * A cabinet of modules, 20 x 44: a drawer each, a lamp at its left, a white card naming it, the card
+ * wide enough to leave a clear pixel either side of PAY and INV.
+ */
 const cards = MODULES.map((m, i) => aaText(`aa23-card-${String(i)}`, m, 'K').rows);
-const rack = aaPaint('aa23-rack', 18, 44, (x, y) => {
+const RACK_W = 20;
+const CARD = { x0: 5, w: 13 };
+const rack = aaPaint('aa23-rack', RACK_W, 44, (x, y) => {
   if (y >= 42) return 'K';
   if (y < 2) return y === 0 ? 'X' : 'D';
   const i = Math.floor((y - 2) / 8);
   const r = (y - 2) % 8;
-  if (x === 0 || x === 17) return 'D';
+  if (x === 0 || x === RACK_W - 1) return 'D';
   if (r === 0) return 'K';
   if (x === 1) return 'X';
-  if (x === 16) return 'k';
+  if (x === RACK_W - 2) return 'k';
   if (x >= 2 && x <= 3) return r >= 3 && r <= 4 ? 'n' : 'D';
   if (x === 4) return 'D';
   if (r === 7) return 'D';
   if (r === 6) return 'c';
   const t = cards[i];
-  const ox = 5 + Math.floor((11 - t[0].length) / 2);
+  const ox = CARD.x0 + Math.floor((CARD.w - t[0].length) / 2);
   const g = t[r - 1]?.[x - ox];
   return g && g !== '.' ? 'K' : 'a';
 }, AA_PALETTE);
 
 /** The cable from the terminal up the wall and along to the modules. */
 const CABLE_Y = 16;
-const cable = aaPaint('aa23-cable', 24, 11, (x, y) => (y === 0 || x === 0 ? 'D' : '.'));
+const cable = aaPaint('aa23-cable', 23, 11, (x, y) => (y === 0 || x === 0 ? 'D' : '.'));
 const link = sprite('aa23-link', ['DD']);
 
 const KEEPER = { x: 40, y: 19 };
 const TERMINAL = { x: 21, y: 26 };
-const RACK = { x: 61, y: 13 };
+const RACK = { x: 60, y: 13 };
 
 const base = aaCompose('aa23-opener-base', 80, 60, 'k', [
-  { sprite: aaFloor('aa23-floor', 80, [[1, 18], [20, 59], [61, 78]]), x: 0, y: 49 },
+  { sprite: aaFloor('aa23-floor', 80, [[1, 18], [20, 59], [60, 79]]), x: 0, y: 49 },
   { sprite: aaPlaque('aa23-opener-plate', 'ERP'), x: 32, y: 1 },
   { sprite: cable, x: TERMINAL.x + 16, y: CABLE_Y },
   { sprite: mainframe, x: 1, y: 11 },
@@ -144,7 +152,7 @@ const reelRight = reel('aa23-reel-right', 1);
 
 export const aa23Opener: SceneArt = {
   id: 'aa23-opener',
-  label: 'The bookkeeper types at a terminal showing GL, wired between a mainframe with turning tape reels and a cabinet of modules labelled GL, AP, AR, PAY and INV, whose lamps light one after another, under a brass plate reading ERP.',
+  label: 'The bookkeeper types at a terminal showing GL, wired between a mainframe with turning tape reels and a cabinet of modules labelled GL, AP, AR, PAY and INV, where only the GL, AR and INV lamps light as the entry arrives, under a brass plate reading ERP.',
   width: 80,
   height: 60,
   base,
@@ -163,12 +171,12 @@ export const aa23Opener: SceneArt = {
       y: CABLE_Y,
       motion: { kind: 'twinkle' as const, periodMs: 2400, phase: k * 0.12, min: 0 },
     })),
-    ...MODULES.map((_, i) => ({
+    ...MODULES.flatMap((m, i) => (TOUCHED.includes(m) ? [{
       sprite: lamp,
       x: RACK.x + 2,
       y: RACK.y + 2 + i * 8 + 3,
-      motion: { kind: 'twinkle' as const, periodMs: 2400, phase: 0.42 + i * 0.1, min: 0 },
-    })),
+      motion: { kind: 'twinkle' as const, periodMs: 2400, phase: 0.42, min: 0 },
+    }] : [])),
   ],
 };
 

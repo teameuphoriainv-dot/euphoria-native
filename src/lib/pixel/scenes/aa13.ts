@@ -6,8 +6,10 @@
  * on their labels. Year 1 is new orchid leather and bright gilt; each year after is duller, until year
  * 5 is grey, its gilt gone, dust on its head and a cobweb strung from it to the wall. Above them a
  * gilt-framed chart draws the book value falling in a straight line, a point over each volume, down to
- * the dashed salvage line, under a plate reading DEPRECIATION. Moving: the chart's points light up
- * year by year, the spider rides its thread, dust lifts off the old volumes, gilt glints on the new one.
+ * the salvage value: a dashed blue line a step above the grey axis, about a tenth of the cost, where
+ * the line comes to rest instead of falling to zero. A plate above reads DEPRECIATION. Moving: the
+ * chart's points light up year by year, the spider rides its thread, dust lifts off the old volumes,
+ * gilt glints on the new one.
  */
 import type { PixelSprite } from '../types';
 import { AA_PALETTE, aaCompose, aaGlint, aaPlaque, aaText } from './aa-kit';
@@ -62,20 +64,24 @@ const volume = (year: number) => {
 /** Dust settled on the old volumes' heads, and a frayed corner on the oldest. */
 const dust = sprite('aa13-dust', ['.x.x..x.x.'], AA_PALETTE);
 
-/** The chart, 68 x 17: axes, the dashed salvage line, the book value falling straight through a point a year. */
+/**
+ * The chart, 68 x 17: axes, the dashed salvage line, the book value falling straight through a point a
+ * year. The salvage dashes are blue so they part from the grey axis right under them, and the line's
+ * shadow stops above the axis so the axis stays whole: the asset ends worth something, not nothing.
+ */
 const CHART = { x: 6, y: 10 };
 const chart = (() => {
   const cells: string[][] = Array.from({ length: 13 }, () => Array.from({ length: 64 }, () => '.'));
   const put = (x: number, y: number, ch: string) => {
     cells[y - CHART.y - 2][x - CHART.x - 2] = ch;
   };
-  for (let x = 10; x <= 70; x += 2) put(x, SALVAGE_Y, 'X');
+  for (let x = 10; x <= 70; x++) if (x % 3 !== 0) put(x, SALVAGE_Y, 'B');
   for (let x = 9; x <= 70; x++) put(x, AXIS_Y, 'c');
   for (let y = 13; y <= AXIS_Y; y++) put(9, y, 'c');
   for (let x = YEAR_X[0]; x <= YEAR_X[4]; x++) {
     const y = Math.round(YEAR_Y[0] + ((x - YEAR_X[0]) * (YEAR_Y[4] - YEAR_Y[0])) / (YEAR_X[4] - YEAR_X[0]));
     put(x, y, 'G');
-    put(x, y + 1, 'g');
+    if (y + 1 !== AXIS_Y) put(x, y + 1, 'g');
   }
   YEAR_X.forEach((x, i) => {
     put(x, YEAR_Y[i], 'y');
@@ -140,7 +146,7 @@ const greyMote = sprite('aa13-grey-mote', ['x'], AA_PALETTE);
 
 export const aa13Opener: SceneArt = {
   id: 'aa13-opener',
-  label: 'Five copies of one ledger stand in a row, numbered 1 to 5, each older than the last until the fifth is grey, dusty and cobwebbed, under a gilt chart of book value falling in a straight line and a brass plate reading DEPRECIATION.',
+  label: 'Five copies of one ledger stand in a row, numbered 1 to 5, each older than the last until the fifth is grey, dusty and cobwebbed, under a gilt chart of book value falling in a straight line onto a dashed blue salvage line just above the axis, and a brass plate reading DEPRECIATION.',
   width: 80,
   height: 60,
   base,
@@ -153,22 +159,42 @@ export const aa13Opener: SceneArt = {
   ],
 };
 
-/** Lesson 13 emblem: a gilt gear, the plant and machinery the lesson writes down. */
-const emblemGear = sprite('aa-emblem-gear', Array.from({ length: 16 }, (_, y) => Array.from({ length: 16 }, (_, x) => {
-  const d = Math.hypot(x - 7.5, y - 7.5);
-  const square = (lo: number, hi: number, v: number) => v >= lo && v <= hi;
-  const upright = (square(6, 9, x) && (y <= 2 || y >= 13)) || (square(6, 9, y) && (x <= 2 || x >= 13));
-  const corner = (square(2, 4, x) || square(11, 13, x)) && (square(2, 4, y) || square(11, 13, y));
-  if (d <= 1.6) return '.';
-  if (d <= 2.7) return 'O';
-  if (d <= 5.2 || upright || corner) return x + y < 13 ? 'y' : x + y > 17 ? 'g' : 'G';
-  return '.';
-}).join('')));
+/**
+ * Lesson 13 emblem: straight-line depreciation on a pale pair of axes. A gilt line falls evenly from
+ * the cost at the top of the axis and comes to rest on a dashed white floor, the salvage value, which
+ * stands clear above the axis: the asset is written down to what it will still be worth, not to nothing.
+ */
+const emblemSalvage = (() => {
+  const cells: string[][] = Array.from({ length: 16 }, () => Array.from({ length: 16 }, () => '.'));
+  const put = (x: number, y: number, ch: string) => {
+    cells[y][x] = ch;
+  };
+  for (let y = 1; y <= 14; y++) {
+    put(1, y, 'a');
+    put(2, y, 'x');
+  }
+  for (let x = 1; x <= 14; x++) {
+    put(x, 13, x === 1 ? 'a' : 'x');
+    put(x, 14, x === 1 ? 'a' : 'X');
+  }
+  for (let x = 4; x <= 14; x++) {
+    if ((x - 4) % 3 !== 2) {
+      put(x, 9, 'a');
+      put(x, 10, 'c');
+    }
+  }
+  for (let x = 3; x <= 13; x++) {
+    const y = Math.round(1 + ((x - 3) * 7) / 10);
+    put(x, y, 'y');
+    put(x, y + 1, 'G');
+  }
+  return sprite('aa-emblem-salvage', cells.map((r) => r.join('')), AA_PALETTE);
+})();
 
 export const aa13Finish = aaKeepsake(
   'aa13-finish',
-  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped in gold with a gear, with small glints and check marks around it.',
-  emblemGear,
+  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped with a gold line falling straight down a chart onto a dashed white floor above the axis, with small glints and check marks around it.',
+  emblemSalvage,
 );
 
 export const art: LessonArtSet = { opener: aa13Opener, backdrop: aaBackdrop, finish: aa13Finish };

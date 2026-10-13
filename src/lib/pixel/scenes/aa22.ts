@@ -117,26 +117,33 @@ export const aa22Opener: SceneArt = {
   ],
 };
 
-/** Lesson 22 emblem: a gilt gauge, its needle deep in the red. */
-const emblemGauge = aaPaint('aa-emblem-gauge', 16, 16, (x, y) => {
-  const dx = x - 7.5;
-  const dy = y - 8.5;
-  const d = Math.hypot(dx, dy);
-  if (d > 7.4) return '.';
-  if (d > 6.1) return dx + dy < -3 ? 'y' : dx + dy > 3 ? 'g' : 'G';
-  if (d < 1.2) return 'O';
-  const along = dx * Math.sin((100 * Math.PI) / 180) - dy * Math.cos((100 * Math.PI) / 180);
-  const across = Math.abs(dx * Math.cos((100 * Math.PI) / 180) + dy * Math.sin((100 * Math.PI) / 180));
-  if (along > 0 && along < 5.6 && across < 0.6) return 'K';
-  const deg = bearing(dx, dy);
-  if (d > 3.8 && deg >= 60 && deg <= 135) return 'R';
-  if (d > 4.4 && [-135, -90, -45, 0, 45].some((t) => Math.abs(deg - t) < 10)) return 'O';
-  return 'a';
-});
+/**
+ * Lesson 22 emblem: a half-round meter on a gilt base, not a clock face. Its scale runs green on the
+ * left, white over the top and red on the right, and its needle rises from the hub at the foot into
+ * the red: the warning the 4.0 equity multiplier gives inside a healthy-looking 20% return.
+ */
+const emblemGauge = sprite('aa-emblem-gauge', [
+  '................',
+  '................',
+  '................',
+  '.....yGGGGg.....',
+  '....yyaaaagg....',
+  '..yyNaaaaaaRgg..',
+  '..yNNNaaaaRKRg..',
+  '.yNNNaaaaaKRRRg.',
+  '.yNNaaaaaKaaRRg.',
+  '.yNNaaaKKaaaRRg.',
+  '.OOOOOOOOOOOOOO.',
+  '.yGGGGGGGGGGGGg.',
+  '.gggggggggggggg.',
+  '................',
+  '................',
+  '................',
+], AA_PALETTE);
 
 export const aa22Finish = aaKeepsake(
   'aa22-finish',
-  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped with a gold gauge whose needle points deep into the red, with small glints and check marks around it.',
+  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped with a gold half-round meter on a base, its scale running from green to red and its needle pointing into the red, with small glints and check marks around it.',
   emblemGauge,
 );
 

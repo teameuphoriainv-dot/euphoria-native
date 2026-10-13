@@ -2,12 +2,12 @@
  * Applied Accounting lesson 19, International Accounting Standards (IFRS vs GAAP): two rulebooks for
  * one world, one written in principles and one in rules.
  *
- * A library globe turns on its brass meridian in the middle of the hall, between the two books the
- * plate above names, IFRS/GAAP. On the left a single slim volume lies open on a lectern, a few broad
- * lines to the page and a blue ribbon: principles. On the right a tower of thick bound volumes stands
- * on a side table, the open one on top bristling with coloured tabs, every line of every page filled:
- * rules. Moving: the globe turns, a page of the slim book turns over, the brass catches the light,
- * dust rises.
+ * A library globe turns on its brass meridian in the middle of the hall, between the two books, each
+ * under a plate of its own. On the left, under IFRS, a single slim volume lies open on a lectern, a
+ * few broad lines to the page and a blue ribbon: principles. On the right, under GAAP, a tower of thick
+ * bound volumes stands on a side table, the open one on top bristling with coloured tabs, every line of
+ * every page filled: rules. Moving: the globe turns, a page of the slim book turns over, the brass
+ * catches the light, dust rises.
  */
 import type { PixelSprite } from '../types';
 import { AA_PALETTE, aaCompose, aaGlint, aaMote, aaPlaque } from './aa-kit';
@@ -159,7 +159,8 @@ const sideTable = sprite('aa19-side-table', [
 
 const base = aaCompose('aa19-opener-base', 80, 60, 'k', [
   { sprite: aaFloor('aa19-floor', 80, [[3, 22], [34, 46], [55, 78]]), x: 0, y: 49 },
-  { sprite: aaPlaque('aa19-opener-plate', 'IFRS/GAAP'), x: 21, y: 1 },
+  { sprite: aaPlaque('aa19-plate-ifrs', 'IFRS'), x: 3, y: 1 },
+  { sprite: aaPlaque('aa19-plate-gaap', 'GAAP'), x: 58, y: 1 },
   { sprite: mount, x: 26, y: 13 },
   { sprite: pedestal, x: 34, y: 39 },
   { sprite: lectern, x: 3, y: 34 },
@@ -174,7 +175,7 @@ const base = aaCompose('aa19-opener-base', 80, 60, 'k', [
 
 export const aa19Opener: SceneArt = {
   id: 'aa19-opener',
-  label: 'A library globe turns on its brass stand between one slim open rulebook on a lectern and a tall stack of thick, tabbed rulebooks on a table, under a brass plate reading IFRS/GAAP.',
+  label: 'A library globe turns on its brass stand between one slim open rulebook on a lectern under a brass plate reading IFRS and a tall stack of thick, tabbed rulebooks on a table under a brass plate reading GAAP.',
   width: 80,
   height: 60,
   base,

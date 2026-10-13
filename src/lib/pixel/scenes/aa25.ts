@@ -1,23 +1,23 @@
 /**
  * Applied Accounting lesson 25, the Advanced Capstone: every domain of the pathway, set together.
  *
- * The capstone as the stone that holds an arch together. A great orchid arch spans the hall, its six
- * stones each carrying a gilt sign of one domain in the order the capstone works through them: the
- * T-account of the statements, the auditor's tick, the globe of the specialised fields, the bars of
- * management, the analyst's glass and the shield of ethics. At the top the gold keystone carries a
- * crown. Under it the bookkeeper stands holding the gold-bound last volume, between two short cases
- * of the twenty-four ledgers already earned, in six colours, under a plate reading CAPSTONE. Moving:
- * the six signs light one after another, left to right, and then the crown blazes; gilt glints on
- * the gold volume, the bookkeeper blinks, dust rises.
+ * The lesson is the capstone of the pathway; the picture borrows an arch's keystone, the stone that
+ * locks all the others in place, for the synthesis it asks for. A great orchid arch spans the hall,
+ * three stones rising from each side, each numbered in gilt in the order the capstone works through
+ * its domains: 1 DuPont, 2 quality of earnings, 3 consolidation, 4 tax and cross-border, 5 systems and
+ * controls, 6 ethics. The two middle stones lean in on the gap at the crown, and into that gap the
+ * bookkeeper, standing beneath with both arms raised, sets the wide gold keystone that joins the two
+ * sides, under a plate reading CAPSTONE. Moving: the six numbers light one after another, 1 to 6,
+ * and then the keystone blazes; dust rises, the bookkeeper blinks.
  *
  * The capstone keeps the pathway backdrop but lights it for the occasion (aa25Backdrop): both lamps
  * burn steady, gilt runs along the cornices and the floor rule, and a gold crown sits on the clock.
  */
 import type { PixelSprite } from '../types';
-import { AA_AT, AA_PALETTE, aaBlink, aaCompose, aaGlint, aaMote, aaPlaque } from './aa-kit';
+import { AA_AT, AA_PALETTE, aaBlink, aaCompose, aaMote, aaPlaque, aaText } from './aa-kit';
 import { aaFloor } from './aa-kit-a';
 import { aaBookkeeperStanding, aaKeepsakeGold } from './aa-kit-b';
-import { aaHeldBook, aaPaint } from './aa-kit-c';
+import { aaPaint } from './aa-kit-c';
 import { aaBackdrop } from './aa-backdrop';
 import type { LessonArtSet, SceneArt } from './types';
 
@@ -26,113 +26,102 @@ const sprite = (id: string, rows: string[], palette?: Record<string, string>): P
 
 /* ── the arch ───────────────────────────────────────────────────────────────────────────────── */
 
-/** The arch springs from the floor line at y = 48: seven stones, the fourth the keystone. */
-const ARCH = { cx: 39.5, cy: 48, rIn: 25, rOut: 34, top: 9 };
-const STONE = 180 / 7;
-const KEY = 3;
+/**
+ * The arch springs from the floor line at y = 48: three stones a side and, at the crown, a keystone
+ * wider than any of them. Angles run from the right (0) over the top to the left (180).
+ */
+const ARCH = { cx: 39.5, cy: 48, rIn: 22, rOut: 30, top: 18 };
+const KEY_DEG = 42;
+const SIDE_DEG = (180 - KEY_DEG) / 6;
+const KEY_FROM = 3 * SIDE_DEG;
+const KEY_TO = KEY_FROM + KEY_DEG;
+const JOINTS = [1, 2, 3].map((k) => k * SIDE_DEG).concat([0, 1, 2].map((k) => KEY_TO + k * SIDE_DEG));
+/** The lesson's step on each side stone, 1 at the left foot to 6 at the right, by its middle angle. */
+const STONES = [6, 5, 4, 3, 2, 1].map((n, i) => ({ n, deg: i < 3 ? (i + 0.5) * SIDE_DEG : KEY_TO + (i - 2.5) * SIDE_DEG }));
 
 const arch = aaPaint('aa25-arch', 80, ARCH.cy - ARCH.top + 1, (x, row) => {
   const dx = x - ARCH.cx;
   const dy = ARCH.cy - (row + ARCH.top);
   const d = Math.hypot(dx, dy);
   const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
-  const i = Math.min(6, Math.floor(deg / STONE));
-  const lo = i === KEY ? ARCH.rIn - 1.5 : ARCH.rIn;
-  const hi = i === KEY ? ARCH.rOut + 3 : ARCH.rOut;
-  if (d < lo || d >= hi) return '.';
-  const joint = [1, 2, 3, 4, 5, 6].some((k) => (Math.abs(deg - k * STONE) * Math.PI * d) / 180 < 0.6);
-  if (joint) return 'O';
-  if (i === KEY) return d < lo + 1 || d >= hi - 1 ? 'O' : dx < -1 ? 'y' : dx > 1.5 ? 'g' : 'G';
-  if (d < lo + 1 || d >= hi - 1) return 'E';
-  return i > KEY && d >= hi - 2.2 ? 'P' : 'p';
+  const key = deg >= KEY_FROM && deg < KEY_TO;
+  if (d < ARCH.rIn || d >= ARCH.rOut) return '.';
+  if (JOINTS.some((j) => (Math.abs(deg - j) * Math.PI * d) / 180 < 0.6)) return 'O';
+  if (key) return d < ARCH.rIn + 1 || d >= ARCH.rOut - 1 ? 'O' : dx < -2 ? 'y' : dx > 2.5 ? 'g' : 'G';
+  if (d < ARCH.rIn + 1 || d >= ARCH.rOut - 1) return 'E';
+  return deg < 90 && d >= ARCH.rOut - 2.2 ? 'P' : 'p';
 });
 
-/** Where a 5 x 5 sign sits on stone `i`: the middle of the stone. */
-const onStone = (i: number) => {
-  const a = ((i + 0.5) * STONE * Math.PI) / 180;
-  return { x: Math.round(ARCH.cx + 29.5 * Math.cos(a) - 2), y: Math.round(ARCH.cy - 29.5 * Math.sin(a) - 2) };
+/** Where a digit sits on its stone: the middle of the stone, 3 x 5. */
+const onStone = (deg: number) => {
+  const a = (deg * Math.PI) / 180;
+  const r = (ARCH.rIn + ARCH.rOut) / 2;
+  return { x: Math.round(ARCH.cx + r * Math.cos(a) - 1), y: Math.round(ARCH.cy - r * Math.sin(a) - 2) };
 };
+const digit = (id: string, n: number, ink: string) => ({ ...aaText(id, String(n), ink), palette: AA_PALETTE });
 
-/** The six domains, left to right as the capstone takes them, each on its stone. */
-const DOMAINS: { stone: number; sign: string[] }[] = [
-  { stone: 6, sign: ['#####', '..#..', '..#..', '..#..', '..#..'] },
-  { stone: 5, sign: ['.....', '....#', '...#.', '#.#..', '.#...'] },
-  { stone: 4, sign: ['.###.', '#.#.#', '#####', '#.#.#', '.###.'] },
-  { stone: 2, sign: ['....#', '..#.#', '..#.#', '#.#.#', '#####'] },
-  { stone: 1, sign: ['###..', '#.#..', '###..', '...#.', '....#'] },
-  { stone: 0, sign: ['#####', '#####', '#####', '.###.', '..#..'] },
-];
-const sign = (id: string, rows: string[], ink: string) => sprite(id, rows.map((r) => r.replace(/#/g, ink)), AA_PALETTE);
-
-/** The crown on the keystone. */
-const CROWN = ['#..#..#', '##.#.##', '#######', '#######'];
-const CROWN_AT = { x: 36, y: 16 };
+/** The keystone's own pixels, lit pale: it blazes once the six are read. */
+const keyLit = aaPaint('aa25-key-lit', 80, ARCH.cy - ARCH.top + 1, (x, row) => {
+  const dx = x - ARCH.cx;
+  const dy = ARCH.cy - (row + ARCH.top);
+  const d = Math.hypot(dx, dy);
+  const deg = (Math.atan2(dy, dx) * 180) / Math.PI;
+  if (deg < KEY_FROM + 1.5 || deg >= KEY_TO - 1.5 || d < ARCH.rIn + 1 || d >= ARCH.rOut - 1) return '.';
+  return dx < -2 ? 'a' : 'y';
+});
 
 /** A plinth under each foot of the arch. */
 const plinth = sprite('aa25-plinth', ['O'.repeat(13), `y${'G'.repeat(11)}g`, 'O'.repeat(13)]);
 
-/* ── the earned ledgers ─────────────────────────────────────────────────────────────────────── */
+/* ── the bookkeeper, arms raised ────────────────────────────────────────────────────────────── */
 
-/** Spine colours, light then dark, for the six domains. */
-const SPINE: Record<string, [string, string]> = {
-  orchid: ['P', 'p'], blue: ['B', 'b'], teal: ['T', 't'], green: ['N', 'n'], red: ['R', 'r'], pink: ['F', 'f'],
+/**
+ * aaBookkeeperStanding with both arms raised beside the head, the hands at its top corners under the
+ * keystone, and the arms that hung at the sides taken away so the figure keeps two.
+ */
+const HANDS: Record<number, [number, string][]> = {
+  0: [[2, 'S'], [3, 'S'], [14, 'S'], [15, 'M']],
+  1: [[1, 'S'], [2, 'S'], [3, 'M'], [14, 'S'], [15, 'M'], [16, 'M']],
+  2: [[1, 'P'], [2, 'P'], [15, 'p'], [16, 'p']],
 };
-const run = (a: string, na: number, b: string, nb: number) => [...Array.from({ length: na }, () => SPINE[a]), ...Array.from({ length: nb }, () => SPINE[b])];
+const lifting = sprite('aa25-bookkeeper-lifting', aaBookkeeperStanding.rows.map((row, y) => {
+  const c = [...row];
+  if (y >= 17 && y <= 24) [1, 2, 15, 16].forEach((x) => { c[x] = '.'; });
+  for (const [x, ch] of HANDS[y] ?? []) c[x] = ch;
+  if (y >= 3 && y <= 14) [[0, 'P'], [1, 'P'], [16, 'p'], [17, 'p']].forEach(([x, ch]) => { c[Number(x)] = String(ch); });
+  if (y === 15) [[1, 'P'], [2, 'P'], [3, 'P'], [14, 'p'], [15, 'p'], [16, 'p']].forEach(([x, ch]) => { c[Number(x)] = String(ch); });
+  if (y === 16) [[1, 'P'], [16, 'p']].forEach(([x, ch]) => { c[Number(x)] = String(ch); });
+  return c.join('');
+}), AA_PALETTE);
 
-/** A short case, 14 x 13: two shelves of six volumes, a gilt band across each. */
-const shortCase = (id: string, top: [string, string][], bottom: [string, string][]) => aaPaint(id, 14, 13, (x, y) => {
-  if (y === 0 || y === 6 || y === 12 || x === 0 || x === 13) return 'O';
-  const [light, dark] = (y < 6 ? top : bottom)[Math.floor((x - 1) / 2)];
-  const left = (x - 1) % 2 === 0;
-  if (y === 2 || y === 8) return left ? 'y' : 'G';
-  return left ? light : dark;
-});
-
-/* ── the bookkeeper ─────────────────────────────────────────────────────────────────────────── */
-
-const KEEPER = { x: 31, y: 25 };
-/** The last volume, bound in gold, a small crown on its dark plate. */
-const heldVolume = aaHeldBook('aa25-held-volume', [
-  'OOOOOOOOOOOOO',
-  'OyyyyyyyyyyGO',
-  'OyGKKKKKKKGgO',
-  'OyGKyKyKyKGgO',
-  'OyGKyyyyyKGgO',
-  'OGggggggggggO',
-  'OOOOOOOOOOOOO',
-]);
+const KEEPER = { x: 31, y: 27 };
 
 const base = aaCompose('aa25-opener-base', 80, 60, 'k', [
-  { sprite: aaFloor('aa25-floor', 80, [[4, 16], [31, 48], [63, 75]]), x: 0, y: 49 },
+  { sprite: aaFloor('aa25-floor', 80, [[7, 19], [31, 48], [60, 72]]), x: 0, y: 49 },
   { sprite: aaPlaque('aa25-opener-plate', 'CAPSTONE'), x: 22, y: 1 },
-  { sprite: shortCase('aa25-case-left', run('orchid', 4, 'blue', 2), run('blue', 2, 'teal', 4)), x: 17, y: 36 },
-  { sprite: shortCase('aa25-case-right', run('green', 4, 'red', 2), run('red', 2, 'pink', 4)), x: 49, y: 36 },
   { sprite: arch, x: 0, y: ARCH.top },
-  ...DOMAINS.map(({ stone, sign: rows }) => ({ sprite: sign(`aa25-sign-${String(stone)}`, rows, 'g'), ...onStone(stone) })),
-  { sprite: sign('aa25-crown', CROWN, 'O'), ...CROWN_AT },
-  { sprite: plinth, x: 4, y: 46 },
-  { sprite: plinth, x: 63, y: 46 },
-  { sprite: aaBookkeeperStanding, ...KEEPER },
-  { sprite: heldVolume, x: KEEPER.x, y: KEEPER.y + 18 },
+  ...STONES.map(({ n, deg }) => ({ sprite: digit(`aa25-digit-${String(n)}`, n, 'g'), ...onStone(deg) })),
+  { sprite: plinth, x: 7, y: 46 },
+  { sprite: plinth, x: 60, y: 46 },
+  { sprite: lifting, ...KEEPER },
 ]);
 
 export const aa25Opener: SceneArt = {
   id: 'aa25-opener',
-  label: 'The bookkeeper stands under a great purple arch holding a gold-bound ledger, six gilt signs on the arch stones lighting in turn up to a gold keystone with a crown, between two short cases of ledgers in six colours, under a brass plate reading CAPSTONE.',
+  label: 'Under a brass plate reading CAPSTONE, the bookkeeper stands beneath a great purple arch of six stones numbered 1 to 6 and, with both arms raised, sets the wide gold keystone into the gap at its crown.',
   width: 80,
   height: 60,
   base,
   layers: [
-    ...DOMAINS.map(({ stone, sign: rows }, k) => ({
-      sprite: sign(`aa25-sign-lit-${String(stone)}`, rows, 'y'),
-      ...onStone(stone),
-      motion: { kind: 'twinkle' as const, periodMs: 4200, phase: k * 0.1, min: 0 },
+    ...STONES.map(({ n, deg }) => ({
+      sprite: digit(`aa25-digit-lit-${String(n)}`, n, 'a'),
+      ...onStone(deg),
+      motion: { kind: 'twinkle' as const, periodMs: 4200, phase: (n - 1) * 0.1, min: 0 },
     })),
-    { sprite: sign('aa25-crown-lit', CROWN, 'a'), ...CROWN_AT, motion: { kind: 'twinkle', periodMs: 4200, phase: 0.65, min: 0 } },
-    { sprite: aaGlint, x: KEEPER.x + 4, y: KEEPER.y + 16 },
+    { sprite: keyLit, x: 0, y: ARCH.top, motion: { kind: 'twinkle', periodMs: 4200, phase: 0.65, min: 0 } },
     { sprite: aaBlink, x: KEEPER.x + AA_AT.blinkOnBookkeeper.x, y: KEEPER.y + AA_AT.blinkOnBookkeeper.y },
-    { sprite: aaMote, x: 24, y: 30, motion: { kind: 'rise', amp: 5, periodMs: 3100 } },
-    { sprite: aaMote, x: 55, y: 31, motion: { kind: 'rise', amp: 4, periodMs: 3600, phase: 0.5 } },
+    { sprite: aaMote, x: 22, y: 40, motion: { kind: 'rise', amp: 5, periodMs: 3100 } },
+    { sprite: aaMote, x: 57, y: 41, motion: { kind: 'rise', amp: 4, periodMs: 3600, phase: 0.5 } },
   ],
 };
 

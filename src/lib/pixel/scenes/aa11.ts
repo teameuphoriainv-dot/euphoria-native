@@ -4,9 +4,9 @@
  *
  * A slate board in a gilt frame carries the recognition timeline: the contract signed under a red
  * seal, the work delivered as a tied parcel, the revenue recognised (a gold REV stamp) and, last, the
- * cash received in a coin bag. The bookkeeper stands at the right with a raised pointer on the REV
- * stamp, under a plate reading ACCRUAL, and below the board the open ledger lies on a sideboard,
- * the entry going in now. Moving: a gold marker walks the timeline from contract to cash, the REV
+ * cash received in a coin bag. The bookkeeper stands at the right with a raised pointer whose tip
+ * taps the REV stamp from below, well clear of the coin bag beside it, under a plate reading ACCRUAL,
+ * and below the board the open ledger lies on a sideboard, the entry going in now. Moving: a gold marker walks the timeline from contract to cash, the REV
  * stamp glows, a coin drops into the bag at the end, the quill writes, the pointer's tip catches the
  * light, the clock's minute hand goes round, the bookkeeper blinks.
  */
@@ -120,9 +120,13 @@ const raisedArm = sprite('aa11-raised-arm', [
 
 const KEEPER = { x: 62, y: 25 };
 const ARM = { x: KEEPER.x - 6, y: KEEPER.y + 9 };
-const POINTER_TIP = { x: 46, y: 24 };
+/**
+ * The pointer runs two across for each one up from the hand to its tip, just under the middle of the
+ * REV stamp's lower edge: it taps the revenue, not the cash.
+ */
+const POINTER_TIP = { x: 39, y: 25 };
 const pointer = sprite('aa11-pointer', Array.from({ length: ARM.y - POINTER_TIP.y }, (_, dy) =>
-  Array.from({ length: ARM.x - POINTER_TIP.x }, (_, dx) => (dx === dy ? (dx ? 'G' : 'y') : '.')).join('')));
+  Array.from({ length: ARM.x - POINTER_TIP.x + 1 }, (_, dx) => (dx >> 1 === dy ? (dx + dy ? 'G' : 'y') : '.')).join('')));
 
 const LEDGER = { x: 12, y: 34 };
 

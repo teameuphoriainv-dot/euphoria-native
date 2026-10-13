@@ -2,17 +2,19 @@
  * Applied Accounting lesson 17, Budgeting & Variance Analysis: the plan set beside what happened, and
  * every gap between them explained.
  *
- * A slate board in a gilt frame is the variance report: three pairs of bars on one baseline, revenue,
- * expenses and net profit, the budget drawn as a dashed outline and the actual filled in beside it.
- * Revenue came in over plan in gold, expenses a little over in red, and net profit over plan in green,
- * a green plus badge on it for a favourable variance. Under a plate reading BUDGET, a run of shelves
- * holds the year's ledgers, and on a side table the adding machine works the figures. Moving: the
- * crank turns, the tape prints to a red total, the plus badge pulses, the profit bar's rim glows, light
- * runs along the frame, dust rises.
+ * A slate board in a gilt frame is the variance report: three pairs of bars on one baseline and one
+ * scale, revenue, expenses and net profit, the budget drawn as a dashed outline and the actual filled in
+ * beside it, so net profit is revenue less expenses in both. Revenue came in over plan in gold, expenses
+ * a little over in red, and net profit over plan in green, a green plus badge on it for a favourable
+ * variance. Under a plate reading BUDGET, a run of shelves holds the year's ledgers, and on a side table
+ * the adding machine works the figures. Moving: the crank turns, the tape prints down to a green total,
+ * the favourable result, the plus badge pulses, the profit bar's rim glows, light runs along the frame,
+ * dust rises.
  */
 import type { PixelSprite } from '../types';
 import { AA_PALETTE, aaBookcase, aaCompose, aaGlint, aaMote, aaPlaque, aaText } from './aa-kit';
 import { AA_AT_A, aaAddingMachine, aaCrankTurn, aaFloor, aaFrame, aaTapePrint } from './aa-kit-a';
+import { aaPaint } from './aa-kit-c';
 import { aaKeepsake } from './aa1-finish';
 import { aaBackdrop } from './aa-backdrop';
 import type { LessonArtSet, SceneArt } from './types';
@@ -20,13 +22,18 @@ import type { LessonArtSet, SceneArt } from './types';
 const sprite = (id: string, rows: string[], palette?: Record<string, string>): PixelSprite =>
   ({ id, name: id, tags: ['aa', 'aa17'], rows, ...(palette ? { palette } : {}) });
 
-/** The board, 52 x 30, and the three pairs on it: budget height, actual height, the actual's colours. */
-const BOARD = { x: 2, y: 11, w: 52, h: 30 };
-const BASE_Y = 33;
+/**
+ * The board, 52 x 31, and the three pairs on it: budget height, actual height, the actual's colours.
+ * The tallest bar, revenue's actual, stops a pixel short of the frame so it cannot read as part of it.
+ */
+const BOARD = { x: 2, y: 11, w: 52, h: 31 };
+const BASE_Y = 34;
+// One scale for every bar, about 1.8 px per $1M of the lesson's report, so net is revenue less
+// expenses: 18 - 14 and 20 - 15.
 const PAIRS = [
-  { cx: 12, word: 'REV', budget: 14, actual: 16, lit: 'y', fill: 'G' },
-  { cx: 28, word: 'EXP', budget: 12, actual: 13, lit: 's', fill: 'R' },
-  { cx: 44, word: 'NET', budget: 5, actual: 7, lit: 'm', fill: 'N' },
+  { cx: 12, word: 'REV', budget: 18, actual: 20, lit: 'y', fill: 'G' },
+  { cx: 28, word: 'EXP', budget: 14, actual: 15, lit: 's', fill: 'R' },
+  { cx: 44, word: 'NET', budget: 4, actual: 5, lit: 'm', fill: 'N' },
 ];
 
 const bars = (() => {
@@ -40,10 +47,13 @@ const bars = (() => {
   };
   for (let x = ox + 1; x < ox + W - 1; x++) put(x, BASE_Y, 'c');
   for (const p of PAIRS) {
-    for (let y = BASE_Y - p.budget; y < BASE_Y; y++) {
+    const top = BASE_Y - p.budget;
+    for (let y = top; y < BASE_Y; y++) {
+      // The budget's outline in dashes two on, one off, counted from its top corners so even the
+      // short net-profit budget keeps both corners and reads as a box.
       for (let x = p.cx - 5; x <= p.cx - 1; x++) {
-        const edge = y === BASE_Y - p.budget || x === p.cx - 5 || x === p.cx - 1;
-        if (edge && (y === BASE_Y - p.budget ? x % 2 === 0 : y % 2 === 0)) put(x, y, 'c');
+        const edge = y === top || x === p.cx - 5 || x === p.cx - 1;
+        if (edge && (y === top ? (x - (p.cx - 5)) % 3 !== 2 : (y - top) % 3 !== 2)) put(x, y, 'c');
       }
       if (y >= BASE_Y - p.actual) for (let x = p.cx + 1; x <= p.cx + 5; x++) put(x, y, x === p.cx + 1 ? p.lit : p.fill);
     }
@@ -73,6 +83,15 @@ const sideTable = sprite('aa17-side-table', [
   ...Array.from({ length: 13 }, () => `.OgO${'.'.repeat(16)}OgO.`),
 ]);
 
+/** The adding machine's tape with its total printed in green, the favourable variance, not the kit's red. */
+const tapeGreen: PixelSprite = {
+  ...aaTapePrint,
+  id: 'aa17-tape-print',
+  name: 'aa17-tape-print',
+  rows: aaTapePrint.rows.map((r) => r.replace(/R/g, 'n')),
+  frames: (aaTapePrint.frames ?? []).map((f) => f.map((r) => r.replace(/R/g, 'n'))),
+};
+
 const TABLE = { x: 55, y: 41 };
 const MACHINE = { x: 56, y: 28 };
 const NET = PAIRS[2];
@@ -101,7 +120,7 @@ export const aa17Opener: SceneArt = {
   base,
   layers: [
     { sprite: aaCrankTurn, x: MACHINE.x + AA_AT_A.crankOnMachine.x, y: MACHINE.y + AA_AT_A.crankOnMachine.y },
-    { sprite: aaTapePrint, x: MACHINE.x + AA_AT_A.tapeOnMachine.x, y: MACHINE.y + AA_AT_A.tapeOnMachine.y },
+    { sprite: tapeGreen, x: MACHINE.x + AA_AT_A.tapeOnMachine.x, y: MACHINE.y + AA_AT_A.tapeOnMachine.y },
     { sprite: badge, x: NET.cx, y: BASE_Y - NET.actual - 8, motion: { kind: 'twinkle', periodMs: 2200, min: 0.35 } },
     { sprite: netRim, x: NET.cx + 1, y: BASE_Y - NET.actual, motion: { kind: 'twinkle', periodMs: 2200, min: 0.1, phase: 0.5 } },
     { sprite: aaGlint, x: BOARD.x + BOARD.w - 4, y: BOARD.y - 2, motion: { kind: 'twinkle', periodMs: 3000, min: 0.4 } },
@@ -109,28 +128,28 @@ export const aa17Opener: SceneArt = {
   ],
 };
 
-/** Lesson 17 emblem: a gilt target with a white bull and an arrow home in it, the budget hit. */
-const emblemTarget = (() => {
-  const cells: string[][] = Array.from({ length: 16 }, (_, y) => Array.from({ length: 16 }, (_, x) => {
-    const d = Math.hypot(x - 7.5, y - 7.5);
-    if (d <= 1.6) return 'a';
-    if (d > 3 && d <= 4.6) return 'G';
-    if (d > 5.9 && d <= 7.6) return x + y < 13 ? 'y' : x + y > 18 ? 'g' : 'G';
-    return '.';
-  }));
-  [[14, 1], [13, 2], [12, 3], [11, 4], [10, 5], [9, 6]].forEach(([x, y]) => {
-    cells[y][x] = 'a';
-  });
-  [[15, 0], [14, 0], [15, 1]].forEach(([x, y]) => {
-    cells[y][x] = 'R';
-  });
-  return sprite('aa-emblem-target', cells.map((r) => r.join('')), AA_PALETTE);
-})();
+/**
+ * Lesson 17 emblem: the variance itself. A dashed white budget bar stands beside a taller solid gilt
+ * actual on one baseline; a dashed line carries the budget's level across, and the actual's part above
+ * it is green with a white plus, the favourable gap.
+ */
+const emblemVariance = aaPaint('aa-emblem-variance', 16, 16, (x, y) => {
+  const BUDGET_TOP = 6;
+  if (y === 13) return x >= 1 && x <= 14 ? (x === 1 ? 'y' : 'G') : '.';
+  if (y === 14) return x >= 1 && x <= 14 ? 'g' : '.';
+  if (x >= 9 && x <= 13 && y >= 1 && y <= 12) {
+    if (y < BUDGET_TOP) return (x === 11 && y >= 2 && y <= 4) || (y === 3 && x >= 10 && x <= 12) ? 'a' : x === 9 ? 'm' : x === 13 ? 'n' : 'N';
+    return x === 9 ? 'y' : x === 13 ? 'g' : 'G';
+  }
+  if (y === BUDGET_TOP && x >= 2 && x <= 8) return (x - 2) % 3 !== 2 ? 'a' : '.';
+  if (y > BUDGET_TOP && y <= 12 && (x === 2 || x === 6)) return (y - BUDGET_TOP) % 3 !== 2 ? 'a' : '.';
+  return '.';
+});
 
 export const aa17Finish = aaKeepsake(
   'aa17-finish',
-  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped in gold with a target and an arrow in its white centre, with small glints and check marks around it.',
-  emblemTarget,
+  'A purple leather ledger with gold corners and a red ribbon bookmark, its cover stamped with a dashed white budget bar beside a taller gold actual bar whose top above the budget line is green with a white plus, with small glints and check marks around it.',
+  emblemVariance,
 );
 
 export const art: LessonArtSet = { opener: aa17Opener, backdrop: aaBackdrop, finish: aa17Finish };

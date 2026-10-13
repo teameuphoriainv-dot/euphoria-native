@@ -4,10 +4,11 @@
  *
  * The bookkeeper at the desk under a plate reading ETHICS, the framed CODE on the wall behind the
  * green lamp and a level brass balance on a shelf. A hand in a dark sleeve pushes a fat envelope of
- * cash across the desk; the bookkeeper holds up an open palm against it and, with the other hand,
- * brings the rubber stamp down on the honest report, which takes a red seal. Moving: the stamp comes
- * down and lifts away from its mark, the envelope is pushed in and drawn back, the lamp breathes,
- * dust rises in its light, the bookkeeper blinks.
+ * cash across the desk; the bookkeeper, brows drawn down and mouth set in a straight line, holds an
+ * open palm out low across the desk, right in the envelope's path, and with the other hand brings the
+ * rubber stamp down on the honest report, which takes a red seal. Moving: the stamp comes down and
+ * lifts away from its mark, the envelope is pushed in and drawn back, the lamp breathes, dust rises in
+ * its light, the bookkeeper blinks.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -55,25 +56,30 @@ const inkPad = sprite('aa24-ink-pad', ['DDDDDDD', 'DrRRRrD', 'DDDDDDD']);
 const shelf = sprite('aa24-shelf', ['O'.repeat(18), `y${'G'.repeat(16)}g`, '.OO............OO.', '..O............O..']);
 
 /**
- * The bookkeeper's left arm raised, palm out against the bribe, and the jumper painted over where
- * that arm hung, so the figure does not read as three-armed.
+ * The bookkeeper's left arm held out low across the desk, the palm up and open a few pixels short of
+ * the bribe, and the jumper painted over where that arm hung, so the figure does not read as
+ * three-armed.
  */
 const palm = sprite('aa24-palm', [
-  '.......S.S..',
-  '......SSSSS.',
-  '.....SSSSSM.',
-  '......SSSSM.',
-  '......SSSMM.',
-  '......PPPp..',
-  '.....PPPp...',
-  '....PPPp....',
-  '...PPPp.....',
-  '..PPPp......',
-  '.PPPp.......',
-  '.pppp.......',
-  'pppp........',
-  'pppp........',
+  '...........S.S.',
+  '..........SSSSS',
+  '..........SSSSM',
+  '...........SSSM',
+  '.........PPSSMM',
+  'pppPPPPPPPPp...',
+  'ppppPPPPPpp....',
+  'pppp...........',
 ], AA_PALETTE);
+
+/** A firm face over the stock smile: the brows angled down to the nose, the mouth one straight line. */
+const firm = sprite('aa24-firm', ['k......k', 'S......S', '........', '........', '........', '..S..S..', '..kkkk..'], AA_PALETTE);
+/** aaBlink with the angled brows kept through the blink. */
+const blink: PixelSprite = {
+  ...aaBlink,
+  id: 'aa24-blink',
+  name: 'aa24-blink',
+  frames: (aaBlink.frames ?? []).map((f) => (f[0] === 'SS....SS' ? ['Sk....kS', f[1]] : f)),
+};
 
 const KEEPER = { x: 31, y: 17 };
 const LAMP = { x: 7, y: 23 };
@@ -86,7 +92,8 @@ const base = aaCompose('aa24-opener-base', 80, 60, 'k', [
   { sprite: aaScale, x: 60, y: 4 },
   { sprite: shelf, x: 60, y: 20 },
   { sprite: aaBookkeeper, ...KEEPER },
-  { sprite: palm, x: KEEPER.x + 13, y: KEEPER.y + 5 },
+  { sprite: firm, x: KEEPER.x + 5, y: KEEPER.y + 6 },
+  { sprite: palm, x: KEEPER.x + 13, y: KEEPER.y + 11 },
   { sprite: aaDesk, x: 4, y: 36 },
   { sprite: aaBankersLamp, ...LAMP },
   { sprite: inkPad, x: 21, y: 41 },
@@ -129,14 +136,14 @@ const bribe: PixelSprite = {
 
 export const aa24Opener: SceneArt = {
   id: 'aa24-opener',
-  label: 'The bookkeeper holds up an open palm against an envelope of cash pushed across the desk and stamps the honest report with a red seal, under a brass plate reading ETHICS, a framed code and a level brass balance.',
+  label: 'Stern-faced, the bookkeeper holds an open palm out across the desk against an envelope of cash pushed toward him and stamps the honest report with a red seal, under a brass plate reading ETHICS, a framed code and a level brass balance.',
   width: 80,
   height: 60,
   base,
   layers: [
     { sprite: stamp, x: REPORT.x, y: 32 },
     { sprite: bribe, x: 60, y: 37 },
-    { sprite: aaBlink, x: KEEPER.x + AA_AT.blinkOnBookkeeper.x, y: KEEPER.y + AA_AT.blinkOnBookkeeper.y },
+    { sprite: blink, x: KEEPER.x + AA_AT.blinkOnBookkeeper.x, y: KEEPER.y + AA_AT.blinkOnBookkeeper.y },
     { sprite: aaLampGlow, x: LAMP.x + AA_AT.glowInLamp.x, y: LAMP.y + AA_AT.glowInLamp.y, motion: { kind: 'twinkle', periodMs: 3400, min: 0.35 } },
     { sprite: aaMote, x: 10, y: 35, motion: { kind: 'rise', amp: 5, periodMs: 2800 } },
     { sprite: aaMote, x: 17, y: 34, motion: { kind: 'rise', amp: 4, periodMs: 3300, phase: 0.5 } },
