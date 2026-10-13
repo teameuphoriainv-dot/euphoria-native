@@ -54,6 +54,7 @@ evidence and, where parity is claimed, a matching live-web recording.
 ### 3. Rebuild lesson scene families instead of flattening them
 
 - [x] Pin generated curriculum to the deployed production SHA `49e91490e19318f9be5919ab604346a9fa4d04d9`
+  - Moved to `92159187699ab979aa49bc99cc363cc355e43faa` on 2026-10-13, when euphoriaweb#4 (Behavioral Finance fact fixes) deployed to production. `curriculum:sync` and `curriculum:check` use it; the screen-parity harness (`scripts/parity/`) keeps the 49e9149 baseline it was built against.
       and prove semantic equality: 12 courses, 300 lessons, 4,050 raw steps, 1,485 challenges.
 - [ ] Expand the sync contract beyond data. Inventory and port the production viewer, dispatcher,
       template renderers, animated visual system, lesson visuals, Atlas conversation runtime,
