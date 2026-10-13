@@ -5,7 +5,7 @@
  * in a row and the room bet red); the other watches a stock's winning streak climb, one green step at
  * a time, and blinks a gold question mark at the next step. Same streak, two biases: System 1 is on a
  * roll, shaking the dice in a raised fist and flinging them, sure the streak means something. The
- * tortoise brings the fix on a card: the odds are still 50%, because the next spin has no memory.
+ * tortoise brings the fix on a card: the odds are still 49%, because the next spin has no memory.
  *
  * The keepsake jar holds a pair of red casino dice, still rolling.
  */
@@ -239,8 +239,8 @@ const hareRolling = bfStamp(
   [null, null, null, null, null, 0],
 );
 
-/** The fix, on a card in the tortoise's mouth: the odds are still 50%, streak or no streak. */
-const oddsText = bfText('bf18-odds-text', '50%', 'K').rows;
+/** The fix, on a card in the tortoise's mouth: the odds are still 49% (18 of 37, the lesson's 48.6%), streak or no streak. */
+const oddsText = bfText('bf18-odds-text', '49%', 'K').rows;
 const oddsCard: PixelSprite = {
   id: 'bf18-odds-card',
   name: 'bf18-odds-card',
@@ -261,7 +261,7 @@ const consoleLightsLater = bfLater(bfConsoleLights, 'bf18-opener-console-lights-
 
 export const bf18Opener: SceneArt = {
   id: 'bf18-opener',
-  label: "Inside an investor's head, one eye watches a roulette wheel spin and the other a stock's winning streak, as a hare shakes and throws dice while a calm tortoise holds up a card reading 50%.",
+  label: "Inside an investor's head, one eye watches a roulette wheel spin and the other a stock's winning streak, as a hare shakes and throws dice while a calm tortoise holds up a card reading 49%.",
   width: 80,
   height: 60,
   base: bfMindRoom,
