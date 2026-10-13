@@ -7,7 +7,8 @@
  * outer layer, the double fee the lesson warns about, while the collector studies the stack through the magnifier.
  * On the wall a framed chart draws the same thing: one investor, one fund, four funds under it. Only
  * small layers move: the two coins rise, the gold glints, the collector blinks, the lens glints and
- * a mote drifts up. The keepsake is a new emblem: the nested boxes.
+ * a mote drifts up. The keepsake is a new emblem: an orchid crate holding four small fund boxes, one fund
+ * that holds four.
  */
 import type { PixelSprite } from '../types';
 import { aiBackdrop } from './ai-backdrop';
@@ -98,25 +99,20 @@ const chart: PixelSprite = {
 /** The stack's shadow on the floor. */
 const floorShadow: PixelSprite = { id: 'ai18-floor-shadow', name: 'ai18-floor-shadow', tags: [], palette: { z: '#0F0C14' }, rows: ['z'.repeat(32)] };
 
-const nestedBoxes: PixelSprite = {
-  id: 'ai18-nested-boxes',
-  name: 'ai18-nested-boxes',
+const fundCrate: PixelSprite = {
+  id: 'ai18-fund-crate',
+  name: 'ai18-fund-crate',
   tags: ['scene', 'ai'],
-  blurb: "Lesson 18: nested boxes, a gold box of coins inside a teal box inside an orchid one.",
+  blurb: "Lesson 18: an orchid crate holding four small fund boxes standing in it, teal, gold, green and blue.",
   rows: [
-    '.....GyyG.....',
-    '....OGyGyO....',
-    '....OyGGGO....',
-    '....OyyyyO....',
-    '..ttOGGGGOtt..',
-    '..tKOggggOKt..',
-    '..tmmmmmmmmt..',
-    'EEtTTTTTTTTtEE',
-    'EKtTTTTTTTTtKE',
+    '....yyy...BBB.',
+    '.TTTyGgmmmBBb.',
+    '.TTtyGgmNnBBb.',
+    '.TTtyGgmNnBBb.',
     'EqqqqqqqqqqqqE',
-    'EPPPOyyGgOPPpE',
-    'EPPPOOOOOOPPpE',
+    'EPPPPPPPPPPPPE',
     'EppppppppppppE',
+    'EPPPPPPPPPPPPE',
     'EEEEEEEEEEEEEE',
   ],
 };
@@ -166,8 +162,8 @@ export const ai18Opener: SceneArt = {
 
 export const ai18Finish = aiKeepsake(
   'ai18-finish',
-  'Nested boxes, a gold box of coins inside a teal box inside an orchid one, floating in a glass display case on a marble plinth, with sparkles around it.',
-  nestedBoxes,
+  'An orchid crate holding four small boxes in teal, gold, green and blue, floating in a glass display case on a marble plinth, with sparkles around it.',
+  fundCrate,
 );
 
 export const art: LessonArtSet = { opener: ai18Opener, backdrop: aiBackdrop, finish: ai18Finish };
