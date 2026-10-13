@@ -1,7 +1,7 @@
 /**
  * Quantitative Analysis lesson 10, the Foundations Checkpoint: everything comes together.
  *
- * The control room's video wall carries the first half of the pathway, a tile a lesson: lesson 2's
+ * The control room's video wall carries the lessons before it, a tile each for lessons 2 to 9: 2's
  * dice, 3's price over its moving average, 4's frontier and 5's hockey stick down the left; 6's fan,
  * 7's factor staircase, 8's spread and 9's pipeline down the right. Every tile feeds the gold-framed
  * screen in the middle, where the validation funnel turns a thousand ideas into three live
@@ -269,7 +269,7 @@ const base = qaCompose('qa10-opener-base', 80, 60, [
 
 export const qa10Opener: SceneArt = {
   id: 'qa10-opener',
-  label: 'A quant cheers with both arms up in a control room where a wall of screens shows every chart from the lessons so far, all feeding a gold screen where a funnel turns a thousand ideas into three live strategies.',
+  label: 'A quant cheers with both arms up in a control room where a wall of screens shows charts from the earlier lessons, all feeding a gold screen where a funnel turns a thousand ideas into three live strategies.',
   width: 80,
   height: 60,
   base,
@@ -282,24 +282,27 @@ export const qa10Opener: SceneArt = {
   ],
 };
 
-/** Lesson 10's emblem: the validation funnel, ideas dropping in over the rim and one coming out. */
+/**
+ * Lesson 10's emblem: the validation funnel. White ideas drop in over the wide rim, the cone narrows
+ * to a long spout, and one white drop comes out: a thousand ideas in, a few strategies out.
+ */
 const emblemFunnel: PixelSprite = {
   id: 'qa10-emblem-funnel',
   name: 'qa10-emblem-funnel',
   tags: ['scene', 'qa10'],
   rows: [
     '............',
-    '.O..O..O..O.',
-    '............',
-    'OOOOOOOOOOOO',
-    '.OOOOOOOOOOy',
-    '..OOOOOOOOy.',
-    '...OOOOOOy..',
-    '....OOOOy...',
+    '..w...w...w.',
+    '......w.....',
+    'OOOOOOOOOOOy',
+    '.OOOOOOOOOy.',
+    '..OOOOOOOy..',
+    '...OOOOOy...',
+    '....OOOy....',
     '.....OOy....',
     '.....OOy....',
-    '......y.....',
-    '.....OO.....',
+    '.....OOy....',
+    '.....ww.....',
   ],
 };
 

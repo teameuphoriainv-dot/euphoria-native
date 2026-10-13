@@ -3,10 +3,11 @@
  *
  * Beside the round vault door and the wall of safe-deposit boxes, a tall screen slices a CDO into
  * its tranches: AAA senior on top (gold), BBB mezzanine (orchid), the equity tranche at the bottom
- * (teal). Defaults fill it from the bottom up in red: the equity is wiped out first, then the losses
- * climb into the mezzanine. A small screen over the boxes shows the CDS spread, flat for years and
- * then spiking in the crisis. The quant watches with hands on hips. Only small layers move: the
- * losses rise, the alarm beacon flashes, the spread's peak glints, a keyhole catches the light.
+ * (teal). Defaults fill it from the bottom up in red, the names of the tranches they flood kept in
+ * white: the equity is wiped out first, then the losses climb into the mezzanine. A
+ * small screen over the boxes shows the CDS spread, flat for years and then spiking in the crisis.
+ * The quant watches with hands on hips. Only small layers move: the losses rise, the alarm beacon
+ * flashes, the spread's peak glints, a keyhole catches the light.
  * Keepsake: a shield, credit protection.
  */
 import type { PixelSprite } from '../types';
@@ -100,21 +101,34 @@ function tranche(id: string, height: number, lit: string, body: string, shade: s
   };
 }
 
-/** The losses, hatched in red, `rows` deep from the bottom of the stack. */
+/** The tranches' names, in the stack's pixels: [text, x, y, ink]. */
+const LABELS = [['AAA', 3, 1, 'O'], ['BBB', 3, 8, 'E'], ['EQ', 5, 14, 't']] as const;
+/** Every pixel of those names, so the rising losses can keep them readable (white) as they cover them. */
+const LABEL_INK = new Set(LABELS.flatMap(([text, x, y]) => qaText('qa15-label-ink', text, '#').rows.flatMap((row, j) =>
+  [...row].flatMap((ch, i) => (ch === '#' ? [`${String(x + i)},${String(y + j)}`] : [])))));
+
+/**
+ * The losses, `rows` deep from the bottom of the stack: red hatching under a pale water line, with the
+ * names of the tranches they cover redrawn in white on top. A fill rising through the stack over the
+ * tranches it has eaten, not a fourth band.
+ */
 function losses(rows: number): string[] {
   return Array.from({ length: STACK.height }, (_, y) => [...Array(STACK.width)].map((_, x) => {
     if (y < STACK.height - rows) return '.';
+    if (LABEL_INK.has(`${String(x)},${String(y)}`)) return 'w';
+    if (y === STACK.height - rows) return 's';
     return (x + y) % 3 === 0 ? 'r' : 'R';
   }).join(''));
 }
 
+/** At rest the losses have taken the equity and most of the mezzanine; the loop shows them rising there. */
 const lossRise: PixelSprite = {
   id: 'qa15-losses',
   name: 'qa15-losses',
   tags: ['scene', 'qa15'],
   blurb: 'Defaults filling the tranches from the bottom: the equity first, then the mezzanine.',
-  rows: losses(4),
-  frames: [0, 2, 4, 6, 8, 10, 10, 0].map(losses),
+  rows: losses(11),
+  frames: [0, 2, 4, 6, 8, 10, 11, 11, 0].map(losses),
   frameMs: 450,
 };
 
@@ -137,9 +151,7 @@ const base = qaCompose('qa15-opener-base', 80, 60, [
   { sprite: spread, x: 0, y: 0 },
   { sprite: qaScreen('qa15-screen', SCREEN.width, SCREEN.height, { surface: 'K' }), x: SCREEN.x, y: SCREEN.y },
   ...TRANCHES.map(([top, height, lit, body, shade], i) => ({ sprite: tranche(`qa15-tranche-${String(i)}`, height, lit, body, shade), x: STACK.x, y: STACK.y + top })),
-  { sprite: qaText('qa15-aaa', 'AAA', 'O'), x: 37, y: 7 },
-  { sprite: qaText('qa15-bbb', 'BBB', 'E'), x: 37, y: 14 },
-  { sprite: qaText('qa15-eq', 'EQ', 't'), x: 39, y: 20 },
+  ...LABELS.map(([text, x, y, ink]) => ({ sprite: qaText(`qa15-label-${text}`, text, ink), x: STACK.x + x, y: STACK.y + y })),
   { sprite: qaQuantHandsOnHips, x: QUANT_AT.x, y: QUANT_AT.y },
 ]);
 

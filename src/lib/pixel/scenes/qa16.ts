@@ -6,7 +6,7 @@
  * dashed line, and wander round it after (Vasicek's mean reversion). Framed on the side wall, a
  * trinomial tree, the lattice Hull-White prices on. The quant stands at the head of the table with a
  * laser pointer on θ. Only small layers move: the laser dot runs along θ, the rates' newest values
- * flicker, the tree lights up a step at a time, the plant's top leaf sways.
+ * glow, the tree lights up a step at a time, the plant's top leaf sways.
  * Keepsake: an anchor, the long-run rate that pulls everything back.
  */
 import type { PixelSprite } from '../types';
@@ -41,25 +41,18 @@ const rates: QaStamp[] = PATHS.map(([ch, start, seed]) => ({
   y: 0,
 }));
 
-/** Each rate's next value, one step past its line, flickering round θ. */
+/** Each rate's newest value, one step past its line: held still (it glows rather than flickers). */
 const TIP_X = PATH_X.to + 2;
 const lastY = PATHS.map(([, start, seed]) => vasicek(seed, start).at(-1)?.[1] ?? THETA);
-const TIP_TOP = Math.min(...lastY) - 2;
-function tipFrame(shifts: readonly number[]): string[] {
-  const rows = Array.from({ length: Math.max(...lastY) - TIP_TOP + 3 }, () => '.');
+const TIP_TOP = Math.min(...lastY);
+function tipColumn(): string[] {
+  const rows = Array.from({ length: Math.max(...lastY) - TIP_TOP + 1 }, () => '.');
   PATHS.forEach(([ch], i) => {
-    rows[lastY[i] + shifts[i] - TIP_TOP] = ch;
+    rows[lastY[i] - TIP_TOP] = ch;
   });
   return rows;
 }
-const tips: PixelSprite = {
-  id: 'qa16-tips',
-  name: 'qa16-tips',
-  tags: ['scene', 'qa16'],
-  rows: tipFrame([0, 0, 0]),
-  frames: [[0, 0, 0], [1, -1, 0], [0, 1, -1], [-1, 0, 1]].map(tipFrame),
-  frameMs: 380,
-};
+const tips: PixelSprite = { id: 'qa16-tips', name: 'qa16-tips', tags: ['scene', 'qa16'], rows: tipColumn() };
 
 const laser: PixelSprite = { id: 'qa16-laser', name: 'qa16-laser', tags: ['scene', 'qa16'], rows: ['.R.', 'RWR', '.R.'] };
 
@@ -215,7 +208,7 @@ export const qa16Opener: SceneArt = {
   base,
   layers: [
     { sprite: laser, x: 39, y: THETA - 1, motion: { kind: 'drift', amp: 7, periodMs: 3200 } },
-    { sprite: tips, x: TIP_X, y: TIP_TOP },
+    { sprite: tips, x: TIP_X, y: TIP_TOP, motion: { kind: 'twinkle', periodMs: 1200, min: 0.3 } },
     { sprite: nodes, x: TREE.x, y: TREE.y },
     { sprite: leaf, x: 69, y: 28, motion: { kind: 'bob', amp: 1, periodMs: 2600 } },
   ],

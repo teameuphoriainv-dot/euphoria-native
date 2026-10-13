@@ -5,9 +5,12 @@
  * plates, rods and coiled coax, each colder than the one above, down to the chip at the bottom
  * where the qubits live, a hair above absolute zero. On the wall screen, one qubit on its Bloch
  * sphere: 0 at the north pole, 1 at the south, and its state arrow tipped between them, in
- * superposition, turning. The quant reaches up to the screen; the control electronics hum beside
- * it. Only small layers move: the state arrow precesses, a microwave pulse runs down the coax, the
- * chip glows, frost glints on the cold stages, the control lights blink.
+ * superposition, turning. The finance is on the console below it: a teal cable runs from the chip
+ * across the floor to the control electronics, whose display prices an option the quant way, a fan
+ * of simulated price paths, beside QAE in teal, the quantum amplitude estimation that needs far fewer
+ * of them. The quant reaches up to the Bloch sphere. Only small layers move: the state arrow
+ * precesses, a microwave pulse runs down the coax, the chip glows, frost glints on the cold stages,
+ * the control lights blink, QAE glows.
  * Keepsake: psi, the wavefunction.
  */
 import type { PixelSprite } from '../types';
@@ -16,6 +19,7 @@ import type { QaStamp } from './qa-kit';
 import {
   QA_PALETTE, QA_REACH_HAND, qaCompose, qaKeepsake, qaPath, qaQuantReaching, qaRect, qaRoom, qaScreen, qaText,
 } from './qa-kit';
+import { qaBridge } from './qa-kit-b';
 import type { LessonArtSet, SceneArt } from './types';
 
 /* ── the dilution refrigerator ─────────────────────────────────────────────────────────────────── */
@@ -80,8 +84,8 @@ const frost: PixelSprite = { id: 'qa24-frost', name: 'qa24-frost', tags: ['scene
 
 /* ── the Bloch sphere ──────────────────────────────────────────────────────────────────────────── */
 
-const SCREEN = { x: 49, y: 3, width: 28, height: 26 } as const;
-const SPHERE = { x: 63, y: 16, r: 8, tilt: 0.31 } as const;
+const SCREEN = { x: 49, y: 3, width: 28, height: 24 } as const;
+const SPHERE = { x: 63, y: 15, r: 8, tilt: 0.31 } as const;
 
 /** The sphere's outline, its equator (dashed, seen at a slant) and the axis from 0 to 1. */
 const ring = [...Array(61)].map((_, i) => {
@@ -125,36 +129,47 @@ const sphere: PixelSprite[] = [
 
 /* ── the control electronics ───────────────────────────────────────────────────────────────────── */
 
-const CABINET = { x: 57, y: 32 } as const;
+const CABINET = { x: 54, y: 28, width: 24 } as const;
+/** The control electronics, with the pricing display in their top half (its surface 18x7 at (3, 3)). */
 const cabinet: PixelSprite = {
   id: 'qa24-cabinet',
   name: 'qa24-cabinet',
   tags: ['scene', 'qa24'],
   palette: QA_PALETTE,
   rows: [
-    'DDDDDDDDDDDDDDDDDDDDD',
-    'DxxxxxxxxxxxxxxxxxxXD',
-    'DxKKKKKKKKKKKKKKKKKXD',
-    'DxKxxKKKxxKKKxxKKKKXD',
-    'DxKxDKKKxDKKKxDKKKKXD',
-    'DxKKKKKKKKKKKKKKKKKXD',
-    'DxKkKkKkKkKkKkKkKKKXD',
-    'DxKKKKKKKKKKKKKKKKKXD',
-    'DXXXXXXXXXXXXXXXXXXXD',
-    'DxKDKDKDKDKDKDKDKDKXD',
-    'DxKKKKKKKKKKKKKKKKKXD',
-    'DxKDKDKDKDKDKDKDKDKXD',
-    'DxKKKKKKKKKKKKKKKKKXD',
-    'DDDDDDDDDDDDDDDDDDDDD',
-    '.ZZZZZZZZZZZZZZZZZZZZ',
+    'D'.repeat(CABINET.width),
+    'D' + 'x'.repeat(CABINET.width - 3) + 'XD',
+    'DxD' + 'D'.repeat(CABINET.width - 6) + 'DXD',
+    ...Array.from({ length: 7 }, () => 'DxD' + 'K'.repeat(CABINET.width - 6) + 'DXD'),
+    'DxD' + 'D'.repeat(CABINET.width - 6) + 'DXD',
+    'D' + 'X'.repeat(CABINET.width - 2) + 'D',
+    'Dx' + 'K'.repeat(CABINET.width - 4) + 'XD',
+    'Dx' + 'Kk'.repeat((CABINET.width - 6) / 2) + 'KK' + 'XD',
+    'Dx' + 'K'.repeat(CABINET.width - 4) + 'XD',
+    'D' + 'X'.repeat(CABINET.width - 2) + 'D',
+    'Dx' + 'KD'.repeat((CABINET.width - 6) / 2) + 'KK' + 'XD',
+    'D'.repeat(CABINET.width),
+    '.' + 'Z'.repeat(CABINET.width),
   ],
 };
-const LEDS = [3, 5, 7, 9, 11, 13, 15] as const;
-const ledFrame = (shift: number) => [[...Array(21)].map((_, x) => {
+const DISPLAY = { x: CABINET.x + 3, y: CABINET.y + 3, width: CABINET.width - 6, height: 7 } as const;
+
+/** The display: Monte Carlo price paths fanning out from today's price, and QAE beside them. */
+const FAN_FROM = [DISPLAY.x, DISPLAY.y + 3] as const;
+const FAN = [['N', 0, 61], ['x', 2, 17], ['y', 3, 5], ['x', 4, 23], ['R', 6, 41]] as const;
+const fan = FAN.map(([ch, row, seed]) => qaPath(`qa24-path-${ch}-${String(row)}`, 80, 60, qaBridge(seed, FAN_FROM, [DISPLAY.x + 5, DISPLAY.y + row], { step: 1, jitter: 0.6, top: DISPLAY.y, bottom: DISPLAY.y + 6 }), ch));
+const QAE_AT = { x: DISPLAY.x + 7, y: DISPLAY.y + 1 } as const;
+
+/** The cable from the chip, down to the floor and along it to the console. */
+const cable = qaPath('qa24-cable', 80, 60, [[CX + 4, 38], [CX + 6, 41], [CX + 8, 44], [CX + 10, 47], [CABINET.x - 2, 47], [CABINET.x, 45]], 't');
+
+const LEDS = [3, 5, 7, 9, 11, 13, 15, 17, 19] as const;
+const ledFrame = (shift: number) => [[...Array(CABINET.width)].map((_, x) => {
   const i = LEDS.indexOf(x as (typeof LEDS)[number]);
   return i < 0 ? '.' : ['N', 'B', 'N', 'R', 'B', 'N', 'y'][(i + shift) % 7];
 }).join('')];
 const leds: PixelSprite = { id: 'qa24-leds', name: 'qa24-leds', tags: ['scene', 'qa24'], rows: ledFrame(0), frames: [0, 2, 4, 6].map(ledFrame), frameMs: 480 };
+const LED_ROW = 13;
 
 /** The keep-clear stripe painted on the floor round the fridge. */
 const stripe: PixelSprite = {
@@ -164,7 +179,7 @@ const stripe: PixelSprite = {
   rows: [[...Array(30)].map((_, x) => (Math.floor(x / 2) % 2 === 0 ? 'G' : 'k')).join('')],
 };
 
-const HAND = { x: 52, y: 22 } as const;
+const HAND = { x: 50, y: 23 } as const;
 const QUANT_AT = { x: HAND.x - QA_REACH_HAND.x, y: HAND.y - QA_REACH_HAND.y } as const;
 
 const base = qaCompose('qa24-opener-base', 80, 60, [
@@ -177,13 +192,16 @@ const base = qaCompose('qa24-opener-base', 80, 60, [
   { sprite: qaText('qa24-zero', '0', 'w'), x: SPHERE.x + 5, y: SCREEN.y + 2 },
   { sprite: qaText('qa24-one', '1', 'w'), x: SPHERE.x + 7, y: SPHERE.y + SPHERE.r - 3 },
   { sprite: cabinet, x: CABINET.x, y: CABINET.y },
+  ...fan.map((sprite) => ({ sprite, x: 0, y: 0 })),
+  { sprite: qaText('qa24-qae', 'QAE', 't'), x: QAE_AT.x, y: QAE_AT.y },
   { sprite: stripe, x: CX - 15, y: 49 },
+  { sprite: cable, x: 0, y: 0 },
   { sprite: qaQuantReaching, x: QUANT_AT.x, y: QUANT_AT.y },
 ]);
 
 export const qa24Opener: SceneArt = {
   id: 'qa24-opener',
-  label: "In a quantum lab a quant reaches up to a screen showing a qubit on its Bloch sphere, the state arrow turning between 0 and 1, beside the gold chandelier of a dilution refrigerator hanging from the ceiling.",
+  label: "In a quantum lab a quant reaches up to a screen showing a qubit on its Bloch sphere, the state arrow turning between 0 and 1, beside the gold chandelier of a dilution refrigerator, whose chip feeds a teal cable to a console pricing an option from a fan of simulated paths with QAE, quantum amplitude estimation.",
   width: 80,
   height: 60,
   base,
@@ -193,7 +211,8 @@ export const qa24Opener: SceneArt = {
     { sprite: chipGlow, x: CX - 1, y: CHIP_Y + 2, motion: { kind: 'twinkle', periodMs: 1300, min: 0.3 } },
     { sprite: frost, x: CX - 11, y: 21, motion: { kind: 'twinkle', periodMs: 2100, min: 0.1 } },
     { sprite: frost, x: CX + 7, y: 27, motion: { kind: 'twinkle', periodMs: 2700, phase: 0.5, min: 0.1 } },
-    { sprite: leds, x: CABINET.x, y: CABINET.y + 6 },
+    { sprite: leds, x: CABINET.x, y: CABINET.y + LED_ROW },
+    { sprite: qaText('qa24-qae-lit', 'QAE', 'T'), x: QAE_AT.x, y: QAE_AT.y, motion: { kind: 'twinkle', periodMs: 1600, min: 0.2 } },
   ],
 };
 

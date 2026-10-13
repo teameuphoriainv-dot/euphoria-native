@@ -6,8 +6,9 @@
  * the noise in orchid), and under it a drop of water where a grain of pollen jitters, the random
  * walk Brown first saw. The right one draws the equation out: three Brownian paths leaving one
  * point, drifting up (green), flat (white) and down (red), inside the dashed cone that holds 99.7%
- * of paths and widens with the square root of time. The quant sits alone in the middle row. Only
- * small layers move: the pollen dances, the paths' tips jitter, the clock ticks, chalk dust rises.
+ * of paths and widens with the square root of time. The quant sits alone in the middle row. The
+ * paths hold still. Only small layers move: the pollen dances, the paths' newest steps glow, the
+ * clock ticks, chalk dust rises.
  * Keepsake: the integral sign.
  */
 import type { PixelSprite } from '../types';
@@ -68,23 +69,16 @@ const paths: QaStamp[] = ENDS.map(([ch, y, seed]) => ({
 const coneEdge = (sign: number) => [0, 2, 5, 9, 14, 20, 27, 29].map((dx) => [START[0] + dx, Math.round(START[1] + sign * 10 * Math.sqrt(dx / 29))] as [number, number]);
 const cone: QaStamp[] = [1, -1].map((sign) => ({ sprite: qaPath(`qa11-cone-${String(sign)}`, 80, 60, coneEdge(sign), 'x', [1, 1]), x: 0, y: 0 }));
 
-/** Each path's next step, one pixel past its end, jittering up and down. */
-const TIPS_Y = ENDS[0][1] - 1;
-function tipsFrame(shifts: readonly number[]): string[] {
-  const rows = Array.from({ length: ENDS[2][1] - ENDS[0][1] + 3 }, () => '.');
-  ENDS.forEach(([ch, y], i) => {
-    rows[y + shifts[i] - TIPS_Y] = ch;
+/** Each path's newest step, one pixel past its end: held still (it glows rather than jitters). */
+const TIPS_Y = ENDS[0][1];
+function tipColumn(): string[] {
+  const rows = Array.from({ length: ENDS[2][1] - TIPS_Y + 1 }, () => '.');
+  ENDS.forEach(([ch, y]) => {
+    rows[y - TIPS_Y] = ch;
   });
   return rows;
 }
-const tips: PixelSprite = {
-  id: 'qa11-tips',
-  name: 'qa11-tips',
-  tags: ['scene', 'qa11'],
-  rows: tipsFrame([0, 0, 0]),
-  frames: [[0, 0, 0], [-1, 1, 0], [1, 0, -1], [0, -1, 1]].map(tipsFrame),
-  frameMs: 330,
-};
+const tips: PixelSprite = { id: 'qa11-tips', name: 'qa11-tips', tags: ['scene', 'qa11'], rows: tipColumn() };
 
 /* ── the hall ──────────────────────────────────────────────────────────────────────────────────── */
 
@@ -135,7 +129,7 @@ export const qa11Opener: SceneArt = {
   base,
   layers: [
     { sprite: pollen, x: DROP.x - 2, y: DROP.y - 2 },
-    { sprite: tips, x: END_X + 1, y: TIPS_Y },
+    { sprite: tips, x: END_X + 1, y: TIPS_Y, motion: { kind: 'twinkle', periodMs: 1100, min: 0.3 } },
     { sprite: qaClockTick, x: 37, y: 5 },
     { sprite: { id: 'qa11-dust', name: 'qa11-dust', tags: ['scene', 'qa11'], rows: ['x'] }, x: 9, y: 29, motion: { kind: 'rise', amp: 3, periodMs: 1600 } },
   ],

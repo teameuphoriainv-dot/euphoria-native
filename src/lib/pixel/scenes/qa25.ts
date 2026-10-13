@@ -2,21 +2,23 @@
  * Quantitative Analysis lesson 25, the Advanced Capstone: everything comes together.
  *
  * On a plaza in the financial district at night stands a stepped pyramid of twenty-four sandstone
- * blocks, a block a lesson, each carved with that lesson's symbol in gold: the first nine along the
- * base (pi, expected value, time, mu, delta, a die, alpha, beta, the algorithm's plus), the
- * checkpoint and the advanced lessons climbing above them (the integral, sigma, percent, KO's K,
- * credit's C, rates' r, features' x, fast-forward, the check, impact's p, Q), and at the top rho,
- * theta and psi. Each framework stands on the ones below it. Now the gold capstone settles on top,
- * the pathway's sigma on its face, and the quant cheers below while fireworks burst over the
- * skyline. Only small layers move: the capstone lifts and settles, two fireworks burst, sparkles
- * flash round the capstone, windows light across the city.
+ * blocks, a block a lesson, each carved in gold with that lesson's own medal in small, white where the
+ * medal has white: from the base up, sigma, the die, a price over its moving average, the frontier,
+ * the hockey stick, the fan of paths and alpha; the spread between its bands, the gear, the funnel, the
+ * integral, the lightning bolt and the yield curve; KO, the shield, the anchor, the neural network and
+ * fast-forward; the backtest's climb and fall, the hourglass, Q and the linked rings; and at the top
+ * the prior and posterior, and psi. Each framework stands on the ones below it. Now the gold capstone
+ * settles on top, the pathway's sigma on its face, while the quant cheers at the pyramid's foot, off
+ * to one side so every block shows, and fireworks burst over the skyline. Only small layers move: the
+ * capstone lifts and settles, two fireworks burst, sparkles flash round the capstone, windows light
+ * across the city.
  * Keepsake: the stepped pyramid crowned with its white capstone, on the honours medal with a gold
  * laurel (the checkpoint's laurel is green).
  */
 import type { PixelSprite } from '../types';
 import { qaBackdrop } from './qa-backdrop';
 import {
-  QA_MEDAL_SWAY, qaCompose, qaKeepsake, qaLater, qaRect, qaRoom, qaSparkleBig, qaSparkleSmall, qaStar, qaText,
+  QA_MEDAL_SWAY, qaCompose, qaKeepsake, qaLater, qaRect, qaRoom, qaSparkleBig, qaSparkleSmall, qaStar,
 } from './qa-kit';
 import { QA_LAUREL_AT, qaLaurel, qaQuantCheer, qaRibbonHonour } from './qa-kit-b';
 import { qaGlints, qaSkyline } from './qa-kit-c';
@@ -29,43 +31,62 @@ const TOWERS = [
   [0, 24, 7], [6, 19, 7], [12, 27, 6], [17, 22, 8], [24, 30, 7], [50, 26, 6], [55, 20, 8], [62, 28, 6], [67, 17, 7], [73, 25, 7],
 ] as const;
 const city = qaSkyline('qa25-city', 80, GROUND_Y, TOWERS, 25);
-const STARS = [[20, 3], [27, 8], [33, 2], [47, 5], [55, 9], [58, 2], [19, 12]] as const;
+const STARS = [[20, 3], [27, 8], [33, 2], [38, 8], [56, 9], [58, 2], [19, 12]] as const;
 const dimStar: PixelSprite = { id: 'qa25-star-dim', name: 'qa25-star-dim', tags: ['scene', 'qa25'], rows: ['x'] };
 
 /* ── the pyramid: a stone a lesson ─────────────────────────────────────────────────────────────── */
 
-/** Lesson symbols the 5-row font lacks, or draws wider than a stone's three columns. */
+/**
+ * Each lesson's medal emblem carved small enough for its stone: '#' is gold, 'w' is white (where the
+ * medal has white), five rows tall and five wide, KO's two letters seven.
+ */
 const CARVED: Readonly<Record<string, readonly string[]>> = {
-  pi: ['...', '###', '#.#', '#.#', '#.#'],
-  die: ['#..', '...', '.#.', '...', '..#'],
-  alpha: ['...', '.##', '#.#', '#.#', '.##'],
-  integral: ['..#', '.#.', '.#.', '.#.', '#..'],
-  vol: ['...', '.##', '#.#', '#.#', '.#.'],
-  forward: ['#..', '.#.', '..#', '.#.', '#..'],
-  check: ['...', '..#', '..#', '#.#', '.#.'],
-  rho: ['...', '.#.', '#.#', '##.', '#..'],
-  psi: ['#.#', '#.#', '###', '.#.', '.#.'],
+  sigma: ['#####', '.#...', '..#..', '.#...', '#####'],
+  die: ['#####', '#.#.#', '#####', '#.#.#', '#####'],
+  priceAverage: ['....#', '.#.#.', '#.#..', '...ww', 'www..'],
+  frontier: ['#...#', '#..w.', '#.#..', '#.#..', '#####'],
+  hockeyStick: ['#....', '#...#', '#..#.', '###..', '#####'],
+  fan: ['...##', '.##..', '#####', '.##..', '...##'],
+  alpha: ['.....', '.##.#', '#..#.', '#..#.', '.##.#'],
+  reversion: ['w.w.w', '.#...', '#.#.#', '...#.', 'w.w.w'],
+  gear: ['.#.#.', '#####', '##.##', '#####', '.#.#.'],
+  funnel: ['#####', '.###.', '..#..', '..#..', '..w..'],
+  integral: ['...##', '..#..', '..#..', '..#..', '##...'],
+  bolt: ['..##.', '.##..', '#####', '..##.', '.##..'],
+  yieldCurve: ['#w...', '#.w##', '#.#ww', '##...', '#####'],
+  knockOut: ['#.#..#.', '##..#.#', '#...#.#', '##..#.#', '#.#..#.'],
+  shield: ['#####', '#####', '#####', '.###.', '..#..'],
+  anchor: ['..#..', '.###.', '..#..', '#.#.#', '.###.'],
+  network: ['#....', '.w#w.', '#...#', '.w#w.', '#....'],
+  fastForward: ['#..#.', '##.##', '#####', '##.##', '#..#.'],
+  backtest: ['..w..', '..#..', '.#.#.', '#.w.#', '..w..'],
+  hourglass: ['#####', '.###.', '..#..', '.###.', '#####'],
+  measureQ: ['.###.', '#...#', '#...#', '#..#.', '.##.#'],
+  rings: ['###..', '#.#..', '#####', '..#.#', '..###'],
+  update: ['...#.', '...#.', '.ww#.', 'w.###', '#####'],
+  psi: ['#.#.#', '#.#.#', '.###.', '..#..', '..#..'],
 };
-const carve = (key: string) => (CARVED[key] ?? qaText(`qa25-glyph-${key}`, key, '#').rows).map((row) => row.replace(/#/g, 'y'));
 
-/** The tiers from the base up: where each sits and the symbols of its lessons, left to right. */
+/** The tiers from the base up, lessons 1 to 24 left to right: 7, 6, 5, 4 and 2 stones. */
 const PITCH = { x: 8, y: 7 } as const;
 const TIERS: readonly { y: number; glyphs: readonly string[] }[] = [
-  { y: 39, glyphs: ['pi', 'E', 't', 'μ', 'Δ', 'die', 'alpha', 'β', '+'] },
-  { y: 32, glyphs: ['=', 'integral', 'vol', '%', 'K', 'C', 'r'] },
-  { y: 25, glyphs: ['x', 'forward', 'check', 'p', 'Q'] },
-  { y: 18, glyphs: ['rho', 'θ', 'psi'] },
+  { y: 39, glyphs: ['sigma', 'die', 'priceAverage', 'frontier', 'hockeyStick', 'fan', 'alpha'] },
+  { y: 32, glyphs: ['reversion', 'gear', 'funnel', 'integral', 'bolt', 'yieldCurve'] },
+  { y: 25, glyphs: ['knockOut', 'shield', 'anchor', 'network', 'fastForward'] },
+  { y: 18, glyphs: ['backtest', 'hourglass', 'measureQ', 'rings'] },
+  { y: 11, glyphs: ['update', 'psi'] },
 ];
-const tierX = (count: number) => 40 - (count * PITCH.x) / 2;
+/** The pyramid stands right of centre, so the quant can cheer at its foot without hiding a stone. */
+const CENTRE_X = 50;
+const tierX = (count: number) => CENTRE_X - (count * PITCH.x) / 2;
 
 /**
- * One tier: sandstone blocks, wider than they are tall, in dark mortar, each lit along its top with a
- * gilded symbol in the middle and a hairline crack on every third block. (Square grey blocks with a
- * letter each read as keyboard keys.)
+ * One tier: sandstone blocks, wider than they are tall, in dark mortar, each lit along its top with its
+ * lesson's emblem gilded in the middle and, on some, a hairline crack at the right edge. (Square grey
+ * blocks with a letter each read as keyboard keys.)
  */
 function tier(id: string, glyphs: readonly string[], seed: number): PixelSprite {
   const width = glyphs.length * PITCH.x + 1;
-  const carved = glyphs.map(carve);
   return {
     id,
     name: id,
@@ -73,16 +94,18 @@ function tier(id: string, glyphs: readonly string[], seed: number): PixelSprite 
     rows: [...Array(PITCH.y)].map((_, y) => [...Array(width)].map((_, x) => {
       if (y === 0 || x % PITCH.x === 0) return 'K';
       const [block, sx, sy] = [Math.floor(x / PITCH.x), (x % PITCH.x) - 1, y - 1];
-      const glyph = carved[block];
-      if (sx >= 2 && sx <= 4 && sy >= 1 && glyph[sy - 1][sx - 2] !== '.') return glyph[sy - 1][sx - 2];
-      if ((block + seed) % 3 === 0 && ((sx === 6 && sy === 2) || (sx === 5 && sy === 3))) return 'K';
+      const glyph = CARVED[glyphs[block]];
+      const left = Math.floor((PITCH.x - 1 - glyph[0].length) / 2);
+      const carved = sy >= 1 ? glyph[sy - 1][sx - left] : undefined;
+      if (carved !== undefined && carved !== '.') return carved === '#' ? 'y' : carved;
+      if (left > 0 && (block + seed) % 3 === 0 && sx === PITCH.x - 2 && (sy === 2 || sy === 3)) return 'K';
       return sy === 0 ? 'g' : 'O';
     }).join('')),
   };
 }
 
 /** The capstone: a gold block with the pathway's sigma on its face in white. */
-const CAP = { x: 36, y: 11, width: 9, height: 7 } as const;
+const CAP = { x: CENTRE_X - 4, y: 4, width: 9, height: 7 } as const;
 const SIGMA: PixelSprite = {
   id: 'qa25-cap-sigma',
   name: 'qa25-cap-sigma',
@@ -149,7 +172,8 @@ const plaza: PixelSprite = {
   }).join('')),
 };
 
-const QUANT_AT = { x: 29, y: 30 } as const;
+/** The quant cheers at the pyramid's foot on the left, clear of every stone. */
+const QUANT_AT = { x: 0, y: 30 } as const;
 
 const base = qaCompose('qa25-opener-base', 80, 60, [
   { sprite: qaRoom, x: 0, y: 0 },
@@ -163,7 +187,7 @@ const base = qaCompose('qa25-opener-base', 80, 60, [
 
 export const qa25Opener: SceneArt = {
   id: 'qa25-opener',
-  label: 'A quant cheers at the foot of a stepped pyramid of sandstone blocks, each carved in gold with the symbol of an earlier lesson, as the gold capstone settles on top and fireworks burst over the city at night.',
+  label: 'A quant cheers beside a stepped pyramid of twenty-four sandstone blocks, each carved in gold with the emblem of an earlier lesson, as the gold capstone settles on top and fireworks burst over the city at night.',
   width: 80,
   height: 60,
   base,
@@ -173,7 +197,7 @@ export const qa25Opener: SceneArt = {
     { sprite: firework('qa25-firework-orchid', ['W', 'q', 'P'], 3, 340), x: 63, y: 1 },
     { sprite: qaSparkleBig, x: CAP.x - 7, y: CAP.y - 3, motion: { kind: 'twinkle', periodMs: 1500, min: 0.4 } },
     { sprite: qaLater(qaSparkleSmall, 'qa25-sparkle-small', 1, 560), x: CAP.x + CAP.width + 2, y: CAP.y + 1, motion: { kind: 'twinkle', periodMs: 1900, phase: 0.4, min: 0.4 } },
-    { sprite: qaStar, x: 41, y: 4, motion: { kind: 'twinkle', periodMs: 2300, min: 0.2 } },
+    { sprite: qaStar, x: 30, y: 5, motion: { kind: 'twinkle', periodMs: 2300, min: 0.2 } },
     ...qaGlints([[3, 29], [7, 30], [72, 22], [76, 33]]),
   ],
 };

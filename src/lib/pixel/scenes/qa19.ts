@@ -8,7 +8,7 @@
  * look-ahead bias, survivorship and data snooping cost. Only small layers move: windows light up
  * across the city, the mast's warning light blinks, the newest live day blinks at the red line's
  * end, the marker's tip glints, stars twinkle.
- * Keepsake: a check mark, a strategy that passed honest validation.
+ * Keepsake: the chart in small, a climb to the dashed go-live line and the fall after it.
  */
 import type { PixelSprite } from '../types';
 import { qaBackdrop } from './qa-backdrop';
@@ -115,31 +115,34 @@ export const qa19Opener: SceneArt = {
   ],
 };
 
-/** Lesson 19's emblem: a check mark, the strategy that passed. */
-const emblemCheck: PixelSprite = {
-  id: 'qa19-emblem-check',
-  name: 'qa19-emblem-check',
+/**
+ * Lesson 19's emblem: the opener's chart in small. A line climbs to a dashed white go-live line, then
+ * falls away past it: the backtest, and the same strategy live.
+ */
+const emblemBacktestLive: PixelSprite = {
+  id: 'qa19-emblem-backtest-live',
+  name: 'qa19-emblem-backtest-live',
   tags: ['scene', 'qa19'],
   rows: [
     '............',
+    '.......w....',
     '............',
-    '............',
-    '.........OO.',
-    '........OOy.',
-    '.OO....OOy..',
-    '..OO..OOy...',
-    '...OOOOy....',
-    '....OOy.....',
-    '.....y......',
-    '............',
+    '......OOw...',
+    '.....OOyOO..',
+    '....OOy.wOO.',
+    '...OOy....OO',
+    '..OOy...w..y',
+    '.OOy........',
+    'OOy.....w...',
+    'Oy..........',
     '............',
   ],
 };
 
 export const qa19Finish: SceneArt = qaKeepsake(
   'qa19-finish',
-  'A gold medallion hanging from a purple ribbon, embossed with a check mark, with small sparkles around it.',
-  emblemCheck,
+  'A gold medallion hanging from a purple ribbon, embossed with a line that climbs to a dashed go-live line and then falls away past it, with small sparkles around it.',
+  emblemBacktestLive,
 );
 
 export const art: LessonArtSet = { opener: qa19Opener, backdrop: qaBackdrop, finish: qa19Finish };

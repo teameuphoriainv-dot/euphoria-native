@@ -6,7 +6,7 @@
  * Volmageddon kind), then a slow decay, with GARCH's estimate of sigma in gold hugging the bars, up
  * fast when the shocks land and down slowly after. The quant watches from under an umbrella while
  * lightning splits the sky over the skyline. Only small layers move: the rain falls, the lightning
- * flashes, the newest return flickers in, the mast's warning light blinks, a puddle ripples.
+ * flashes, a white tick blinks on today's return, the mast's warning light blinks, a puddle ripples.
  * Keepsake: a lightning bolt, the spike.
  */
 import type { PixelSprite } from '../types';
@@ -64,12 +64,12 @@ const BOARD = { x: 2, y: 5, width: 46, height: 26 } as const;
 const ZERO = BOARD.y + 13;
 const BAR_X = (i: number) => BOARD.x + 4 + i * 2;
 
-/** The daily returns, in pixels: calm (under the label), then the storm, then the decay. Up is green,
- * down red. */
-const RETURNS = [1, -1, 1, 1, -1, 1, -1, 1, -1, 6, -8, 9, -7, 8, -6, -4, 3, -3, 2] as const;
+/** The daily returns, in pixels: calm (under the label), then the storm, then the decay, the last of
+ * them today's. Up is green, down red. */
+const RETURNS = [1, -1, 1, 1, -1, 1, -1, 1, -1, 6, -8, 9, -7, 8, -6, -4, 3, -3, 2, -2] as const;
 /** GARCH's sigma for each day: the first shock breaks out of the calm band, sigma jumps the day after,
- * and decays slowly after the last. */
-const SIGMA = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 10, 10, 9, 9, 7, 5, 4, 4] as const;
+ * and decays slowly after the last, still above the calm band today. */
+const SIGMA = [2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 9, 10, 10, 9, 9, 7, 5, 4, 4, 4] as const;
 
 const bars: QaStamp[] = RETURNS.map((r, i) => ({
   sprite: qaRect(`qa12-bar-${String(i)}`, 1, Math.abs(r), r > 0 ? 'N' : 'R'),
@@ -83,20 +83,12 @@ const band: QaStamp[] = [-1, 1].map((sign) => ({
   y: 0,
 }));
 
-/** Today's return arriving: a bar that flickers between sizes after the storm. */
-const LIVE = { x: BAR_X(RETURNS.length), top: ZERO - 4 } as const;
-const liveBar = (r: number) => [...Array(9)].map((_, y) => {
-  const dy = y - 4;
-  return (r > 0 ? dy < 0 && dy >= -r : dy > 0 && dy <= -r) ? (r > 0 ? 'N' : 'R') : '.';
-});
-const live: PixelSprite = {
-  id: 'qa12-live',
-  name: 'qa12-live',
-  tags: ['scene', 'qa12'],
-  rows: liveBar(2),
-  frames: [2, -3, 1, -2].map(liveBar),
-  frameMs: 520,
-};
+/** Today's return is the last bar, drawn with the rest; only a white tick at its end blinks, so the
+ * value itself never changes. */
+const TODAY = RETURNS.length - 1;
+/** A bar's end pixel is ZERO - r either way: the top of an up bar, the bottom of a down one. */
+const TODAY_TIP = { x: BAR_X(TODAY), y: ZERO - RETURNS[TODAY] } as const;
+const todayTick: PixelSprite = { id: 'qa12-today', name: 'qa12-today', tags: ['scene', 'qa12'], rows: ['W'] };
 
 const legs: PixelSprite = {
   id: 'qa12-legs',
@@ -236,7 +228,7 @@ export const qa12Opener: SceneArt = {
     { sprite: rainSheet, x: 48, y: 6 },
     { sprite: rainLater, x: 0, y: 28 },
     { sprite: bolt, x: 49, y: 6, motion: { kind: 'twinkle', periodMs: 2600, min: 0 } },
-    { sprite: live, x: LIVE.x, y: LIVE.top },
+    { sprite: todayTick, x: TODAY_TIP.x, y: TODAY_TIP.y, motion: { kind: 'twinkle', periodMs: 1000, min: 0.2 } },
     { sprite: { id: 'qa12-warning', name: 'qa12-warning', tags: ['scene', 'qa12'], rows: ['R'] }, x: MAST.x, y: MAST.top - 1, motion: { kind: 'twinkle', periodMs: 1200, min: 0.1 } },
     { sprite: ripple, x: 25, y: 51 },
   ],

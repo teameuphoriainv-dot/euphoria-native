@@ -6,7 +6,7 @@
  * and the signal it gives: a green arrow, BUY. Two GPU towers hum either side, their fans ringed in
  * orchid light; the quant stands at a bench with a laptop. Only small layers move: the stages' arrows light in turn, the network lights
  * up layer by layer, the towers' fans spin, the BUY signal pulses.
- * Keepsake: a processor chip, where the model runs.
+ * Keepsake: the neural network, three inputs through two hidden nodes to one output.
  */
 import type { PixelSprite } from '../types';
 import { qaBackdrop } from './qa-backdrop';
@@ -209,32 +209,34 @@ export const qa17Opener: SceneArt = {
   ],
 };
 
-/** Lesson 17's emblem: a processor chip, its pins round a core. (A drawn network turns to mush at
- * keepsake size; the chip reads.) */
-const emblemChip: PixelSprite = {
-  id: 'qa17-emblem-chip',
-  name: 'qa17-emblem-chip',
+/**
+ * Lesson 17's emblem: the opener's neural network in small. Three input nodes, two hidden and one
+ * output, engraved as bold dots, the links between them drawn in white so they stay apart.
+ */
+const emblemNetwork: PixelSprite = {
+  id: 'qa17-emblem-network',
+  name: 'qa17-emblem-network',
   tags: ['scene', 'qa17'],
   rows: [
     '............',
-    '..O.O.O.O...',
-    '.OOOOOOOOOy.',
-    'OOOyyyyyOOOy',
-    '.OOy...yOOy.',
-    'OOOy.O.yOOOy',
-    '.OOy...yOOy.',
-    'OOOyyyyyOOOy',
-    '.OOOOOOOOOy.',
-    '..yOyOyOyO..',
-    '...y.y.y.y..',
+    '.OO.........',
+    '.OOw........',
+    '....wOO.....',
+    '....wOOw....',
+    '.OOw....wOO.',
+    '.OOw....wOO.',
+    '....wOOw....',
+    '....wOO.....',
+    '.OOw........',
+    '.OO.........',
     '............',
   ],
 };
 
 export const qa17Finish: SceneArt = qaKeepsake(
   'qa17-finish',
-  'A gold medallion hanging from a purple ribbon, embossed with a processor chip, with small sparkles around it.',
-  emblemChip,
+  'A gold medallion hanging from a purple ribbon, embossed with a small neural network, three input nodes linked through two hidden nodes to one output, with small sparkles around it.',
+  emblemNetwork,
 );
 
 export const art: LessonArtSet = { opener: qa17Opener, backdrop: qaBackdrop, finish: qa17Finish };
