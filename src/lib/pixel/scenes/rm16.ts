@@ -216,33 +216,36 @@ export const rm16Opener: SceneArt = {
   ],
 };
 
-/** Lesson 16's emblem: a padlock, steel shackle over a gold body with its keyhole. 12x15. */
-const emblemPadlock: PixelSprite = {
-  id: 'rm16-emblem-padlock',
-  name: 'padlock',
+/**
+ * Lesson 16's emblem: the ransom note on the screen, the opener's radio set in small. A gold-cased
+ * set with its knobs, and on its green screen the pale green skull of the attack. A plain padlock said
+ * security in general and was already the opener's door; the skull on the screen says cyber. 16x13.
+ */
+const emblemScreen: PixelSprite = {
+  id: 'rm16-emblem-screen',
+  name: 'ransomware screen',
   tags: ['rm', 'emblem', 'lesson 16'],
   rows: [
-    '...xxxxxx...',
-    '..xXXXXXXx..',
-    '.xX......Xx.',
-    '.xX......Xx.',
-    '.xX......Xx.',
-    'OOOOOOOOOOOO',
-    'OyyyyyyyyyGO',
-    'OyGGGKKGGGgO',
-    'OyGGKKKKGGgO',
-    'OyGGGKKGGGgO',
-    'OyGGGKKGGGgO',
-    'OyGGGGGGGGgO',
-    'OGgggggggggO',
-    '.OOOOOOOOOO.',
+    '.OOOOOOOOOOOOOO.',
+    'OyGGGGGGGGGGGGgO',
+    'OGnnnnnnnnnnGGgO',
+    'OGnnnmmmnnnnGxgO',
+    'OGnnmmmmmnnnGGgO',
+    'OGnnmKmKmnnnGGgO',
+    'OGnnmmmmmnnnGxgO',
+    'OGnnnmKmnnnnGGgO',
+    'OGnnnmnmnnnnGGgO',
+    'OGnnnnnnnnnnGGgO',
+    'OGGGGGGGGGGGGGgO',
+    'OgOgOgOgOgOggggO',
+    '.OOOOOOOOOOOOOO.',
   ],
 };
 
 export const rm16Finish: SceneArt = rmKeepsake(
   'rm16-finish',
-  'A red and white life ring hanging from a rope, with a gold padlock at its center, its steel shackle shut.',
-  emblemPadlock,
+  'A red and white life ring hanging from a rope, with a gold radio set at its center whose green screen shows a pale green skull, the mark of a cyber attack.',
+  emblemScreen,
 );
 
 export const art: LessonArtSet = { opener: rm16Opener, backdrop: rmBackdrop, finish: rm16Finish };

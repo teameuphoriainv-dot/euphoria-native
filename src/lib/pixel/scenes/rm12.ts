@@ -1,14 +1,16 @@
 /**
  * Risk Management lesson 12 opener, Counterparty Risk & Collateral Management: down on the quay in the
  * storm, the keeper holds a line made fast round an iron bollard, and the ship at the other end of it
- * is going down stern first. A hedge is only as good as whoever holds the other end of the rope; the
- * bollard is the collateral, the thing that holds when they cannot. The coil of line waits behind him.
- * Moving: rain, lightning, the swell over the stern, bubbles from the wreck, foam at the quay's end.
+ * is going down stern first. A hedge is only as good as whoever holds the other end of the rope. The
+ * bollard is only the keeper's own mooring post; what protects him is on the quay beside it, the sea
+ * chest of gold the ship's master posted as margin, strapped in the ship's red. The ship can sink
+ * and the chest stays on the quay. Moving: rain, lightning, the swell over the stern, bubbles from
+ * the wreck, foam at the quay's end, a glint on the gold.
  */
 import type { PixelSprite } from '../types';
 import { rmBackdrop } from './rm-backdrop';
-import { RM_PALETTE, rmCompose, rmKeepsake, rmLater, rmLightning, rmRain, rmRopeCoil, rmSwell } from './rm-kit';
-import { rmFlip, rmKeeperReach, rmMark, rmPlot } from './rm-kit-a';
+import { RM_PALETTE, rmCompose, rmKeepsake, rmLater, rmLightning, rmRain, rmStamp, rmSwell } from './rm-kit';
+import { rmFlip, rmGlint, rmKeeperReach, rmMark, rmPlot } from './rm-kit-a';
 import type { RmPoint } from './rm-kit-a';
 import { rmFill } from './rm-kit-b';
 import type { LessonArtSet, SceneArt } from './types';
@@ -105,6 +107,28 @@ const bollard: PixelSprite = {
   ],
 };
 
+/**
+ * The margin: the ship's sea chest, posted on the quay, its lid thrown back on a heap of gold and its
+ * two straps in the red of the ship's flag, so it reads as theirs. 13x10.
+ */
+const marginChest: PixelSprite = {
+  id: 'rm12-opener-margin-chest',
+  name: 'margin chest',
+  tags: ['scene', 'rm12'],
+  rows: [
+    '.OOOOOOOOOOO.',
+    '.OgggggggggO.',
+    '..yG.Gy.yGy..',
+    '.yGyGGyGGyGy.',
+    'OOOOOOOOOOOOO',
+    'OgrgggggggrgO',
+    'OgrggDxDggrgO',
+    'OgrggDKDggrgO',
+    'OgrgggggggrgO',
+    'OOOOOOOOOOOOO',
+  ],
+};
+
 /** Bubbles off the wreck; give them a `rise`. 5x3. */
 const bubbles: PixelSprite = {
   id: 'rm12-opener-bubbles',
@@ -133,24 +157,24 @@ const foam: PixelSprite = {
   ],
 };
 
-/** The line: from the keeper's hand down to the bollard, and from the bollard out to the ship's bow. 48x42. */
+/** The line: from the keeper's hand down over the chest to the bollard, and from the bollard out to the ship's bow. 48x42. */
 const line: PixelSprite = {
   id: 'rm12-opener-line',
   name: 'mooring line',
   tags: ['scene', 'rm12'],
-  rows: rmPlot(48, 42, [...rope(27, 29, 30, 37), ...rope(35, 41, 45, 31)]),
+  rows: rmPlot(48, 42, [...rope(21, 29, 31, 37), ...rope(36, 41, 45, 31)]),
 };
 
 const base = rmCompose('rm12-opener-base', rmMark(ground, JOINTS), [
   [sinkingShip, 46, 25],
+  [marginChest, 17, 34],
   [line, 0, 0],
-  [bollard, 29, 38],
-  [rmRopeCoil, 0, 37],
+  [bollard, 30, 38],
 ]);
 
 export const rm12Opener: SceneArt = {
   id: 'rm12-opener',
-  label: 'In a storm, a lighthouse keeper on a stone quay holds a mooring line made fast round an iron bollard, its other end tied to a ship that is sinking stern first.',
+  label: 'In a storm, a lighthouse keeper on a stone quay holds a mooring line made fast round an iron bollard to a ship that is sinking stern first, while beside the bollard sits the ship\'s chest of gold, posted as collateral.',
   width: 80,
   height: 60,
   base,
@@ -162,38 +186,61 @@ export const rm12Opener: SceneArt = {
     { sprite: foam, x: 39, y: 44, motion: { kind: 'twinkle', periodMs: 1600, min: 0.3 } },
     { sprite: rmRain, x: 0, y: 0 },
     { sprite: rmLater(rmRain, 'rm12-opener-rain-later', 1, 150), x: 40, y: 6 },
-    { sprite: rmFlip(rmKeeperReach, 'rm12-opener-keeper'), x: 9, y: 15 },
+    { sprite: rmGlint, x: 21, y: 35, motion: { kind: 'twinkle', periodMs: 2400, min: 0.2 } },
+    { sprite: rmFlip(rmKeeperReach, 'rm12-opener-keeper'), x: 3, y: 15 },
   ],
 };
 
-/**
- * Lesson 12's emblem: two bollards with a line made fast between them, the near one capped in the
- * keeper's gold, the far one in the mate's orchid and cracking. 16x12.
- */
-const emblemBollards: PixelSprite = {
-  id: 'rm12-emblem-bollards',
-  name: 'two bollards',
+/** A boat for the emblem, facing right: a mast, a white sail, its hull in `hull` over `keel`. 6x6. */
+const boat = (id: string, hull: string, keel: string): PixelSprite => ({
+  id,
+  name: id,
   tags: ['rm', 'emblem', 'lesson 12'],
-  rows: [
-    '.OOOO......EEEE.',
-    'OyGGgO....EqPPpE',
-    '.DXXD......DXXD.',
-    '.DXXD......DXRD.',
-    '.xXxXxXxXxXxXRx.',
-    '.XxXxXxXxXxXxXR.',
-    '.DXXD......DRXD.',
-    '.DXXD......DXRD.',
-    '.DXXD......DRXD.',
-    'DDDDDD....DDDDDD',
-    'xxxxxxxxxxxxxxxx',
-    '.XXXXXXXXXXXXXX.',
-  ],
+  rows: ['.x....', '.xw...', '.xww..', '.xwww.', hull.repeat(6), `.${keel.repeat(4)}.`],
+});
+
+/** The clearing house: a gold building with a pediment, four columns and its steps. 9x8. */
+const CLEARING_HOUSE: PixelSprite = {
+  id: 'rm12-emblem-clearing-house',
+  name: 'clearing house',
+  tags: ['rm', 'emblem', 'lesson 12'],
+  rows: ['....O....', '...OyO...', '..OyGgO..', '.OyGGGgO.', 'OOOOOOOOO', '.y.G.G.g.', '.y.G.G.g.', 'OOOOOOOOO'],
+};
+
+/** The emblem's pieces and where they go: the house at the top, a boat either side below it. */
+const CLEARING: readonly (readonly [PixelSprite, number, number])[] = [
+  [CLEARING_HOUSE, 3, 0],
+  [boat('rm12-emblem-boat-a', 'B', 'b'), 0, 8],
+  [rmFlip(boat('rm12-emblem-boat-b', 'P', 'p'), 'rm12-emblem-boat-b-flipped'), 10, 8],
+];
+
+/** The two lines, each from a boat's bow up to the house's steps, where they meet. */
+const LINES: readonly RmPoint[] = [[6, 11, 'x'], [7, 10, 'X'], [7, 9, 'x'], [7, 8, 'X'], [9, 11, 'x'], [8, 10, 'X'], [8, 9, 'x'], [8, 8, 'X']];
+
+/**
+ * Lesson 12's emblem: central clearing, the reform after Lehman, as the lesson draws it: Party A,
+ * the clearing house, Party B. Two boats, the two sides of a trade in their own colours, are moored
+ * not to each other but each by its own line to one gold clearing house, which collects their margin
+ * and stands between them if one goes down. 16x15.
+ */
+const emblemClearing: PixelSprite = {
+  id: 'rm12-emblem-clearing',
+  name: 'central clearing',
+  tags: ['rm', 'emblem', 'lesson 12'],
+  palette: RM_PALETTE,
+  rows: rmMark(
+    CLEARING.reduce(
+      (rows, [sprite, x, y]) => rmStamp(rows, sprite, x, y),
+      rmPlot(16, 15, Array.from({ length: 16 }, (_, x): RmPoint => [x, 14, x % 4 === 1 ? 'U' : 'u'])),
+    ),
+    LINES,
+  ),
 };
 
 export const rm12Finish: SceneArt = rmKeepsake(
   'rm12-finish',
-  'A red and white life ring hanging from a rope, with two bollards at its center tied together by a line, one capped in gold and the far one in orchid and cracking.',
-  emblemBollards,
+  'A red and white life ring hanging from a rope, with a gold clearing house at its center and a blue boat and an orchid boat below it on either side, each moored to its steps by its own line.',
+  emblemClearing,
 );
 
 export const art: LessonArtSet = { opener: rm12Opener, backdrop: rmBackdrop, finish: rm12Finish };

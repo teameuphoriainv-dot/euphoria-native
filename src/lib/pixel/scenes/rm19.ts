@@ -1,14 +1,18 @@
 /**
- * Risk Management lesson 19 opener, Scenario Analysis & War Gaming: a war game by lamplight. The room
- * is dark but for the lamp over the chessboard; across it the keeper raises a finger, what if they do
- * this, and the mate lifts a knight to try it. Scenario analysis is playing the attack before it
- * comes, moving for the other side as hard as you can while it still costs nothing. Moving: the lamp
- * flame, moths round the light, dust rising through it, a glint on the gold king.
+ * Risk Management lesson 19 opener, Scenario Analysis & War Gaming: a tabletop exercise by lamplight.
+ * The room is dark but for the lamp over the games table, and on the table is a chart of the harbour,
+ * the headland with its lighthouse, the pier and the sea squared off for play, with the keeper's gold
+ * ship tokens out on it. Across it the keeper raises a finger, what if, and the mate lifts a storm
+ * token to set it down among them: playing the shock before it comes, while it still costs nothing.
+ * On the wall the scenario matrix is chalked, impact up and likelihood along, and in the corner
+ * where the impact is high and the odds are low, the corner the exercise is for, a storm in red.
+ * Moving: the lamp flame, moths round the light, dust rising through it, a glint on a ship token.
  */
 import type { PixelSprite } from '../types';
 import { rmBackdrop } from './rm-backdrop';
 import { RM_PALETTE, rmCompose, rmKeepsake, rmLater } from './rm-kit';
-import { rmFlip, rmGlint, rmKeeperRaise } from './rm-kit-a';
+import { rmFlip, rmGlint, rmKeeperRaise, rmMark } from './rm-kit-a';
+import type { RmPoint } from './rm-kit-a';
 import { rmFill, rmMateLift } from './rm-kit-b';
 import { rmMoth } from './rm-kit-c';
 import type { LessonArtSet, SceneArt } from './types';
@@ -58,17 +62,28 @@ const flame: PixelSprite = {
   frameMs: 200,
 };
 
-/** One row of the board: three-pixel squares, light and dark, offset every second pair of rows. */
-const squares = (r: number) =>
-  Array.from({ length: 24 }, (_, x) => ((Math.floor(x / 3) + Math.floor(r / 2)) % 2 === 0 ? 'x' : 'X')).join('');
+/**
+ * One row of the harbour chart on the table, 24 wide: the headland on the left with the lighthouse
+ * on its point, the pier running out on the fourth row, and the sea squared off for play.
+ */
+function chartRow(r: number): string {
+  const coast = [5, 5, 4, 4, 4, 3, 3, 3][r];
+  return Array.from({ length: 24 }, (_, x) => {
+    if (r === 1 && x === 1) return 'R';
+    if (r === 2 && x === 1) return 'w';
+    if (x < coast) return x + r < 4 ? 'x' : 'X';
+    if (r === 3 && x < coast + 6) return 'x';
+    return x % 6 === 5 || r === 5 ? 'b' : 'B';
+  }).join('');
+}
 
-/** The games table: the board in a dark wood frame, a lit edge, a pedestal and its foot. 26x21. */
-const chessTable: PixelSprite = {
+/** The games table: the harbour chart in a dark wood frame, a lit edge, a pedestal and its foot. 26x21. */
+const chartTable: PixelSprite = {
   id: 'rm19-opener-table',
-  name: 'chess table',
+  name: 'chart table',
   tags: ['scene', 'rm19'],
   rows: [
-    ...Array.from({ length: 8 }, (_, r) => `O${squares(r)}O`),
+    ...Array.from({ length: 8 }, (_, r) => `O${chartRow(r)}O`),
     `G${'y'.repeat(24)}G`,
     `O${'g'.repeat(24)}O`,
     `.${'O'.repeat(24)}.`,
@@ -79,15 +94,37 @@ const chessTable: PixelSprite = {
   ],
 };
 
-/** The pieces on the board: the keeper's in gold, the mate's in orchid. */
+/** A token for the table: a small sprite of the exercise's pieces. */
 const piece = (id: string, rows: string[]): PixelSprite => ({ id, name: id, tags: ['scene', 'rm19'], rows });
-const goldKing = piece('rm19-opener-gold-king', ['.y.', 'yGy', '.G.', 'yGg', '.G.', '.G.', 'yGg']);
-const goldPawn = piece('rm19-opener-gold-pawn', ['.y.', 'yGg', '.G.', 'yGg']);
-const orchidQueen = piece('rm19-opener-orchid-queen', ['q.q', 'qPp', '.P.', '.P.', '.P.', 'qPp']);
-const orchidPawn = piece('rm19-opener-orchid-pawn', ['.q.', 'qPp', '.P.', 'qPp']);
 
-/** The knight the mate lifts to move: ears, eye, muzzle to the board, on its base. 6x8. */
-const knight = piece('rm19-opener-knight', ['..q.q.', '.qPPPq', 'qPPKPP', 'PPPPPp', 'qq.PPp', '..qPPp', '.qPPPp', 'EEEEEE']);
+/** The keeper's ship token: a white sail over a gold hull. 4x3. */
+const shipToken = piece('rm19-opener-ship-token', ['.w..', '.ww.', 'GGGg']);
+
+/** The storm token the mate lifts to play: a grey cloud, a yellow bolt under it, on a dark base. 6x8. */
+const stormToken = piece('rm19-opener-storm-token', ['.xxx..', 'xwwwx.', 'xwwxxX', 'XXXXXX', '..y...', '.yy...', '..y...', 'DDDDDD']);
+
+/** The chalk scenario matrix's own marks: two axes with arrowheads, the grid between, a red storm high and to the left. */
+const MATRIX_MARKS: readonly RmPoint[] = [
+  ...Array.from({ length: 12 }, (_, i): RmPoint => [3, 2 + i, 'x']),
+  [2, 3, 'x'], [4, 3, 'x'],
+  ...Array.from({ length: 15 }, (_, i): RmPoint => [3 + i, 13, 'x']),
+  [16, 12, 'x'], [16, 14, 'x'],
+  ...Array.from({ length: 10 }, (_, i): RmPoint => [10, 3 + i, 'X']),
+  ...Array.from({ length: 13 }, (_, i): RmPoint => [4 + i, 8, 'X']),
+  [6, 4, 'x'], [7, 4, 'x'], [5, 5, 'x'], [6, 5, 'x'], [7, 5, 'x'], [8, 5, 'x'], [6, 6, 'R'], [5, 7, 'R'],
+  [13, 10, 'x'], [12, 11, 'x'], [14, 11, 'x'],
+];
+
+/** The scenario matrix chalked on a slate on the wall: impact up the side, likelihood along the foot. 18x16. */
+const matrix: PixelSprite = {
+  id: 'rm19-opener-matrix',
+  name: 'scenario matrix',
+  tags: ['scene', 'rm19'],
+  rows: rmMark(
+    Array.from({ length: 16 }, (_, y) => (y === 0 || y === 15 ? 'D'.repeat(18) : `D${'K'.repeat(16)}D`)),
+    MATRIX_MARKS,
+  ),
+};
 
 /** A mote of dust in the lamplight; give it a `rise`. */
 const mote = piece('rm19-opener-mote', ['x']);
@@ -103,20 +140,19 @@ const floorShadow: PixelSprite = {
 
 const base = rmCompose('rm19-opener-base', ground, [
   [lamp, 36, 3],
+  [matrix, 3, 4],
   [floorShadow, 6, 52],
-  [chessTable, 27, 32],
-  [goldKing, 31, 28],
-  [goldPawn, 35, 33],
-  [orchidPawn, 43, 32],
-  [orchidQueen, 47, 28],
+  [chartTable, 27, 32],
+  [shipToken, 37, 31],
+  [shipToken, 43, 34],
   [rmFlip(rmKeeperRaise, 'rm19-opener-keeper'), 8, 24],
   [rmMateLift, 54, 24],
-  [knight, 52, 23],
+  [stormToken, 52, 23],
 ]);
 
 export const rm19Opener: SceneArt = {
   id: 'rm19-opener',
-  label: 'In a dark room lit by one hanging lamp, the lighthouse keeper raises a finger across a chessboard as a bearded mate in an orchid oilskin lifts a knight to make the next move.',
+  label: 'In a dark room lit by one hanging lamp, the lighthouse keeper raises a finger across a table spread with a harbor chart and gold ship tokens as a bearded mate lifts a storm token to play on it, under a chalked impact and likelihood grid with a red storm in its high impact corner.',
   width: 80,
   height: 60,
   base,
@@ -126,7 +162,7 @@ export const rm19Opener: SceneArt = {
     { sprite: rmLater(rmMoth, 'rm19-opener-moth-later', 1, 140), x: 47, y: 16, motion: { kind: 'drift', amp: 2, periodMs: 2100, phase: 0.5 } },
     { sprite: mote, x: 36, y: 30, motion: { kind: 'rise', amp: 9, periodMs: 3800 } },
     { sprite: mote, x: 45, y: 27, motion: { kind: 'rise', amp: 7, periodMs: 3100, phase: 0.5 } },
-    { sprite: rmGlint, x: 31, y: 27, motion: { kind: 'twinkle', periodMs: 2400, min: 0.2 } },
+    { sprite: rmGlint, x: 42, y: 32, motion: { kind: 'twinkle', periodMs: 2400, min: 0.2 } },
   ],
 };
 

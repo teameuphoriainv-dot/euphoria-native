@@ -40,17 +40,22 @@ const modelShip: PixelSprite = {
   ],
 };
 
-/** The crack's path down the close-up, one x per row. */
+/** The crack's path down the close-up, one x per row; where it gapes, rows 6 to 9, it is two pixels wide. */
 const CRACK: Record<number, number> = { 4: 8, 5: 8, 6: 7, 7: 7, 8: 8, 9: 8, 10: 7, 11: 7 };
 
-/** What the lens shows: the hull close up, its rail, planks and two gun ports, the crack running down through them. */
+/**
+ * What the lens shows: the hull close up, a strip of sail above its gold rail, then pale planks with
+ * their seams and two small gun ports, so the black crack running down through them is the darkest
+ * thing in the glass. (Dark planks with black ports read as a cracked biscuit on a phone.)
+ */
 function closeUp(x: number, y: number): string {
-  if (CRACK[y] === x) return 'K';
-  if (y <= 3) return 'y';
+  const crack = CRACK[y];
+  if (crack === x || (y >= 6 && y <= 9 && crack + 1 === x)) return 'K';
+  if (y <= 3) return 'w';
   if (y === 4) return 'G';
-  if (y === 7 || y === 10) return 'O';
-  if ((y === 5 || y === 6) && (x === 4 || x === 5 || x === 10 || x === 11)) return 'K';
-  return 'g';
+  if (y === 7 || y === 10) return 'g';
+  if ((y === 5 || y === 6) && (x === 4 || x === 11)) return 'O';
+  return 'y';
 }
 
 /** The lens: a steel rim, a blue edge to the glass with a glare, and the close-up inside. 15x15. */
@@ -147,33 +152,48 @@ export const rm18Opener: SceneArt = {
   ],
 };
 
-/** Lesson 18's emblem: a brass magnifying glass, a red crack showing in its lens. 15x15. */
+/** Distance from (px, py) to the segment from a to b. */
+function toSegment(px: number, py: number, ax: number, ay: number, bx: number, by: number): number {
+  const vx = bx - ax;
+  const vy = by - ay;
+  const t = Math.max(0, Math.min(1, ((px - ax) * vx + (py - ay) * vy) / (vx * vx + vy * vy)));
+  return Math.hypot(px - ax - t * vx, py - ay - t * vy);
+}
+
+/** The emblem crack's path through the planks, one x per row, two pixels wide. */
+const EMBLEM_CRACK: Record<number, number> = { 2: 6, 3: 6, 4: 5, 5: 5, 6: 6, 7: 6, 8: 5, 9: 5 };
+
+/**
+ * Lesson 18's emblem: the flaw found in the model. A brass magnifying glass whose lens shows a strip
+ * of the model's hull planks, pale gold with dark seams, and a bold red crack running down through
+ * them. The crack is in the planks behind the glass, a rim of clear blue glass round them, so it reads
+ * as a flaw found and not as the checker's own glass broken. 15x15.
+ */
 const emblemMagnifier: PixelSprite = {
   id: 'rm18-emblem-magnifier',
   name: 'magnifier on a flaw',
   tags: ['rm', 'emblem', 'lesson 18'],
-  rows: [
-    '...yyyyy.......',
-    '..yyyyyyy......',
-    '.yyyWBByGG.....',
-    'yyyWBBRBGGG....',
-    'yyBBBRBBBGG....',
-    'yyBBBBRBBGG....',
-    'yyBBBRBBBGG....',
-    'yyyBRBBBGGG....',
-    '.yGGBBBGGG.....',
-    '..GGGGGGGgG....',
-    '...GGGGG..gG...',
-    '...........gG..',
-    '............gG.',
-    '.............gG',
-    '...............',
-  ],
+  rows: Array.from({ length: 15 }, (_, y) =>
+    Array.from({ length: 15 }, (_, x) => {
+      const dx = x + 0.5 - 6;
+      const dy = y + 0.5 - 6;
+      const d = Math.hypot(dx, dy);
+      if (d <= 6) {
+        if (d > 5) return dx + dy < -3 ? 'y' : dx + dy > 3 ? 'g' : 'G';
+        if (d > 4.1) return x + y < 6 ? 'W' : 'B';
+        const crack = EMBLEM_CRACK[y];
+        if (crack === x || crack + 1 === x) return 'r';
+        return y === 3 || y === 6 || y === 9 ? 'O' : 'y';
+      }
+      if (toSegment(x + 0.5, y + 0.5, 10, 10, 14, 14) <= 1.05) return x > y ? 'g' : 'G';
+      return '.';
+    }).join(''),
+  ),
 };
 
 export const rm18Finish: SceneArt = rmKeepsake(
   'rm18-finish',
-  'A red and white life ring hanging from a rope, with a magnifying glass at its center, a red crack showing in its lens.',
+  'A red and white life ring hanging from a rope, with a brass magnifying glass at its center whose lens shows a model ship\'s hull planks with a red crack running through them.',
   emblemMagnifier,
 );
 

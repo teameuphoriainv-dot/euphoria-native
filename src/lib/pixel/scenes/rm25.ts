@@ -1,15 +1,19 @@
 /**
  * Risk Management lesson 25 opener, the advanced capstone: the top of the climb, inside the lantern
- * room itself. Lesson 10 stood the keeper out on the gallery to watch; this one is the light. The great
- * lens fills the room, prism rings above and below a bullseye burning white, every ring bending its
- * share of the lamp into one beam: integrated risk management, many disciplines and one light. The
- * keeper polishes it while the storm beats on the glass all round, and the beams go out both ways to a
- * ship coming home. Moving: the beams, the lens, lightning, rain on the panes, the ship and the swell.
- * The backdrop is the stormy capstone variant and the keepsake ring is gold.
+ * room itself, where the five pillars of integrated risk management are one light. The great lens
+ * fills the room, and its prism rings are tinted in five bands, one for each pillar and each carrying
+ * a piece of its own lesson: lesson 20's pie on the green (portfolio risk), lesson 21's dominoes on
+ * the red (systemic risk), lesson 22's rose-tinted spectacles on the pink (behavioural risk), lesson
+ * 23's die on the blue (quantitative rigour) and lesson 24's chart of the board over its three lines
+ * on the orchid (governance). Between them the bullseye burns white, and one white beam goes out each
+ * way through the storm on the glass toward a ship coming home: the disciplines are managed together
+ * because in a crisis they arrive together. The keeper polishes the lens. Moving: the beams, the
+ * bullseye's glow, glints on the brass, lightning, rain on the panes, the ship and the swell. The
+ * backdrop is the stormy capstone variant and the keepsake ring is gold.
  */
 import type { PixelSprite } from '../types';
-import { rmCompose, rmLightning, rmShip } from './rm-kit';
-import { rmFlip, rmKeeperReach, rmPlot, rmPortSwell } from './rm-kit-a';
+import { rmCompose, rmLightning, rmShip, rmStamp } from './rm-kit';
+import { rmFlip, rmGlint, rmKeeperReach, rmPlot, rmPortSwell } from './rm-kit-a';
 import { rmBackdropStorm, rmBeam, rmFill, rmKeepsakeGold, rmLensGlow } from './rm-kit-b';
 import type { RmSpan } from './rm-kit-b';
 import type { LessonArtSet, SceneArt } from './types';
@@ -23,6 +27,7 @@ const WEATHER: readonly RmSpan[] = [
   [8, 26, 9, 'k'], [2, 30, 10, 'k'], [0, 16, 11, 'k'], [54, 72, 10, 'k'], [50, 77, 11, 'k'], [60, 79, 12, 'k'],
   [4, 14, 15, 'k'], [62, 75, 16, 'k'], [0, 8, 18, 'k'], [68, 79, 19, 'k'],
   [56, 62, 33, 'u'], [68, 76, 35, 'U'], [3, 9, 34, 'u'], [14, 20, 37, 'u'], [58, 64, 39, 'u'], [70, 77, 40, 'u'], [6, 11, 40, 'u'],
+  [60, 66, 43, 'u'], [2, 7, 44, 'u'],
 ];
 
 /** Dome, glazing, sill, the parapet's inner wall and the deck, with the storm in every pane. */
@@ -30,57 +35,98 @@ const ground = rmFill(
   Array.from({ length: 60 }, (_, y) => {
     if (y < 3) return 'K'.repeat(80);
     if (y === 3) return 'D'.repeat(80);
-    if (y === 4 || y === 42 || y === 49) return 'X'.repeat(80);
-    if (y < 42) return (y < 31 ? 'v' : y === 31 ? 'u' : y < 36 ? 'V' : 'v').repeat(80);
+    if (y === 4 || y === 46 || y === 49) return 'X'.repeat(80);
+    if (y < 46) return (y < 31 ? 'v' : y === 31 ? 'u' : y < 36 ? 'V' : 'v').repeat(80);
     if (y < 49) return 'k'.repeat(80);
     return (y === 54 || y === 58 ? 'D' : 'K').repeat(80);
   }),
   [
     ...WEATHER,
     [0, 79, 22, 'X'], [0, 79, 23, 'D'],
-    ...BARS.flatMap((x): RmSpan[] => Array.from({ length: 37 }, (_, i): RmSpan[] => [[x, x, 5 + i, 'X'], [x + 1, x + 1, 5 + i, 'D']]).flat()),
+    ...BARS.flatMap((x): RmSpan[] => Array.from({ length: 41 }, (_, i): RmSpan[] => [[x, x, 5 + i, 'X'], [x + 1, x + 1, 5 + i, 'D']]).flat()),
   ],
 );
 
+/* ── the great lens ──────────────────────────────────────────────────────────────────────────── */
+
+/** The lens's size, and where it stands: its bullseye's centre is at (13, 18) inside it. */
+const LENS = { x: 27, y: 4, w: 26, h: 42 };
+
 /**
- * One row of the great lens: a brass frame, prism rings striped lit and gold above and below the
- * belt, a glare running down the glass, and in the belt's middle panel the bullseye, white-hot.
+ * The five bands, top to bottom in the order the lessons ran, each a run of rows with its two tones
+ * striped like prism ridges: portfolio green, systemic red, then the bullseye's belt, then behavioural
+ * pink, quantitative blue and governance orchid.
+ */
+const BANDS = [
+  { top: 1, bottom: 5, lit: 'm', base: 'N' },
+  { top: 7, bottom: 11, lit: 's', base: 'R' },
+  { top: 24, bottom: 28, lit: 'F', base: 'f' },
+  { top: 30, bottom: 34, lit: 'B', base: 'b' },
+  { top: 36, bottom: 40, lit: 'q', base: 'P' },
+] as const;
+
+/** The brass rows: the caps, and the bars between the bands and round the belt. */
+const RING_BARS = [0, 6, 12, 23, 29, 35, 41];
+
+/**
+ * One row of the great lens: a brass frame, two posts dividing it into a middle panel and narrow
+ * side panels, a glare running down the left, each band's two tones striped across it, and in the
+ * belt's middle panel the bullseye, white-hot, with the gold of the lamp's own light round it.
  */
 function lensRow(r: number): string {
-  const hw = r <= 1 || r >= 33 ? 9 : r <= 3 || r >= 31 ? 10.5 : 12;
-  return Array.from({ length: 24 }, (_, x) => {
-    const dx = x + 0.5 - 12;
+  const hw = r === 0 || r === LENS.h - 1 ? 10 : r === 1 || r === LENS.h - 2 ? 11.5 : 13;
+  const band = BANDS.find((b) => r >= b.top && r <= b.bottom);
+  return Array.from({ length: LENS.w }, (_, x) => {
+    const dx = x + 0.5 - 13;
     if (Math.abs(dx) > hw) return '.';
-    if (Math.abs(dx) > hw - 1 || r === 0 || r === 34 || r === 10 || r === 25) return 'O';
-    if (r === 1 || r === 33) return dx < 0 ? 'y' : 'G';
-    if (x === 6 || x === 17) return 'O';
-    if (r > 10 && r < 25 && x > 6 && x < 17) {
-      const d = Math.hypot(dx, r + 0.5 - 17.5);
-      return d < 2.2 ? 'W' : d < 3.6 ? 'w' : d < 4.8 ? 'y' : 'G';
+    if (Math.abs(dx) > hw - 1 || RING_BARS.includes(r) || x === 7 || x === 18) return 'O';
+    if (!band && x > 7 && x < 18) {
+      const d = Math.hypot(dx, r + 0.5 - 18);
+      return d < 2.3 ? 'W' : d < 3.5 ? 'w' : d < 4.6 ? 'y' : 'G';
     }
     if (x === 3) return 'w';
-    return r % 2 === 0 ? 'y' : 'G';
+    if (!band) return r % 2 === 0 ? 'y' : 'G';
+    return r % 2 === 0 ? band.lit : band.base;
   }).join('');
 }
 
-/** The great lens, brass-framed, its bullseye at (12, 17.5). 24x35. */
+/** Lesson 20's pie: white, with its biggest slice, the red, pulled out to the right. 5x5. */
+const PIE = ['.wRR.', 'wwRRR', 'wwwRR', 'wwww.', '.ww..'];
+/** Lesson 21's dominoes: one white tile already down on its side, the next still standing. 9x5. */
+const DOMINOES = ['......www', '......wKw', 'wwXww.XXX', 'wKXKw.wKw', 'wwXww.www'];
+/** Lesson 22's rose-tinted spectacles: gold rims, pink glass, a bridge. 9x4. */
+const SPECTACLES = ['.yyy.yyy.', 'yssyyyssy', 'yssy.yssy', '.yyy.yyy.'];
+/** Lesson 23's die, red with white pips, showing three, its far side in shade. 5x5. */
+const DIE = ['sRRRr', 'RwRRr', 'RRwRr', 'RRRwr', 'rrrrr'];
+/** Lesson 24's chart: the board's gold box over a bar to the three lines of defence. 9x5. */
+const CHART = ['...yyy...', '....y....', '.yyyyyyy.', '.y..y..y.', 'ww.ww.ww.'];
+
+/** A design as a sprite, so rmStamp can lay it into the lens. */
+const piece = (id: string, rows: string[]): PixelSprite => ({ id, name: id, tags: ['scene', 'rm25'], rows });
+
+/** Each band's piece at its place in the middle panel, which runs from x 8 to 17. */
+const PIECES: readonly (readonly [PixelSprite, number, number])[] = [
+  [piece('rm25-opener-pie', PIE), 10, 1],
+  [piece('rm25-opener-dominoes', DOMINOES), 9, 7],
+  [piece('rm25-opener-spectacles', SPECTACLES), 9, 25],
+  [piece('rm25-opener-die', DIE), 10, 30],
+  [piece('rm25-opener-chart', CHART), 9, 36],
+];
+
+/** The great lens, brass-framed, its five bands and their pieces round the bullseye. 26x42. */
 const lens: PixelSprite = {
   id: 'rm25-opener-lens',
   name: 'great lens',
   tags: ['scene', 'rm25'],
-  rows: Array.from({ length: 35 }, (_, r) => lensRow(r)),
+  rows: PIECES.reduce((rows, [p, x, y]) => rmStamp(rows, p, x, y), Array.from({ length: LENS.h }, (_, r) => lensRow(r))),
 };
 
-/** The cast-iron pedestal the lens turns on. 14x7. */
+/** The cast-iron pedestal the lens turns on, down to the deck. 14x3. */
 const pedestal: PixelSprite = {
   id: 'rm25-opener-pedestal',
   name: 'pedestal',
   tags: ['scene', 'rm25'],
   rows: [
-    '..DXXXXXXXXD..',
-    '...DXXXXXXD...',
-    '....DXXXXD....',
-    '....DXXXXD....',
     '...DXXXXXXD...',
     '..DXXXXXXXXD..',
     'DDDDDDDDDDDDDD',
@@ -116,13 +162,13 @@ const rainLeft: PixelSprite = {
 };
 
 const base = rmCompose('rm25-opener-base', ground, [
-  [lens, 28, 7],
-  [pedestal, 33, 42],
+  [lens, LENS.x, LENS.y],
+  [pedestal, LENS.x + 6, LENS.y + LENS.h],
 ]);
 
 export const rm25Opener: SceneArt = {
   id: 'rm25-opener',
-  label: 'At the top of the lighthouse, the keeper polishes the great golden lens as its beams shine out through the glass into a storm on both sides, toward a ship coming home.',
+  label: 'At the top of the lighthouse, the keeper polishes the great lens, its rings tinted in five colored bands that each carry a small pie, dominoes, rose-tinted spectacles, a die or a chart, around a white-hot center whose single beam shines out both ways into a storm toward a ship coming home.',
   width: 80,
   height: 60,
   base,
@@ -133,16 +179,21 @@ export const rm25Opener: SceneArt = {
     { sprite: rmShip, x: 67, y: 24, motion: { kind: 'bob', amp: 1, periodMs: 2400 } },
     { sprite: rmPortSwell, x: 55, y: 34, motion: { kind: 'drift', amp: 1, periodMs: 3000 } },
     { sprite: rmPortSwell, x: 68, y: 37, motion: { kind: 'drift', amp: 1, periodMs: 3400, phase: 0.5 } },
-    { sprite: rmBeam('rm25-opener-beam-left', 27, 0.6), x: 1, y: 4, motion: { kind: 'twinkle', periodMs: 3200, min: 0.25 } },
-    { sprite: rmFlip(rmBeam('rm25-opener-beam-right-source', 28, 0.4), 'rm25-opener-beam-right'), x: 52, y: 9, motion: { kind: 'twinkle', periodMs: 3200, min: 0.25, phase: 0.5 } },
-    { sprite: rmLensGlow, x: 37, y: 23, motion: { kind: 'twinkle', periodMs: 1800, min: 0.3 } },
-    { sprite: rmFlip(rmKeeperReach, 'rm25-opener-keeper'), x: 11, y: 22 },
-    { sprite: cloth, x: 27, y: 34 },
+    { sprite: rmBeam('rm25-opener-beam-left', 26, 0.45), x: 1, y: 7, motion: { kind: 'twinkle', periodMs: 3200, min: 0.25 } },
+    { sprite: rmFlip(rmBeam('rm25-opener-beam-right-source', 27, 0.4), 'rm25-opener-beam-right'), x: 53, y: 7, motion: { kind: 'twinkle', periodMs: 3200, min: 0.25, phase: 0.5 } },
+    { sprite: rmLensGlow, x: LENS.x + 10, y: LENS.y + 16, motion: { kind: 'twinkle', periodMs: 1800, min: 0.3 } },
+    { sprite: rmGlint, x: LENS.x + 15, y: LENS.y - 1, motion: { kind: 'twinkle', periodMs: 2300, min: 0.1 } },
+    { sprite: rmGlint, x: LENS.x + LENS.w - 2, y: LENS.y + 26, motion: { kind: 'twinkle', periodMs: 2700, min: 0.1, phase: 0.5 } },
+    { sprite: rmFlip(rmKeeperReach, 'rm25-opener-keeper'), x: 10, y: 22 },
+    { sprite: cloth, x: 26, y: 34 },
   ],
 };
 
-/** The emblem's five points, clockwise from the top, each lit on its left and shaded on its right. */
-const POINTS = [['R', 'r'], ['B', 'b'], ['N', 'n'], ['P', 'p'], ['G', 'g']] as const;
+/**
+ * The emblem's five points, clockwise from the top, each lit on its left and shaded on its right:
+ * the lens's five bands in the same order, so the star is the opener's light in small.
+ */
+const POINTS = [['N', 'n'], ['R', 'r'], ['F', 'f'], ['B', 'b'], ['P', 'p']] as const;
 
 /** The star's outline: ten corners, outer points and the inner notches between them. */
 const STAR = Array.from({ length: 10 }, (_, i) => {
@@ -163,8 +214,9 @@ function inStar(px: number, py: number): boolean {
 }
 
 /**
- * Lesson 25's emblem: a five-pointed star, one point for each pillar of the capstone (portfolio,
- * systemic, behavioural, quantitative, governance), white where they meet. 15x15.
+ * Lesson 25's emblem: a five-pointed star, one point for each pillar of the capstone in its band's
+ * colour from the opener's lens (portfolio green, systemic red, behavioural pink, quantitative blue,
+ * governance orchid), white where they meet, as the bands meet in the bullseye. 15x15.
  */
 const emblemStar: PixelSprite = {
   id: 'rm25-emblem-star',
@@ -186,7 +238,7 @@ const emblemStar: PixelSprite = {
 
 export const rm25Finish: SceneArt = rmKeepsakeGold(
   'rm25-finish',
-  'A gold and white life ring hanging from a rope, with a five-pointed star at its center, each point a different color for the five parts of integrated risk management.',
+  'A gold and white life ring hanging from a rope, with a five-pointed star at its center, its points green, red, pink, blue and orchid like the bands of the lighthouse lens, white where they meet.',
   emblemStar,
 );
 

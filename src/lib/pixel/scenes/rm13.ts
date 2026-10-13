@@ -173,32 +173,40 @@ export const rm13Opener: SceneArt = {
   ],
 };
 
-/** Lesson 13's emblem: a balance tipped, gold coins on the low pan and silver on the high one. 15x13. */
-const emblemBalance: PixelSprite = {
-  id: 'rm13-emblem-balance',
-  name: 'balance of two currencies',
+/**
+ * Lesson 13's emblem: the hedge. A gold coin and a silver coin, the two currencies of the opener's
+ * balance, at opposite corners, joined by two bold white arrows, one each way: the swap that fixes
+ * what one will cost in the other. A tipped balance read as scales of justice at keepsake size, its
+ * coin heaps too small to see. 16x16.
+ */
+const emblemSwap: PixelSprite = {
+  id: 'rm13-emblem-swap',
+  name: 'currency swap',
   tags: ['rm', 'emblem', 'lesson 13'],
   rows: [
-    '.......y.......',
-    '.......O..yyyy.',
-    '....yyyyyyOOOO.',
-    '.yyyOOOOOOX...X',
-    '.OOO...O..X.w.X',
-    'X...X..O..XwxwX',
-    'X...X..O..OGGGO',
-    'X.y.X..O...OOO.',
-    'XyGyX..O.......',
-    'OGGGO..O.......',
-    '.OOO...O.......',
-    '.....OGGGO.....',
-    '....OOOOOOO....',
+    '..OOO...........',
+    '.OyyGO..........',
+    'OyyGGgOwwwwwww..',
+    'OyGGGgOwwwwwww..',
+    'OGGGggO.....ww..',
+    '.OGggO......ww..',
+    '..OOO.....wwwwww',
+    '..ww.......wwww.',
+    '.wwww.......ww..',
+    'wwwwww.....DDD..',
+    '..ww......DwwxD.',
+    '..ww.....DwwxxXD',
+    '..wwwwww.DwxxxXD',
+    '..wwwwww.DxxxXXD',
+    '..........DxXXD.',
+    '...........DDD..',
   ],
 };
 
 export const rm13Finish: SceneArt = rmKeepsake(
   'rm13-finish',
-  'A red and white life ring hanging from a rope, with a tipped balance at its center weighing gold coins against silver ones.',
-  emblemBalance,
+  'A red and white life ring hanging from a rope, with a gold coin and a silver coin at its center joined by two white arrows, one each way, a currency swap.',
+  emblemSwap,
 );
 
 export const art: LessonArtSet = { opener: rm13Opener, backdrop: rmBackdrop, finish: rm13Finish };
