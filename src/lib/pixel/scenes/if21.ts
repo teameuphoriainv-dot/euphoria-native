@@ -2,11 +2,13 @@
  * Investing Fundamentals lesson 21, Rebalancing Your Portfolio: trimming what grew too big back to
  * the plan.
  *
- * Two trees were planted to a plan, and a stake in front of them still says it: 60/40. A good year
- * later the money tree (stocks) has grown far past its share and the plum tree (bonds) is small
- * beside it, so the investor is up a stepladder with garden shears, cutting the money tree back. A
- * trimmed twig, coin and all, drops to the cuttings already on the ground. The shears snip and the twig
- * falls (frames), coins glint, stars twinkle and fireflies drift up.
+ * Two trees were planted to a plan, and a stake in front of the plum tree still says it: 60/40. A
+ * good year later the money tree (stocks) has grown far past its share and the plum tree (bonds) is
+ * small beside it, so the investor is up a stepladder with garden shears, cutting the money tree
+ * back. The trimmed twig, leaves only, drops onto the cuttings already on the ground, and as it lands
+ * a coin from the money tree's side facing the plum tree drops into the soil at the foot of the plum
+ * tree: the money taken off what grew goes to what fell behind, not onto the pile. The shears snip,
+ * the twig and the coin fall (frames), coins glint, stars twinkle and fireflies drift up.
  *
  * The keepsake's emblem is a pair of open shears.
  */
@@ -26,7 +28,7 @@ import {
   ifYoungTree,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { IF_PLUM, ifRecolour } from './if-kit-a';
+import { IF_PLUM, ifCoinDrop, ifRecolour } from './if-kit-a';
 import { ifDigits } from './if-kit-b';
 import { ifFall } from './if-kit-c';
 import type { LessonArtSet, SceneArt } from './types';
@@ -132,12 +134,15 @@ const shears: PixelSprite = {
   frameMs: 230,
 };
 
-/** A trimmed twig with a coin on it, dropping from the blades to the ground, then a beat. */
+/**
+ * A trimmed twig, leaves only, dropping from the blades onto the cuttings, then a beat. Ten frames
+ * at 180ms: the proceeds coin below runs on the same clock and lands on the same frame.
+ */
 const twig = ifFall(
   'if21-twig',
   8,
   21,
-  ['.mNn..', 'mNNnhA', '.OOnn.', 'OyGO..', 'OGgO..', '.OO...'],
+  ['.mNn..', 'mNNnhA', '...nn.'],
   [[2, 0], [2, 2], [1, 5], [1, 8], [0, 11], [0, 14], [0, 15], [0, 15], [-9, -9], [-9, -9]],
   180,
   3,
@@ -154,6 +159,25 @@ const SHEARS = { x: INVESTOR.x + 14, y: INVESTOR.y + 9 } as const;
 const TREE = { x: 26, y: 11 } as const;
 const PLUMS = { x: 61, y: 24 } as const;
 
+/**
+ * Where the trim's proceeds leave the money tree: a coin half over the crown's right edge, the side
+ * facing the plum tree.
+ */
+const PROCEEDS = { x: TREE.x + 21, y: TREE.y + 14 } as const;
+/**
+ * The proceeds: a coin turning as it drops from the money tree's edge, down and right only, into the
+ * soil beside the foot of the plum tree's trunk. Same ten frames at 180ms as the twig, so it lands on
+ * the frame the twig lands (6), then it is gone. At rest it is in open sky between the two trees.
+ */
+const proceeds = ifCoinDrop(
+  'if21-proceeds',
+  19,
+  20,
+  [[0, 0], [3, 1], [5, 2], [8, 4], [10, 7], [13, 11], [PLUMS.x + 1 - PROCEEDS.x, PLUMS.y + 17 - PROCEEDS.y], [-9, -9], [-9, -9], [-9, -9]],
+  180,
+  2,
+);
+
 const base = ifCompose('if21-opener-base', 80, 60, [
   { sprite: ifStage, x: 0, y: 0 },
   { sprite: ifMoneyTree, x: TREE.x, y: TREE.y },
@@ -167,7 +191,7 @@ const base = ifCompose('if21-opener-base', 80, 60, [
 
 export const if21Opener: SceneArt = {
   id: 'if21-opener',
-  label: 'At night an investor on a stepladder trims an overgrown money tree with garden shears beside a much smaller plum tree, and a stake in front of the two trees reads 60/40.',
+  label: 'At night an investor on a stepladder trims an overgrown money tree with garden shears, and as the cut twig falls onto a small pile of cuttings a gold coin from the money tree drops to the foot of a much smaller plum tree, which has a stake in front of it reading 60/40.',
   width: 80,
   height: 60,
   base,
@@ -175,6 +199,7 @@ export const if21Opener: SceneArt = {
     // The twig before the shears, so the blades stay over it as it is cut.
     { sprite: twig, x: SHEARS.x, y: SHEARS.y },
     { sprite: shears, x: SHEARS.x, y: SHEARS.y },
+    { sprite: proceeds, x: PROCEEDS.x, y: PROCEEDS.y },
     { sprite: ifGlint, x: TREE.x + 14, y: TREE.y + 3 },
     { sprite: ifLater(ifGlint, 'if21-glint-low', 2, 300), x: TREE.x + 18, y: TREE.y + 10 },
     { sprite: ifStarBig, x: 54, y: 6, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
