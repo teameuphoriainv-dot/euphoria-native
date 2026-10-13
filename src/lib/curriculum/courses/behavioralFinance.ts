@@ -2441,19 +2441,15 @@ const lessons: PathwayLesson[] = [
       'Nudge Theory & Choice Architecture',
       'When the UK auto-enrolled workers in pensions, participation jumped from 61% to 92%. The money, the plan, and the options were identical, only the default changed. Nudge theory added £17 billion to UK pension savings.',
       'By the end of this lesson, you\'ll understand how defaults, framing, and choice architecture can transform financial decisions without removing any options, the science of making good choices easy and bad choices hard.',
-      'Comparison chart showing pension participation rates before and after auto-enrollment across UK, US, and New Zealand',
+      'Bar chart comparing UK pension participation before and after auto-enrollment',
       {
         type: 'bars',
         title: 'Auto-Enrollment Impact on Pension Participation',
         items: [
-          { label: '50%', value: 67, displayValue: '61%', sprite: 'hourglass', explain: 'Before 2012, about 61 in 100 UK workers had any pension at all, so nearly 4 in 10 were putting away nothing for the day they stop working. Nobody had banned them from saving. They just never started.' },
-          { label: '50% 2', value: 100, displayValue: '61%', sprite: 'check-badge', explain: 'After auto-enrollment the figure reached 92 in 100. No new tax break, no better funds, no advertising campaign: the sign-up form went from something you had to ask for to something you had to refuse.' },
-          { label: '50% 3', value: 56, displayValue: '61%', sprite: 'question', explain: 'The worry was that people would storm out once they saw money leaving their pay. Only 8 to 10 in 100 opted out, so more than nine in ten stayed in a plan they never actively chose.' },
-          { label: '50% 4', value: 98, displayValue: '61%', sprite: 'piggy-bank', explain: 'Roughly 10 million UK workers were pulled into a pension by this one rule change. That is a group the size of London saving because of the way a form was written.' },
-          { label: '50% 5', value: 33, displayValue: '61%', sprite: 'chart-down', explain: 'What did not change is the striking part: same wages, same plans, same right to walk away. Lesson 1 called System 2 the effortful setting, and filling in a pension form is exactly the kind of work it keeps postponing.' },
-          { label: '50% 6', value: 91, displayValue: '61%', sprite: 'stack-cash', explain: '£17 billion a year in extra pension savings, and not one pound of it came from paying people to save. The policy cost almost nothing to run because the work was done by people doing nothing.' }
+          { label: 'Opt-in (before)', value: 66, displayValue: '61%', sprite: 'hourglass', explain: 'Before 2012, about 61 in 100 UK workers had any pension at all, so nearly 4 in 10 were putting away nothing for the day they stop working. Nobody had banned them from saving. They just never started: a pension form is exactly the effortful System 2 work that Lesson 1 showed gets put off.' },
+          { label: 'Opt-out (after)', value: 100, displayValue: '92%', sprite: 'check-badge', explain: 'After auto-enrollment the figure reached 92 in 100. No new tax break, no better funds: the sign-up form went from something you had to ask for to something you had to refuse.' }
         ],
-        footer: 'Opt-Out (After)',
+        footer: 'UK workplace pensions, before and after the 2012 switch to opt-out',
       
       sentiment: 'negative', sprite: 'chart-up'}
     ),
@@ -3444,8 +3440,8 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Anchoring Effect: Random Number → Estimate Shift',
         items: [
-          { label: '60%', value: 68, displayValue: '25%', sprite: 'dice', explain: 'This is the group that watched the wheel stop on 10. Their average guess for African nations in the UN came out at 25%, and every one of them had just seen the wheel spun in front of them.' },
-          { label: '60% 2', value: 100, displayValue: '25%', sprite: 'magnet', explain: 'Same question, same lecture hall, but this group watched the wheel stop on 65 instead of 10. Everyone saw it spun and everyone knew the number was rigged luck, and it still pulled their estimates up with it.' }
+          { label: 'Anchor: 10', value: 56, displayValue: '25%', sprite: 'dice', explain: 'This is the group that watched the wheel stop on 10. Their median guess for African nations in the UN came out at 25%, and every one of them had just seen the wheel spun in front of them.' },
+          { label: 'Anchor: 65', value: 100, displayValue: '45%', sprite: 'magnet', explain: 'Same question, same setup, but this group watched the wheel stop on 65 instead of 10. Everyone saw it spun and took the number for pure chance, and it still pulled their estimates up with it.' }
         ],
         footer: 'Source: Kahneman & Tversky (1974)',
       
@@ -4032,8 +4028,8 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'The Paradox of Choice (Iyengar & Lepper)',
         items: [
-          { label: '30%', value: 11, displayValue: '3%', sprite: 'question', explain: 'Twenty four jars on the table and only 3 shoppers in 100 walked away with jam. Nobody stopped them from buying, they just could not finish comparing, so they bought nothing.' },
-          { label: '30% 2', value: 100, displayValue: '3%', sprite: 'check-badge', explain: 'Cut the table down to six jars and 30 in 100 bought. Same jam, same shoppers, ten times as many decisions, purely because there was less to weigh against.' }
+          { label: '24 varieties', value: 10, displayValue: '3%', sprite: 'question', explain: 'Twenty four jars on the table and only 3 shoppers in 100 walked away with jam. Nobody stopped them from buying, they just could not finish comparing, so they bought nothing.' },
+          { label: '6 varieties', value: 100, displayValue: '30%', sprite: 'check-badge', explain: 'Cut the table down to six jars and 30 in 100 bought. Same jam, same store, ten times the buying rate, purely because there was less to weigh against.' }
         ],
         footer: 'Source: Iyengar & Lepper, Columbia (2000)',
       
@@ -4314,8 +4310,8 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Default Power: Opt-In vs. Opt-Out Pension',
         items: [
-          { label: '100%', value: 65, displayValue: '62%', sprite: 'hourglass' },
-          { label: '100% 2', value: 100, displayValue: '62%', sprite: 'magnet' }
+          { label: 'Opt-In (old)', value: 64, displayValue: '62%', sprite: 'hourglass' },
+          { label: 'Opt-Out (new)', value: 100, displayValue: '97%', sprite: 'magnet' }
         ],
         footer: 'Source: Swedish Premium Pension Authority',
       
@@ -4892,8 +4888,8 @@ const lessons: PathwayLesson[] = [
         type: 'bars',
         title: 'Attention Bias: Media Stocks vs. Ignored Stocks',
         items: [
-          { label: 'In The News', value: 53, displayValue: '-1.2%', sprite: 'stock-ticker' },
-          { label: 'In The News 2', value: 100, displayValue: '-1.2%', sprite: 'chart-down' }
+          { label: 'In The News', value: 39, displayValue: '-1.2%', sprite: 'stock-ticker' },
+          { label: 'Under The Radar', value: 100, displayValue: '+3.1%', sprite: 'chart-up' }
         ],
         footer: 'Source: Barber & Odean (2008)',
       
@@ -5179,7 +5175,7 @@ const lessons: PathwayLesson[] = [
         title: 'Disposition Effect: Selling Probability',
         items: [
           { label: 'Winners', value: 100, displayValue: '14.8%', sprite: 'chart-up', explain: 'This tall bar is the 14.8 percent. Out of every 100 winning positions people were sitting on, about 15 got sold. Selling a gain feels like collecting a prize, so the bar runs full height.' },
-          { label: 'Winners 2', value: 65, displayValue: '14.8%', sprite: 'chart-down', explain: 'The shorter bar is the losing positions, and at 65 percent of the first bar\'s height it stands for the 9.8 percent of losers sold. Same people, same months, and the losers got sold about two thirds as often as the winners.' }
+          { label: 'Losers', value: 66, displayValue: '9.8%', sprite: 'chart-down', explain: 'The shorter bar is the losing positions, and at 66 percent of the first bar\'s height it stands for the 9.8 percent of losers sold. Same people, same months, and the losers got sold about two thirds as often as the winners.' }
         ],
         footer: 'Source: Odean (1998), 10,000 brokerage accounts',
       
@@ -5702,9 +5698,9 @@ const lessons: PathwayLesson[] = [
         title: 'Endowment Effect: Same Mug, Different Values',
         items: [
           { label: 'Selling Price', value: 100, displayValue: '$7.12', sprite: 'magnet' },
-          { label: 'Selling Price 2', value: 54, displayValue: '$7.12', sprite: 'wallet' }
+          { label: 'Buying Price', value: 40, displayValue: '$2.87', sprite: 'wallet' }
         ],
-        footer: 'Buying Price',
+        footer: 'Source: Kahneman, Knetsch & Thaler (1990)',
       
       sentiment: 'negative', sprite: 'price-tag'}
     ),
@@ -6312,15 +6308,15 @@ const lessons: PathwayLesson[] = [
   L(23,'Behavioral Economics in Everyday Life',45,[
     hookOpener(
       'Behavioral Economics in Everyday Life',
-      'When the UK government automatically enrolled employees in pension plans (opt-out instead of opt-in), participation jumped from 49% to 90%. No financial incentive changed. No education campaign. Just one word in the default setting, and 41% more people secured their retirement.',
+      'When a large US company switched its 401(k) to automatic enrollment (opt-out instead of opt-in), 86% of new hires ended up in the plan, against 49% of colleagues who still had to sign up themselves. No financial incentive changed. No education campaign. Just one word in the default setting, and 37 more people in every 100 were saving for retirement.',
       'By the end of this lesson, you\'ll see how anchoring, framing, default effects, and nudge theory shape decisions far beyond investing, from the grocery store to the doctor\'s office to the voting booth.',
       'Bar chart comparing pension opt-in vs. opt-out enrollment rates',
       {
         type: 'bars',
         title: 'Default Effect: Pension Enrollment',
         items: [
-          { label: 'Opt-In', value: 60, displayValue: '49%', sprite: 'tax-form', explain: 'Opt-in put a form between workers and free employer money, and about half of them never crossed it. Those 51 people in every 100 did not refuse the pension, they just never got round to the paperwork.' },
-          { label: 'Opt-In 2', value: 100, displayValue: '49%', sprite: 'piggy-bank', explain: 'Same plan, same employer match, same workers. The only edit was making enrolment the thing you have to cancel rather than the thing you have to request, and the bar nearly doubled.' }
+          { label: 'Opt-In', value: 57, displayValue: '49%', sprite: 'tax-form', explain: 'Opt-in put a form between workers and free employer money, and about half of them never crossed it. Those 51 people in every 100 did not refuse the plan, they just never got round to the paperwork.' },
+          { label: 'Opt-Out', value: 100, displayValue: '86%', sprite: 'piggy-bank', explain: 'Same plan, same employer match, same company. The only edit was making enrolment the thing you have to cancel rather than the thing you have to request, and the bar grew by about three quarters.' }
         ],
         footer: 'Same plan, same benefits, only the default changed',
       
@@ -6376,7 +6372,7 @@ const lessons: PathwayLesson[] = [
       'Default options are the most powerful nudge in behavioral economics, far more powerful than education or incentives.',
       [
         'Organ donation rates demonstrate this dramatically. Countries with opt-out systems (Austria, Spain) have 90%+ donation rates. Countries with opt-in systems (Germany, UK historically) have 10-20% rates. Same people, same culture, only the default changed.',
-        'In finance, automatic 401(k) enrollment at 6% with 1% annual escalation produces radically different outcomes than opt-in enrollment. At Vanguard, auto-enrollment boosted participation from 62% to 92%. The "Save More Tomorrow" program uses defaults and escalation to painlessly increase savings rates.',
+        'In finance, automatic 401(k) enrollment at 6% with 1% annual escalation produces radically different outcomes than opt-in enrollment. Madrian and Shea found auto-enrollment lifted participation from 49% to 86%. The "Save More Tomorrow" program uses defaults and escalation to painlessly increase savings rates.',
         'Digital subscriptions exploit default effects in reverse: free trials that auto-convert to paid subscriptions, pre-checked newsletter boxes, auto-renewing memberships. The behavioral lesson works both ways, defaults can help (pension enrollment) or exploit (subscription traps).'
       ],
       [
@@ -6385,7 +6381,7 @@ const lessons: PathwayLesson[] = [
       ],
       [
         'Opt-out organ donation: 90%+ vs opt-in: 10-20%, same people, different defaults',
-        'Auto-enrollment in 401(k): participation jumps from 62% to 92%',
+        'Auto-enrollment in 401(k): participation jumps from 49% to 86%',
         'Save More Tomorrow: painlessly increases savings from 3% to 12% over 9 years',
         'Only 12% of people change default phone settings, defaults stick'
       ]
@@ -6429,14 +6425,14 @@ const lessons: PathwayLesson[] = [
     ]),
     summaryCards('Behavioral Economics in Everyday Life', [
       { takeaway: 'Anchoring controls pricing, menus, negotiations, and salary discussions', detail: 'The first number mentioned becomes the reference point. In salary negotiations, stating your anchor first gives a 15-20% advantage over waiting for the employer\'s offer.' },
-      { takeaway: 'Default effects are the most powerful behavioral force', detail: 'Changing pension enrollment from opt-in to opt-out increases participation from ~15% to 90%+. Audit your own default settings, subscriptions, contributions, app permissions, annually.' },
+      { takeaway: 'Default effects are the most powerful behavioral force', detail: 'Switching a 401(k) from opt-in to opt-out took participation from 49% to 86% (Madrian and Shea). Audit your own default settings, subscriptions, contributions, app permissions, annually.' },
       { takeaway: 'Framing changes decisions even when facts don\'t change', detail: '"90% survival" vs "10% mortality" produces completely different medical choices. Recognize when information is framed to push you toward a specific decision, and deliberately reframe.' }
     ]),
     whatsNext('Behavioral Economics in Everyday Life', 'Market Anomalies & Behavioral Explanations', 'You\'ll explore the market anomalies that traditional finance can\'t explain, from the January effect and momentum to the value premium and post-earnings drift, and how behavioral finance provides the missing explanations.', 30)
   ],[
-    cq('When the UK switched pension enrollment from opt-in to opt-out, participation:',
-      ['Stayed the same', 'Dropped slightly', 'Jumped from 49% to 90%', 'Required new legislation'],
-      2, 'The default effect in action: same plan, same employer match, same employees. Just changing the default from "opt-in" to "opt-out" increased participation from 49% to 90%. No incentive change, no education campaign, just one word in the default.'),
+    cq('When a large US company switched its 401(k) from opt-in to opt-out enrollment, participation:',
+      ['Stayed the same', 'Dropped slightly', 'Jumped from 49% to 86%', 'Required new legislation'],
+      2, 'The default effect in action: same plan, same employer match, same company. Madrian and Shea found that just changing the default from "opt-in" to "opt-out" took participation from 49% to 86%. No incentive change, no education campaign, just one word in the default.'),
     cq('J.C. Penney\'s experiment with honest pricing proves that:',
       ['Honest pricing always fails', 'Anchoring is so powerful that customers prefer a fake "deal" ($999 → $499) over a genuinely lower everyday price ($450)', 'Customers are stupid', 'Sales promotions should be banned'],
       1, 'This is not about customer intelligence, it\'s about anchoring. The psychological satisfaction of "saving $500" from a $999 anchor is more motivating than paying $450 with no anchor. The illusion of a deal activates the reward center more than an actual low price.'),
