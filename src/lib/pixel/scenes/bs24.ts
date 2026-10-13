@@ -130,33 +130,33 @@ export const bs24Opener: SceneArt = {
 };
 
 const emblem: PixelSprite = {
-  id: 'bs24-emblem-chest',
-  name: 'emblem-chest',
+  id: 'bs24-emblem-roic',
+  name: 'emblem-roic',
   tags: [],
-  blurb: 'Lesson 24 emblem, 16x16: an open war chest heaped with gold coins, a white glint above it.',
+  blurb: 'Lesson 24 emblem, 16x16: a tall green return bar beside a short red cost-of-capital bar on a gold line, ROIC beating WACC.',
   rows: [
     '................',
-    '.......W........',
-    '......wWw.......',
-    '.......w........',
-    '..OOOOOOOOOOOO..',
-    '..OKKKKKKKKKKO..',
-    '..OKyGKyGKyGKO..',
-    '.OyGyGyGyGyGyGO.',
-    '.OOOOOOOOOOOOOO.',
-    '.OgGGGGDDGGGGgO.',
-    '.OgGGGDyyDGGGgO.',
-    '.OgGGGDDDDGGGgO.',
-    '.OgGGGGGGGGGGgO.',
-    '.OgGGGGGGGGGGgO.',
-    '.OOOOOOOOOOOOOO.',
+    '................',
+    '..mNNNn.........',
+    '..mNNNn.........',
+    '..mNNNn.........',
+    '..mNNNn.........',
+    '..mNNNn.........',
+    '..mNNNn.........',
+    '..mNNNn..sRRRr..',
+    '..mNNNn..sRRRr..',
+    '..mNNNn..sRRRr..',
+    '..mNNNn..sRRRr..',
+    '..mNNNn..sRRRr..',
+    '..mNNNn..sRRRr..',
+    '.yGGGGGGGGGGGGg.',
     '................',
   ],
 };
 
 export const bs24Finish: SceneArt = bsKeepsake(
   'bs24-finish',
-  'A purple house banner on a gold rod, its roundel showing an open war chest heaped with gold coins.',
+  'A purple house banner on a gold rod, its roundel showing a tall green return bar standing over a short red cost-of-capital bar.',
   emblem,
 );
 

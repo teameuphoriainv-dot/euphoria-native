@@ -114,33 +114,33 @@ export const bs22Opener: SceneArt = {
 };
 
 const emblem: PixelSprite = {
-  id: 'bs22-emblem-medal',
-  name: 'emblem-medal',
+  id: 'bs22-emblem-star-hire',
+  name: 'emblem-star-hire',
   tags: [],
-  blurb: 'Lesson 22 emblem, 16x16: a gold star medal hanging from an orchid ribbon.',
+  blurb: 'Lesson 22 emblem, 16x16: the star hire, a teal bust in a white collar under a gold star.',
   rows: [
-    '..EPE.....EPE...',
-    '...EPE...EPE....',
-    '....EPE.EPE.....',
-    '.....EPEPE......',
-    '......EPE.......',
-    '......OyO.......',
     '.......y........',
     '......yGg.......',
-    '......yGg.......',
-    '..yyyyGGGGggg...',
-    '...yGGGGGGGg....',
+    '...yyyGGGggg....',
     '....yGGGGGg.....',
-    '....yGGWGGg.....',
-    '...yGGg.yGGg....',
-    '...yGg...yGg....',
-    '..yg.......Og...',
+    '....yGg.yGg.....',
+    '................',
+    '......TTT.......',
+    '.....TTTTT......',
+    '.....TTTTT......',
+    '.....tTTTt......',
+    '......ttt.......',
+    '...tTTwwwTTt....',
+    '..tTTTTwTTTTt...',
+    '..tTTTTTTTTTt...',
+    '..tTTTTTTTTTt...',
+    '..ttttttttttt...',
   ],
 };
 
 export const bs22Finish: SceneArt = bsKeepsake(
   'bs22-finish',
-  'A purple house banner on a gold rod, its roundel showing a gold star medal hanging from a purple ribbon.',
+  'A purple house banner on a gold rod, its roundel showing the star hire: a teal figure in a white collar under a gold star.',
   emblem,
 );
 
