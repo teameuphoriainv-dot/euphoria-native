@@ -21,7 +21,7 @@ const BF12_TEACH2: AnimatedVisual = { type: 'comparison', title: 'Sunk Costs Tra
 
 const BF13_TEACH2: AnimatedVisual = { type: 'grid', title: 'Three Defeats for Regret Aversion', items: [{ label: 'Pre-Commitment', value: 'Removes the decision point', color: '#A451E6', sprite: 'lock', explain: 'You cannot freeze at a decision that no longer exists. A standing order for $1,000 on the 1st gets decided once, and the next 359 months just execute without asking how you feel about the market.' }, { label: 'Reframing', value: 'Makes inaction cost vivid', color: '#3B82F6', sprite: 'lightbulb', explain: 'Swap the question from \'what if I buy and it drops 20 percent\' to \'what if I sit out a 50 percent run\'. Sarah\'s sit-out cost $2.2 million, and no crash in those 35 years was anywhere near that expensive.' }, { label: 'Satisficing', value: 'Cuts choice overload', color: '#10B981', sprite: 'funnel', explain: 'Six months comparing Vanguard against Fidelity while the market climbs 8 percent costs more than picking the slightly worse fund on day one. Write your minimum, take the first fund that clears it, stop reading.' }], footer: 'Imperfect action beats perfect inaction', sentiment: 'positive', sprite: 'compass' };
 
-const BF14_TEACH2: AnimatedVisual = { type: 'bars', title: 'Annual Loyalty Penalty (Default Audit)', items: [{ label: 'Advisor fees', value: 100, displayValue: '0.95% drag', sprite: 'briefcase', explain: 'This bar is full height because 0.95% is charged on everything you own, not on anything the advisor actually does that year. On a 500,000 dollar pot that is 4,750 dollars, deducted automatically, from a choice you made once a decade ago.' }, { label: 'Bank rate', value: 60, displayValue: '15-30% saved', sprite: 'bank', explain: 'Second tallest, and the cheapest one to fix. Moving 20,000 dollars of emergency cash from a 0.3% account to a 4.5% one is about 20 minutes of typing and roughly 840 dollars a year, which is 42 dollars a minute for your time.' }, { label: 'Insurance', value: 45, displayValue: '15-30% saved', sprite: 'umbrella', explain: 'Smallest bar, sneakiest habit: insurance renews itself, so every year you skip getting quotes you are quietly re-buying it. That 15 to 30% is not a one off saving, it repeats for as long as you never look.' }], footer: 'Switching saves 15-30%, design defaults deliberately', sentiment: 'positive', sprite: 'receipt' };
+const BF14_TEACH2: AnimatedVisual = { type: 'bars', title: 'Annual Loyalty Penalty (Default Audit)', items: [{ label: 'Advisor fees', value: 100, displayValue: '$4,750 a year', sprite: 'briefcase', explain: 'This bar is full height because 0.95% is charged on everything you own, not on anything the advisor actually does that year. On a 500,000 dollar pot that is 4,750 dollars, deducted automatically, from a choice you made once a decade ago.' }, { label: 'Bank rate', value: 18, displayValue: '$840 a year', sprite: 'bank', explain: 'Second tallest, and the cheapest one to fix. Moving 20,000 dollars of emergency cash from a 0.3% account to a 4.5% one is about 20 minutes of typing and roughly 840 dollars a year, which is 42 dollars a minute for your time.' }, { label: 'Insurance', value: 9, displayValue: '$300-600 a year', sprite: 'umbrella', explain: 'Smallest bar, sneakiest habit: insurance renews itself, so every year you skip getting quotes you are quietly re-buying it. On 2,000 dollars of yearly premiums, the 15 to 30% that switchers save is 300 to 600 dollars, and it is not a one off saving: it repeats for as long as you never look.' }], footer: 'One household, three untouched defaults: the yearly cost in dollars', sentiment: 'positive', sprite: 'receipt' };
 
 const BF15_TEACH2: AnimatedVisual = { type: 'grid', title: 'Narrative Defense Framework', items: [{ label: 'Story vs Data', value: 'Write both, compare', color: '#A451E6', sprite: 'scales', explain: 'Put the two lists side by side on one page. Whatever the data list cannot justify about today\'s price is the exact amount the story is charging you.' }, { label: 'Newspaper Test', value: 'Would you still hold?', color: '#3B82F6', sprite: 'newspaper', explain: 'Imagine one ordinary bad headline tomorrow, say revenue misses by 5 percent. If that alone would make you sell, you were holding the story, not the company.' }, { label: 'Contrarian', value: 'Universal narrative = priced in', color: '#10B981', sprite: 'crowd', explain: 'If everyone you know can repeat the story, the buying it caused already happened. A universal narrative is not an edge you found, it is just today\'s quote explained back to you.' }], footer: 'Invest on data, not stories', sentiment: 'positive', sprite: 'shield' };
 
@@ -1866,7 +1866,7 @@ const lessons: PathwayLesson[] = [
       [
         'The house money effect, named by Thaler and Eric Johnson, describes how people take greater risks with money they perceive as "winnings" rather than "principal." In casinos, this is obvious: gamblers who are up $500 bet more aggressively because the $500 feels like "the house\'s money." In investing, the effect is identical but invisible. Investors who are up 50% on a stock take outsized risks with the gains because the profit feels like "free money." But gains are not free money, they are your money, and losing them is exactly as costly as losing principal.',
         'The endowment effect, discovered by Thaler in a famous experiment with coffee mugs, shows that people value things they own more than identical things they don\'t own, simply because they own them. In the mug experiment, owners demanded $7.12 to sell while buyers would only pay $2.87, a 2.5x gap for the same mug. In investing, the endowment effect means you overvalue stocks in your portfolio. Research shows investors demand higher returns to sell a stock they own than they would require to buy the same stock, leading to concentrated positions, insufficient diversification, and resistance to rebalancing.',
-        'Status quo bias and default bias are two of the most expensive biases in personal finance. Status quo bias is the preference for the current state of affairs. Default bias is the tendency to accept whatever option is pre-selected. Together, they explain why millions of Americans stay in their employer\'s default 401(k) fund (often a low-return money market), keep their savings in 0.01% accounts when 5% accounts exist, and never refinance mortgages even when rates drop significantly. Thaler\'s "Save More Tomorrow" program brilliantly reversed these biases: by making escalating savings the default and requiring people to opt out rather than opt in, enrollment rates jumped from 49% to 80%.'
+        'Status quo bias and default bias are two of the most expensive biases in personal finance. Status quo bias is the preference for the current state of affairs. Default bias is the tendency to accept whatever option is pre-selected. Together, they explain why millions of Americans stay in their employer\'s default 401(k) fund (often a low-return money market), keep their savings in 0.01% accounts when 5% accounts exist, and never refinance mortgages even when rates drop significantly. Thaler\'s "Save More Tomorrow" program brilliantly reversed these biases: by making escalating savings the default and requiring people to opt out rather than opt in, it lifted average savings rates from 3.5% to 13.6% of pay.'
       ],
       [
         { term: 'House Money Effect', definition: 'The tendency to take greater risks with money perceived as "winnings" or "gains," treating it as less valuable than original capital. Named by Thaler and Johnson after casino gambling behavior.', example: 'An investor up 100% on a stock takes huge risks with the gains because they feel like "free money." But those gains are real money, losing them is just as costly as losing the original investment.' },
@@ -1877,7 +1877,7 @@ const lessons: PathwayLesson[] = [
       [
         'The house money effect causes investors to risk 50-100% of their gains because profits feel like "free money", destroying wealth that took years to build.',
         'Thaler\'s endowment effect experiment showed a 2.5x gap: owners valued identical mugs 2.5x higher than non-owners, the same bias makes investors hold losing stocks too long.',
-        'Thaler\'s "Save More Tomorrow" increased retirement enrollment from 49% to 80% by changing the default, proving that default bias can be used for good.',
+        'Thaler and Benartzi\'s "Save More Tomorrow" raised average savings rates from 3.5% to 13.6% of pay by making future increases the default, proving that default bias can be used for good.',
         'Americans lose an estimated $42 billion annually by keeping money in low-interest accounts due to status quo bias, according to Bankrate analysis.'
       ],
       [
@@ -1930,7 +1930,7 @@ const lessons: PathwayLesson[] = [
       { term: 'Sunk Cost Fallacy', definition: 'Sticking with a losing choice because of money already spent, instead of judging what happens next. The mind hates closing accounts at a loss.', example: 'Holding a stock that fell from $100 to $50 because "I can\'t sell at a loss". The drop happened. Holding will not undo it.', sentence: 'The sunk cost fallacy keeps investors trapped in losing positions for years: rather than selling a $50 stock that was bought at $100 and redeploying the capital, they hold and hope, letting mental accounting override rational analysis.' },
       { term: 'House Money Effect', definition: 'Taking bigger risks with money you see as winnings, as if those dollars matter less than the money you started with. Named after gambling.', example: 'A crypto investor up 200% bets wildly with the gains because they feel free. When the gains vanish, the loss is real money.', sentence: 'The house money effect is why casino gambling, crypto speculation, and meme stock trading follow the same pattern: early winners treat gains as "play money," escalate risk, and eventually give back the gains plus more.' },
       { term: 'Endowment Effect', definition: 'Owning something makes you value it more. You want more to sell it than you would pay to buy it, so you resist selling.', example: 'Thaler\'s coffee mug experiment: sellers demanded $7.12 while buyers offered $2.87 for the same mug, simply because ownership inflated perceived value.', sentence: 'The endowment effect explains why investors resist selling a stock they own even when they wouldn\'t buy it at the current price, ownership creates an irrational value premium that keeps capital trapped in suboptimal positions.' },
-      { term: 'Status Quo Bias / Default Bias', definition: 'Preferring to leave things as they are, or accept whatever option is preset. It keeps people stuck in worse accounts and plans.', example: 'Millions leave savings at 0.01% when 5% exists. Thaler\'s Save More Tomorrow made rising contributions the default, and enrollment jumped from 49% to 80%.', sentence: 'Status quo bias costs Americans billions annually: workers default to the 3% 401(k) contribution rate instead of the 15% that retirement calculators recommend, simply because 3% was the pre-set option they never changed.' }
+      { term: 'Status Quo Bias / Default Bias', definition: 'Preferring to leave things as they are, or accept whatever option is preset. It keeps people stuck in worse accounts and plans.', example: 'Millions leave savings at 0.01% when 5% exists. Thaler\'s Save More Tomorrow made rising contributions the default, and average savings rates climbed from 3.5% to 13.6% of pay.', sentence: 'Status quo bias costs Americans billions annually: workers default to the 3% 401(k) contribution rate instead of the 15% that retirement calculators recommend, simply because 3% was the pre-set option they never changed.' }
     ]),
 
     // ═══════════════════════════════════════════
@@ -1950,7 +1950,7 @@ const lessons: PathwayLesson[] = [
     // Step 11, Tap to Reveal
     tr('Mental Accounting Insights',[
       ['How do casinos use mental accounting to extract more money from gamblers?','Casinos use chips (reducing pain of paying), early wins (creating house money accounts), escalating bet sizes (house money effect), and free drinks/perks (making gambling feel like "entertainment" not "spending"). Every design element exploits a different mental accounting vulnerability.', { stat: '4 hooks, one table', sprite: 'dice' }],
-      ['What is Thaler\'s "Save More Tomorrow" program and how does it work?','SMarT makes escalating retirement contributions the default, requires opt-out rather than opt-in, and commits increases to future raises (not current pay). By using default bias, status quo bias, and loss aversion framing, participation jumped from 49% to 80% and savings rates nearly quadrupled from 3.5% to 13.6%.', { stat: '3.5% to 13.6% saved', sprite: 'ladder' }],
+      ['What is Thaler\'s "Save More Tomorrow" program and how does it work?','SMarT makes escalating retirement contributions the default, requires opt-out rather than opt-in, and commits increases to future raises (not current pay). By using default bias, status quo bias, and loss aversion framing, 78% of the employees offered the plan joined, and their savings rates nearly quadrupled from 3.5% to 13.6%.', { stat: '3.5% to 13.6% saved', sprite: 'ladder' }],
       ['Why is "you haven\'t lost until you sell" the most expensive myth in investing?','Because it keeps capital trapped in losing positions. A stock at $50 bought at $100 is worth $50 regardless of whether you sell. Holding prevents redeploying that $50 to better opportunities and forfeits the tax loss harvesting benefit of realizing the loss. The sunk cost fallacy, disguised as patience, costs investors billions annually.', { stat: '$50 is $50 either way', sprite: 'lock' }],
       ['What did Thaler\'s coffee mug experiment reveal about ownership and value?','Owners demanded $7.12 to sell a mug while buyers would pay only $2.87, a 2.5x gap for identical mugs. The endowment effect means ownership alone inflates perceived value by 150%. In investing, this makes people overvalue stocks they hold and resist selling, even when they wouldn\'t buy the same stock at the current price.', { stat: '$7.12 asked, $2.87 offered', sprite: 'price-tag' }],
       ['How much do Americans lose annually due to status quo bias in banking?','According to Bankrate analysis, Americans lose an estimated $42 billion annually by keeping money in low-interest accounts (0.01-0.5%) when higher-yield alternatives (4-5%) are readily available. Status quo bias makes switching feel like "too much effort" for a difference that compounds to thousands over a lifetime.', { stat: '$42B lost to inertia', sprite: 'bank' }],
@@ -2085,7 +2085,7 @@ const lessons: PathwayLesson[] = [
       1,'The house money effect makes gains feel expendable, "easy come, easy go." But gains are real money that took real time and real risk to accumulate. A $40,000 gain lost to reckless betting reduces your net worth by exactly $40,000, the same as losing $40,000 of principal. Casinos exploit this by creating early wins that make gamblers reckless. Crypto and meme stocks exploit it by creating fast gains that investors then risk on increasingly speculative bets. The cycle, gains → overconfidence → risk escalation → loss, is the house money effect in its most destructive form.'),
     cq('Thaler and Benartzi\'s Save More Tomorrow (SMarT) program increased retirement savings from 3.5% to 13.6% of salary. Which mental accounting biases did it harness?',
       ['It harnessed loss aversion and overconfidence, scaring employees with the pain of a poor retirement and then making them feel sure their savings choices were smart enough to fix the problem on their own.','Default bias (auto-enrollment made saving the default), status quo bias (people stuck with the default), and framing (increases were "from future raises" not "from current pay"), turning biases that usually work against people into forces that build wealth','It harnessed anchoring and confirmation bias, fixing employees on a target savings number and then feeding them only the information that confirmed they were already on track to reach it comfortably.','It harnessed the endowment effect and FOMO, making employees feel they owned a future nest egg and fear of missing the gains their coworkers were getting from the retirement plan around them.'],
-      1,'SMarT is the most brilliant application of behavioral economics in history. Default bias: auto-enrollment means you save unless you actively choose not to. Status quo bias: once enrolled, people rarely change. Framing: "keep a portion of your future raise" feels like keeping money, not losing money. Loss aversion: people never see their take-home pay decrease because increases come from raises. The same biases that typically drain wealth, default bias, status quo bias, and framing, were re-engineered to build it. Enrollment jumped from 49% to 80% and savings nearly quadrupled.'),
+      1,'SMarT is the most brilliant application of behavioral economics in history. Default bias: auto-enrollment means you save unless you actively choose not to. Status quo bias: once enrolled, people rarely change. Framing: "keep a portion of your future raise" feels like keeping money, not losing money. Loss aversion: people never see their take-home pay decrease because increases come from raises. The same biases that typically drain wealth, default bias, status quo bias, and framing, were re-engineered to build it. 78% of the employees offered the plan joined, and their savings rates nearly quadrupled.'),
     cq('An investor refuses to sell a stock that dropped from $100 to $30 because "I\'d be locking in a 70% loss." Using mental accounting and the fresh money test, what should this investor do?',
       ['Hold until the stock recovers, because a paper loss is not a real loss. The investor only loses money the moment they hit the sell button, so as long as they keep the shares the $70 drop has not actually cost them anything yet.','The 70% loss already exists whether sold or not. The correct question is: "Would I buy this stock at $30 today with fresh money?" If the answer is no, holding is the sunk cost fallacy, the investor is keeping capital trapped in a position they wouldn\'t choose today. Sell, harvest the tax loss, and redeploy the $30/share to better opportunities.','Average down by buying more shares at $30 to pull the cost basis below $100. A lower average price means the stock needs a smaller bounce to break even, which makes recovering the original investment feel far more achievable.','Wait for the stock to climb back to the $100 purchase price before deciding anything. Selling at a loss should never be done, so the disciplined move is to hold patiently until the position at least returns to breakeven.'],
       1,'The statement "I\'d be locking in a 70% loss" is the sunk cost fallacy in its purest form. The $70/share loss exists right now in the stock\'s market value, selling doesn\'t create the loss, it acknowledges it. The "fresh money" test cuts through mental accounting: at $30, would you buy this stock today? If your analysis says no, then holding is identical to buying it today and holding, which you just said you wouldn\'t do. Additionally, selling generates a tax loss that offsets gains elsewhere, making selling actually better than holding. The sunk cost fallacy and mental accounting conspire to trap billions of dollars in positions investors wouldn\'t choose today, costing enormous opportunity costs year after year.')
@@ -2404,7 +2404,7 @@ const lessons: PathwayLesson[] = [
     whatsNext(
       'Prospect Theory & Decision Making',
       'Nudge Theory & Choice Architecture',
-      'You\'ll learn how Richard Thaler and Cass Sunstein\'s Nudge theory uses Prospect Theory insights to design better financial decisions, from auto-enrollment in 401(k)s that boosted UK pension participation from 61% to 92%, to the Save More Tomorrow program that increased US savings rates by 300%.',
+      'You\'ll learn how Richard Thaler and Cass Sunstein\'s Nudge theory uses Prospect Theory insights to design better financial decisions, from auto-enrollment, which lifted UK workplace pension participation from 55% to 88%, to the Save More Tomorrow program that increased US savings rates by 300%.',
       25
     )
   ],[
@@ -2439,17 +2439,17 @@ const lessons: PathwayLesson[] = [
     // Step 1, Real-World Opener
     hookOpener(
       'Nudge Theory & Choice Architecture',
-      'When the UK auto-enrolled workers in pensions, participation jumped from 61% to 92%. The money, the plan, and the options were identical, only the default changed. Nudge theory added £17 billion to UK pension savings.',
+      'When the UK began auto-enrolling workers into workplace pensions in 2012, participation among eligible employees rose from 55% to 88% by 2021. Employers also had to start paying in, but the biggest change was the default: joining became something you had to refuse, not something you had to ask for. Nudge theory added £17 billion to UK pension savings.',
       'By the end of this lesson, you\'ll understand how defaults, framing, and choice architecture can transform financial decisions without removing any options, the science of making good choices easy and bad choices hard.',
       'Bar chart comparing UK pension participation before and after auto-enrollment',
       {
         type: 'bars',
         title: 'Auto-Enrollment Impact on Pension Participation',
         items: [
-          { label: 'Opt-in (before)', value: 66, displayValue: '61%', sprite: 'hourglass', explain: 'Before 2012, about 61 in 100 UK workers had any pension at all, so nearly 4 in 10 were putting away nothing for the day they stop working. Nobody had banned them from saving. They just never started: a pension form is exactly the effortful System 2 work that Lesson 1 showed gets put off.' },
-          { label: 'Opt-out (after)', value: 100, displayValue: '92%', sprite: 'check-badge', explain: 'After auto-enrollment the figure reached 92 in 100. No new tax break, no better funds: the sign-up form went from something you had to ask for to something you had to refuse.' }
+          { label: 'Opt-in (before)', value: 63, displayValue: '55%', sprite: 'hourglass', explain: 'In 2012, as auto-enrollment began, about 55 in 100 eligible UK employees were saving in a workplace pension, so nearly half were putting away nothing at work for the day they stop working. Nobody had banned them from saving. They just never started: a pension form is exactly the effortful System 2 work that Lesson 1 showed gets put off.' },
+          { label: 'Opt-out (after)', value: 100, displayValue: '88%', sprite: 'check-badge', explain: 'By 2021 the figure reached 88 in 100. Employers now had to pay in as well, but the bigger change was the form: joining went from something you had to ask for to something you had to refuse.' }
         ],
-        footer: 'UK workplace pensions, before and after the 2012 switch to opt-out',
+        footer: 'Eligible UK employees in a workplace pension, 2012 vs 2021 (DWP)',
       
       sentiment: 'negative', sprite: 'chart-up'}
     ),
@@ -2457,7 +2457,7 @@ const lessons: PathwayLesson[] = [
     // Step 2, Stakes Card
     stakesCard(
       { label: 'Financial decisions without nudges', detail: 'When saving for retirement requires active enrollment, only 49% of eligible US workers participate in 401(k) plans. People intend to save but never get around to it, inertia, procrastination, and choice overload prevent action. The result: millions retire with inadequate savings despite having access to employer-matched plans. The average American has $65,000 saved for retirement at age 60.' },
-      { label: 'Financial decisions with nudges', detail: 'Auto-enrollment changes the default from "not saving" to "saving", participation jumps to 90%+. The Save More Tomorrow program automatically increases contribution rates with each raise, boosting savings rates from 3.5% to 13.6% over 4 years. Same people, same plans, same freedom to opt out, but dramatically better outcomes. Choice architecture transforms intentions into actions.' },
+      { label: 'Financial decisions with nudges', detail: 'Auto-enrollment changes the default from "not saving" to "saving", participation jumps to the high 80s. The Save More Tomorrow program automatically increases contribution rates with each raise, boosting savings rates from 3.5% to 13.6% over 4 years. Same people, same plans, same freedom to opt out, but dramatically better outcomes. Choice architecture transforms intentions into actions.' },
       { withoutVisual: {
         type: 'comparison',
         title: 'Opt-In Default',
@@ -2492,7 +2492,7 @@ const lessons: PathwayLesson[] = [
       'Defaults are the strongest nudge: people keep whatever is pre-selected. Opt-in organ donation, where you must sign up, averages 15-20% in the US. Opt-out Austria exceeds 99%, a 5x gap. In finance, auto-enrollment into retirement plans works best.'
       ],
       [
-        { term: 'Nudge', definition: 'A small change to how choices are presented that shifts behavior in a predictable way. No option is banned, and opting out stays easy.', example: 'Workers are signed up for a 401(k) retirement plan at 3% automatically. They can quit anytime, but participation jumped from 49% to 90%.' },
+        { term: 'Nudge', definition: 'A small change to how choices are presented that shifts behavior in a predictable way. No option is banned, and opting out stays easy.', example: 'Workers are signed up for a 401(k) retirement plan at 3% automatically. They can quit anytime, but participation jumped from 49% to 86%.' },
         { term: 'Choice Architecture', definition: 'How a decision is set up: defaults, the order of options, how facts are worded, and feedback. No setup is neutral; every design nudges.', example: 'A retirement plan that lists funds from lowest to highest fee (rather than alphabetically) nudges employees toward lower-cost options without removing any choices.' },
         { term: 'Libertarian Paternalism', definition: 'Guide people toward better choices, but keep every other option open. Nothing is removed. Only the default changes.', example: 'Auto-enrollment in pensions is paternalistic (the designer chose "save" as the default) but libertarian (any employee can opt out with one click or phone call).' },
         { term: 'Default Effect', definition: 'People usually stick with whatever is already selected. Inertia, comfort with the status quo, and reading the default as advice keep them there.', example: 'Germany switched organ donation from opt-in to opt-out. Consent rose from 12% to 99.98%. Same choice, different default, opposite result.' }
@@ -2504,7 +2504,7 @@ const lessons: PathwayLesson[] = [
         title: 'Default Effect: Opt-In vs Opt-Out Participation',
         items: [
           { label: 'US pensions (opt-in)', value: 49, displayValue: '49%', sprite: 'briefcase', explain: 'Fewer than half sign up, and that is with free employer match money sitting on the table. Nothing is stopping the other 51, they just never get around to the form.' },
-          { label: 'US pensions (opt-out)', value: 91, displayValue: '91%', sprite: 'paycheck', explain: 'Same workers, same plan, same one phone call to leave. Pre-ticking the box moved 42 out of every 100 eligible people into saving, which no pay raise or reminder email has ever come close to matching.' },
+          { label: 'US pensions (opt-out)', value: 86, displayValue: '86%', sprite: 'paycheck', explain: 'Same workers, same plan, same one phone call to leave. Pre-ticking the box moved 37 out of every 100 eligible people into saving, which no pay raise or reminder email has ever come close to matching.' },
           { label: 'Organ donation (opt-in)', value: 15, displayValue: '15%', sprite: 'first-aid', explain: 'Ask people in these countries and most say they approve of donating. Only 15 in 100 have actually registered, so the missing 85 are lost to paperwork, not to disagreement.' },
           { label: 'Organ donation (opt-out)', value: 99, displayValue: '99%', sprite: 'magnet', explain: '99 against 15 is a gap of more than six times, and the two groups hold roughly the same private opinions. One line of wording on a form is doing all of that work.' }
         ],
@@ -2519,7 +2519,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 4, Embedded Micro-Check
     microCheck(
-      'A company switches its 401(k) enrollment from opt-in to opt-out (auto-enrollment at 3%). Participation rises from 49% to 91%. An employee who was auto-enrolled can leave the plan with one phone call. Is this a nudge?',
+      'A company switches its 401(k) enrollment from opt-in to opt-out (auto-enrollment at 3%). Participation rises from 49% to 86%. An employee who was auto-enrolled can leave the plan with one phone call. Is this a nudge?',
       ['No, because auto-enrollment forces employees into the plan against their will and removes their freedom to choose', 'Yes, it changes the default without removing any options, and the employee retains complete freedom to opt out', 'No, because a true nudge can only apply to small everyday choices, never to a major financial decision like retirement', 'It is only a nudge if the company also offers a matching contribution, since incentives are what define a nudge'],
       1,
       'Correct! This is the textbook definition of a nudge: it alters behavior (participation jumps 42 percentage points) by changing the choice architecture (the default) without removing any options (employees can opt out with one call). The intervention exploits inertia and status quo bias, the same forces that previously kept people OUT of the plan now keep them IN.',
@@ -2543,7 +2543,7 @@ const lessons: PathwayLesson[] = [
         { term: 'Status Quo Bias', definition: 'The preference for the current state of affairs, driven by loss aversion (change feels like a loss), complexity avoidance, and cognitive laziness. The default option benefits from status quo bias.', example: 'UK pension opt-out rates are only 8-10% after auto-enrollment, even though opting out takes just one phone call. The status quo (staying enrolled) wins through inertia.' }
       ],
       [
-        'Auto-enrollment in 401(k) plans increased US participation from 49% to approximately 90%, the most effective retirement savings intervention ever measured.',
+        'Auto-enrollment in 401(k) plans increased participation from 49% to 86% in Madrian and Shea\'s US study, the most effective retirement savings intervention ever measured.',
         'Thaler\'s Save More Tomorrow (SMarT) program increased savings rates from 3.5% to 13.6% over four pay raises, a 289% increase, by making escalation the default.',
         'The UK Nudge Unit\'s pension auto-enrollment added £17 billion to UK pension savings within 8 years, with opt-out rates of only 8-10%.',
         'Anchoring in salary negotiations means the first number mentioned influences the final outcome by 40-50%, regardless of whether the anchor is reasonable or arbitrary.'
@@ -2592,7 +2592,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 8, Key Terms Reference Cards
     keyTermsCards([
-      { term: 'Nudge', definition: 'Any aspect of the choice architecture that predictably alters behavior without forbidding options or significantly changing economic incentives. Must be easy and cheap to avoid.', example: 'Auto-enrolling employees in 401(k) plans at 3% contribution rate boosted participation from 49% to 90%, with opt-out available via one phone call.', sentence: 'The cafeteria nudge of placing healthy food at eye level increased healthy eating by 25%, no foods were removed, prices didn\'t change, and students could still choose anything they wanted.' },
+      { term: 'Nudge', definition: 'Any aspect of the choice architecture that predictably alters behavior without forbidding options or significantly changing economic incentives. Must be easy and cheap to avoid.', example: 'Auto-enrolling employees in 401(k) plans at 3% contribution rate boosted participation from 49% to 86%, with opt-out available via one phone call.', sentence: 'The cafeteria nudge of placing healthy food at eye level increased healthy eating by 25%, no foods were removed, prices didn\'t change, and students could still choose anything they wanted.' },
       { term: 'Choice Architecture', definition: 'How a decision is laid out: what is preselected, the order of options, the wording, and feedback. Nothing is neutral; every layout pushes behavior.', example: 'Listing mutual funds by expense ratio (lowest first) rather than alphabetically nudges investors toward lower-cost options without restricting choice.', sentence: 'As the choice architect for the company\'s 401(k) plan, she redesigned the enrollment form to make the best options more visible and the default contribution rate higher.' },
       { term: 'Default Effect', definition: 'People stay with the preselected option. Switching feels like a loss, inaction is easy, and the default looks like the recommended pick.', example: 'Germany\'s organ donation rate is 12% (opt-in default) while Austria\'s is 99.98% (opt-out default), same choice, opposite defaults, dramatically different outcomes.', sentence: 'By changing the default investment option from a money market fund to a target-date fund, the plan increased equity participation from 22% to 78% among new hires.' },
       { term: 'Save More Tomorrow (SMarT)', definition: 'Thaler and Benartzi\'s plan: retirement contributions rise automatically at each pay raise, so take-home pay never drops and staying in is the default.', example: 'In the first SMarT rollout, average savings rose from 3.5% to 13.6% over four raises, a 289% jump, with only 2% dropping out.', sentence: 'The company adopted Save More Tomorrow, automatically increasing each employee\'s 401(k) contribution by 1% with every annual raise until reaching 15%, transforming retirement readiness.' },
@@ -2641,7 +2641,7 @@ const lessons: PathwayLesson[] = [
     ]),
 
     // Step 14, Slider Prediction
-    sl('After auto-enrollment was implemented in UK workplace pensions, participation rose from 61% to approximately what percentage?',60,100,92,'%'),
+    sl('After UK auto-enrollment began in 2012, participation among eligible employees rose from 55% to approximately what percentage by 2021?',50,100,88,'%'),
 
     // Step 15, True/False Rapid Set
     tf([
@@ -2654,7 +2654,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 16, Match Pairs
     m('Match the Nudge Concept to Its Real-World Application',[
-      ['Default effect','Auto-enrollment in 401(k) plans raises participation from 49% to 90%'],
+      ['Default effect','Auto-enrollment in 401(k) plans raises participation from 49% to 86%'],
       ['Save More Tomorrow','Auto-escalating contributions with pay raises boosted savings from 3.5% to 13.6%'],
       ['Anchoring','Real estate listing prices determine the range of all subsequent buyer offers'],
       ['Libertarian paternalism','Organ donation opt-out preserves choice while increasing consent to 99%'],
@@ -2725,7 +2725,7 @@ const lessons: PathwayLesson[] = [
 
     // Step 20, Summary Cards
     summaryCards('Nudge Theory & Choice Architecture', [
-      { takeaway: 'Defaults are the most powerful behavioral intervention ever discovered', detail: 'Changing from opt-in to opt-out doubles retirement plan participation (49% to 90% in US 401(k)s, 61% to 92% in UK pensions). Organ donation, green energy adoption, and investment allocation all show the same pattern: people overwhelmingly stick with whatever is pre-selected. Since a default must exist, design it to help.' },
+      { takeaway: 'Defaults are the most powerful behavioral intervention ever discovered', detail: 'Changing from opt-in to opt-out nearly doubles retirement plan participation (49% to 86% in a US 401(k) study, 55% to 88% for eligible UK employees). Organ donation, green energy adoption, and investment allocation all show the same pattern: people overwhelmingly stick with whatever is pre-selected. Since a default must exist, design it to help.' },
       { takeaway: 'Save More Tomorrow proves nudges can transform financial behavior at scale', detail: 'By auto-escalating contributions with pay raises, Thaler\'s SMarT program increased savings from 3.5% to 13.6% with 98% retention. It uses loss aversion (no decrease in take-home pay), present bias (future commitment), and inertia (auto-escalation is default). It directly inspired the Pension Protection Act of 2006 and Thaler\'s 2017 Nobel Prize.' },
       { takeaway: 'There is no neutral choice architecture, so design it intentionally', detail: 'Every decision environment has defaults, ordering, and framing. Listing funds alphabetically versus by fee, showing balances versus projected monthly income, setting the default contribution at 3% versus 6%, each design choice nudges behavior. The question is not whether to nudge, but whether to nudge deliberately toward better outcomes or accidentally toward worse ones.' }
     ]),
@@ -2741,9 +2741,9 @@ const lessons: PathwayLesson[] = [
     // ═══════════════════════════════════════════
     // CHALLENGE ROUND, 5 Questions
     // ═══════════════════════════════════════════
-    cq('The UK auto-enrolled workers in workplace pensions, raising participation from 61% to 92%. The money, the plan, and the options were identical. What changed?',
-      ['The government made enrollment mandatory and legally required every worker to join a pension, removing the choice entirely so that participation had no option but to rise toward full coverage.','Only the default changed, from opt-in (employee must actively enroll) to opt-out (employee is automatically enrolled and must actively leave). The default exploited inertia and status quo bias, with only 8-10% opting out.','The employer match was increased substantially, so workers suddenly had a much larger financial incentive to join, and it was that bigger payoff that pulled participation from 61% all the way to 92%.','Workers were given extensive financial literacy training that taught them the value of saving, and it was this new understanding rather than any change in defaults that convinced them to enroll.'],
-      1,'The UK pension auto-enrollment is the most powerful real-world demonstration of the default effect. The same plan, same investment options, same employer contributions, nothing changed except which box was pre-checked. Status quo bias and inertia, which previously kept workers OUT of pensions, now kept them IN. Only 8-10% opted out, proving that the default determines behavior for 90%+ of people.'),
+    cq('A US company switched its 401(k) from opt-in to auto-enrollment, and participation rose from 49% to 86% (Madrian and Shea). The plan, the employer match, and the options were the same. What changed?',
+      ['The company made enrollment mandatory and required every worker to join the plan, removing the choice entirely so that participation had no option but to rise toward full coverage.','Only the default changed, from opt-in (employee must actively enroll) to opt-out (employee is automatically enrolled and must actively leave). The default exploited inertia and status quo bias, so most new hires simply stayed in.','The employer match was increased substantially, so workers suddenly had a much larger financial incentive to join, and it was that bigger payoff that pulled participation from 49% all the way to 86%.','Workers were given extensive financial literacy training that taught them the value of saving, and it was this new understanding rather than any change in defaults that convinced them to enroll.'],
+      1,'Madrian and Shea\'s 401(k) study is the classic real-world demonstration of the default effect. Same plan, same investment options, same employer match: nothing changed except which box was pre-checked. Status quo bias and inertia, which previously kept workers OUT of the plan, now kept them IN. The UK saw the same pattern nationally, from 55% to 88% of eligible employees between 2012 and 2021, though there employers also had to start contributing.'),
     cq('Thaler\'s Save More Tomorrow (SMarT) program increased savings rates from 3.5% to 13.6%. Which combination of behavioral principles made it work?',
       ['It worked through financial education and higher salaries, teaching employees why saving matters and giving them larger paychecks so they had more spare income available to set aside each month.','Loss aversion (contributions increase only with raises, so take-home pay never decreases), present bias (commitment to future action rather than immediate sacrifice), inertia (auto-escalation is the default that must be actively cancelled), and anchoring (the starting rate sets a floor that only moves up)','It worked through peer pressure and social comparison, showing employees how much their coworkers were saving so that nobody wanted to fall behind the group and look financially irresponsible.','It worked through tax incentives and a generous employer match, giving employees a direct financial reward for every dollar they contributed and making higher savings the obviously profitable choice.'],
       1,'SMarT is a masterclass in applied behavioral economics, exploiting four biases simultaneously: (1) Loss aversion, take-home pay never decreases because increases come from raises. (2) Present bias, employees commit now to save more later, which feels painless. (3) Inertia, escalation is automatic; stopping it requires active effort. (4) Anchoring, the starting rate establishes a floor. The 98% retention rate proves that once people are in the system, inertia keeps them there, the same force that previously prevented them from starting.'),
@@ -3443,7 +3443,7 @@ const lessons: PathwayLesson[] = [
           { label: 'Anchor: 10', value: 56, displayValue: '25%', sprite: 'dice', explain: 'This is the group that watched the wheel stop on 10. Their median guess for African nations in the UN came out at 25%, and every one of them had just seen the wheel spun in front of them.' },
           { label: 'Anchor: 65', value: 100, displayValue: '45%', sprite: 'magnet', explain: 'Same question, same setup, but this group watched the wheel stop on 65 instead of 10. Everyone saw it spun and took the number for pure chance, and it still pulled their estimates up with it.' }
         ],
-        footer: 'Source: Kahneman & Tversky (1974)',
+        footer: 'Source: Tversky & Kahneman (1974)',
       
       sentiment: 'negative', sprite: 'anchor'}
     ),
@@ -4303,17 +4303,17 @@ const lessons: PathwayLesson[] = [
   L(14,'Status Quo Bias & Inertia',35,[
     hookOpener(
       'Status Quo Bias & Inertia',
-      'When Sweden switched its national pension system to opt-out (automatic enrollment) instead of opt-in, participation jumped from 62% to 97%. Nothing changed except the default, yet 35% more citizens saved for retirement. Default options control financial destiny.',
+      'When Sweden launched its national premium pension in 2000, a nationwide ad campaign urged savers to pick their own funds, and 67% did. Once the campaign ended, new savers simply stayed in the default fund: after 2007, fewer than 2% chose for themselves. Same system, same freedom to choose. Default options control financial destiny.',
       'By the end of this lesson, you\'ll understand how status quo bias traps investors in suboptimal portfolios, why changing from the default feels risky even when it\'s beneficial, and how to harness inertia to build wealth automatically.',
-      'Bar chart comparing 62% opt-in pension participation vs 97% opt-out participation in Sweden',
+      'Bar chart comparing the share of Swedish savers left in the default pension fund: 33% at the 2000 launch vs 98% of new savers after 2007',
       {
         type: 'bars',
-        title: 'Default Power: Opt-In vs. Opt-Out Pension',
+        title: 'Default Power: Who Stays in the Default Fund',
         items: [
-          { label: 'Opt-In (old)', value: 64, displayValue: '62%', sprite: 'hourglass' },
-          { label: 'Opt-Out (new)', value: 100, displayValue: '97%', sprite: 'magnet' }
+          { label: 'Launch, 2000', value: 34, displayValue: '33%', sprite: 'hourglass' },
+          { label: 'New savers, 2007+', value: 100, displayValue: '98%', sprite: 'magnet' }
         ],
-        footer: 'Source: Swedish Premium Pension Authority',
+        footer: 'Swedish premium pension (Cronqvist, Thaler & Yu 2018)',
       
       sentiment: 'negative', sprite: 'check-badge'}
     ),
@@ -4393,7 +4393,7 @@ const lessons: PathwayLesson[] = [
         'Madrian & Shea: auto-enrollment increased 401(k) participation from 49% to 86%. 76% of employees never changed the default settings.',
         'Save More Tomorrow tripled savings rates from 3.5% to 13.6% by making escalation the default action.',
         'The gap between a 3% money market default and a 6% target-date default compounds to $300K-$500K over a 40-year career.',
-        'Sweden\'s opt-out pension system achieved 97% participation vs. 62% with opt-in, a 35-point swing from changing one default.'
+        'In Sweden\'s premium pension, 67% of savers picked their own funds in 2000, when ads urged them to; after 2007, fewer than 2% of new savers did, and the default fund took the rest.'
       ],
       [
         { label: 'Default Contribution', min: 1, max: 15, default: 3, unit: '%' },
@@ -4471,7 +4471,7 @@ const lessons: PathwayLesson[] = [
     ),
 
     tr('Status Quo Bias Facts',[
-      ['How did Sweden\'s pension default change affect participation?','Switching from opt-in to opt-out increased pension participation from 62% to 97%, a 35-point swing from changing a single default. Nothing else changed: same plan, same employees, same contribution levels.', { stat: '62% to 97%', sprite: 'globe' }],
+      ['What did Sweden\'s premium pension reveal about defaults?','When a 2000 ad campaign urged savers to choose their own funds, 67% did. Once the ads stopped, new savers stayed in the default fund: after 2007, fewer than 2% chose for themselves. Same system, same freedom to choose, and inertia did the deciding.', { stat: '67% chose, then under 2%', sprite: 'globe' }],
       ['What percentage of auto-enrolled 401(k) participants never change their default settings?','76% according to Madrian & Shea. Three-quarters of auto-enrolled employees stay at the default contribution rate and in the default fund for years. This means the choice of default determines the financial trajectory of the majority of participants.', { stat: '76% never move', sprite: 'lock' }],
       ['How does the "loyalty penalty" affect financial consumers?','UK Financial Conduct Authority research found that consumers who switch banks, insurance, or energy providers save 15-30% on annual costs. Long-term customers systematically overpay due to status quo bias, the familiar provider feels safe even when cheaper alternatives exist.', { stat: '15-30% overpaid', sprite: 'chain-break' }],
       ['What made Save More Tomorrow so successful?','It didn\'t fight inertia, it redirected it. By pre-committing employees to save more from FUTURE raises, the initial decision was painless (no immediate income reduction). Then inertia kept the escalation going automatically. 78% participated; savings tripled from 3.5% to 13.6%.', { stat: '3.5% to 13.6%', sprite: 'calendar' }]
@@ -4495,7 +4495,7 @@ const lessons: PathwayLesson[] = [
 
     tf([
       {s:'Status quo bias keeps 76% of auto-enrolled 401(k) participants in their default fund indefinitely',a:true},
-      {s:'Switching from opt-in to opt-out enrollment in Sweden increased pension participation by 35 percentage points',a:true},
+      {s:'In Sweden\'s premium pension, the share of new savers choosing their own funds fell from 67% in 2000 to under 2% after 2007, once the campaign urging choice had ended',a:true},
       {s:'The current state is always the safest financial choice',a:false},
       {s:'Long-term customers typically pay less than new customers due to loyalty discounts',a:false},
       {s:'Auto-escalation in 401(k) plans harnesses inertia to increase savings automatically',a:true}
@@ -4566,9 +4566,9 @@ const lessons: PathwayLesson[] = [
       25
     )
   ],[
-    cq('Sweden switched its national pension from opt-in to opt-out enrollment. Participation changed from 62% to 97%. What does this prove about status quo bias and defaults?',
-      ['Swedish citizens are more financially responsible','The 35-point swing proves that defaults, not preferences, drive participation. The same citizens with the same pension plan made dramatically different choices based solely on which option was the default. Status quo bias means most people accept whatever default is presented, making the DESIGN of defaults the most consequential financial decision.','The opt-out system was coercive','Education about pensions improved simultaneously'],
-      1,'The Swedish pension switch is the cleanest natural experiment on defaults in finance. Nothing changed except which option was the default. Yet 35% more citizens saved for retirement. This proves that status quo bias, not active choice, determines financial behavior for the majority of people.'),
+    cq('In 2000, with ads urging them to choose, 67% of Swedish savers picked their own pension funds. After 2007, fewer than 2% of new savers did and the rest stayed in the default fund. What does this show about status quo bias and defaults?',
+      ['Later savers studied the funds and judged the default the best one','The collapse in active choice shows that defaults, not preferences, drive behavior. The same system with the same freedom to choose produced opposite behavior once nobody was urging people to act. Status quo bias means most people accept whatever default is presented, making the DESIGN of defaults the most consequential financial decision.','The default fund became compulsory for new savers','Education about pensions improved over the same years'],
+      1,'Sweden\'s premium pension is one of the cleanest natural experiments on defaults in finance. The choice never went away, only the campaign urging people to use it did, and active choice among new savers fell from 67% to under 2% (Cronqvist, Thaler & Yu 2018). Status quo bias, not active choice, determines financial behavior for the majority of people.'),
     cq('Thaler and Benartzi\'s Save More Tomorrow program tripled savings rates from 3.5% to 13.6%. What made this intervention so much more effective than simply asking employees to save more?',
       ['It paid employees to save','It harnessed inertia instead of fighting it. Asking employees to save more NOW triggers loss aversion (less take-home pay). Save More Tomorrow committed them to save more from FUTURE raises, no current sacrifice. Once enrolled, inertia kept the escalation going automatically. 78% participated because the initial commitment was painless and the ongoing execution was effortless.','It provided better investment options','It was mandatory'],
       1,'Save More Tomorrow succeeded because it worked WITH human psychology instead of against it. Traditional "save more" advice fights loss aversion (less money now) and requires ongoing willpower. SMarT committed people to a future action (painless) and let inertia maintain the commitment (effortless). The 78% participation rate vs. typical 10-20% for voluntary savings increases proves the power of designed defaults.'),
@@ -4883,7 +4883,7 @@ const lessons: PathwayLesson[] = [
       'Attention Bias & Media Influence',
       'Brad Barber and Terrance Odean found that individual investors are net buyers of "attention-grabbing" stocks, those in the news, with extreme trading volume, or extreme returns. These attention-driven purchases underperform by an average of 1-2% over the following year.',
       'By the end of this lesson, you\'ll understand how media exposure determines which stocks you buy, why attention-grabbing stocks systematically underperform, and how to build an investment process that looks where the crowd isn\'t looking.',
-      'Chart showing net buying of attention-grabbing stocks vs. non-attention stocks and subsequent returns',
+      'Chart of illustrative returns for attention-grabbing stocks vs. ignored stocks',
       {
         type: 'bars',
         title: 'Attention Bias: Media Stocks vs. Ignored Stocks',
@@ -4891,7 +4891,7 @@ const lessons: PathwayLesson[] = [
           { label: 'In The News', value: 39, displayValue: '-1.2%', sprite: 'stock-ticker' },
           { label: 'Under The Radar', value: 100, displayValue: '+3.1%', sprite: 'chart-up' }
         ],
-        footer: 'Source: Barber & Odean (2008)',
+        footer: 'Illustrative returns; buying pattern from Barber & Odean (2008)',
       
       sentiment: 'negative', sprite: 'magnet'}
     ),
@@ -6372,7 +6372,7 @@ const lessons: PathwayLesson[] = [
       'Default options are the most powerful nudge in behavioral economics, far more powerful than education or incentives.',
       [
         'Organ donation rates demonstrate this dramatically. Countries with opt-out systems (Austria, Spain) have 90%+ donation rates. Countries with opt-in systems (Germany, UK historically) have 10-20% rates. Same people, same culture, only the default changed.',
-        'In finance, automatic 401(k) enrollment at 6% with 1% annual escalation produces radically different outcomes than opt-in enrollment. Madrian and Shea found auto-enrollment lifted participation from 49% to 86%. The "Save More Tomorrow" program uses defaults and escalation to painlessly increase savings rates.',
+        'In finance, automatic 401(k) enrollment at 6% with 1% annual escalation produces radically different outcomes than opt-in enrollment. Madrian and Shea found that auto-enrollment, even at a modest 3% default, lifted participation from 49% to 86%. The "Save More Tomorrow" program uses defaults and escalation to painlessly increase savings rates.',
         'Digital subscriptions exploit default effects in reverse: free trials that auto-convert to paid subscriptions, pre-checked newsletter boxes, auto-renewing memberships. The behavioral lesson works both ways, defaults can help (pension enrollment) or exploit (subscription traps).'
       ],
       [
@@ -6382,7 +6382,7 @@ const lessons: PathwayLesson[] = [
       [
         'Opt-out organ donation: 90%+ vs opt-in: 10-20%, same people, different defaults',
         'Auto-enrollment in 401(k): participation jumps from 49% to 86%',
-        'Save More Tomorrow: painlessly increases savings from 3% to 12% over 9 years',
+        'Save More Tomorrow: painlessly raised savings rates from 3.5% to 13.6% over four pay raises',
         'Only 12% of people change default phone settings, defaults stick'
       ]
     ),
