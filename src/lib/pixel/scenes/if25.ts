@@ -2,12 +2,14 @@
  * Investing Fundamentals lesson 25, Paper Trading: Evaluate & Graduate: from student to investor.
  *
  * The pathway's last lesson and one of its three 50-XP lessons, so it is a harvest: the grown orchard
- * at sunset, every far hill lined with trees, and close by the orchard this course planted, a heavy
- * money tree with an apple tree and a plum tree beside it (one portfolio, more than one kind of fruit).
- * The investor stands on an upturned harvest crate in a mortarboard, holding out a diploma tied with a
- * red ribbon: the plan they wrote, their Investment Policy Statement. At their feet the first real coin
- * is already planted and sprouting. The tassel swings and confetti falls (frames), the sun's rays shine,
- * coins glint, gold dust rises and the first stars come out.
+ * at sunset, every far hill lined with trees, and close by the portfolio this course planted, grown
+ * up: lesson 9's three funds as a fig tree (the rest of the world), the heavy money tree (home stocks)
+ * and a teal bush (bonds). In the middle the investor stands on an upturned harvest crate in a
+ * mortarboard and holds up the plan they wrote after evaluating their paper trading, their Investment
+ * Policy Statement: a page unrolled from a scroll, a heading and lines of writing, and a green check
+ * mark. At the crate's foot the first real coin is already planted and sprouting. The gold tassel
+ * swings and confetti falls (frames), the sun's rays shine, coins glint, gold dust rises and the first
+ * stars come out.
  *
  * The keepsake is the premium acorn (halo and a ring of lights); its emblem is the mortarboard.
  */
@@ -25,9 +27,10 @@ import {
   ifStar,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { IF_APPLE, IF_PLUM, ifBedOf, ifCoinSprout, ifFruitTree, ifRecolour } from './if-kit-a';
+import { IF_FIG, ifBedOf, ifCoinSprout, ifFruitTree, ifRecolour } from './if-kit-a';
 import { IF_SUNSET_RAYS_AT, ifOrchardRow, ifPremiumKeepsake, ifSunsetRays, ifSunsetSky } from './if-kit-b';
 import { ifFall } from './if-kit-c';
+import { ifBondBush } from './if-kit-r';
 import type { LessonArtSet, SceneArt } from './types';
 
 /* ── the graduate ──────────────────────────────────────────────────────────────────────────────── */
@@ -54,21 +57,24 @@ const graduate: PixelSprite = {
 const TASSEL_AT = { x: 12, y: 3 } as const;
 
 const TASSEL_STILL = [
-  'P..',
-  'P..',
-  'P..',
-  'qP.',
-  'Pp.',
+  'O..',
+  'O..',
+  'O..',
+  'gO.',
+  'Og.',
 ];
 const TASSEL_SWUNG = [
-  'P..',
-  '.P.',
-  '.P.',
-  '.qP',
-  '.Pp',
+  'O..',
+  '.O.',
+  '.O.',
+  '.gO',
+  '.Og',
 ];
 
-/** The tassel, 3x5, purple so it reads on the amber sky, swinging. */
+/**
+ * The tassel, 3x5, swinging: gold like the emblem's, in the deep steps of gold (O g) so it still reads
+ * against the amber sky.
+ */
 const tassel: PixelSprite = {
   id: 'if25-tassel',
   name: 'if25-tassel',
@@ -78,17 +84,30 @@ const tassel: PixelSprite = {
   frameMs: 320,
 };
 
-/** The diploma, 8x3: a white roll tied with a red ribbon, held by its left end. */
-const diploma: PixelSprite = {
-  id: 'if25-diploma',
-  name: 'if25-diploma',
+/**
+ * The investor's own Investment Policy Statement, 8x10, held up by its lower left: a page unrolled
+ * from a scroll tied with a red ribbon, a heading, lines of writing, and a green check mark where the
+ * plan was reviewed and signed off.
+ */
+const policy: PixelSprite = {
+  id: 'if25-policy',
+  name: 'if25-policy',
   tags: ['scene', 'if'],
   rows: [
-    'wwwwRwwx',
-    'xxxxRxxX',
-    '....rr..',
+    'xwwwwwwx',
+    'wKKKKKwx',
+    'wwwwwwwx',
+    'wXXXXXwx',
+    'wXXXXwwx',
+    'wXXXwwnx',
+    'wwwwwnwx',
+    'wnwwnwwx',
+    'wwnnwwwx',
+    'xxxRxxxX',
   ],
 };
+/** Where the hand holds the page, in its pixels: the lower left corner. */
+const POLICY_GRIP = { x: 0, y: 9 } as const;
 
 /** An upturned harvest crate to stand on, 14x5. */
 const crate: PixelSprite = {
@@ -120,33 +139,40 @@ const confetti = ifFall(
 
 /* ── the opener ────────────────────────────────────────────────────────────────────────────────── */
 
-/** High enough on the crate that the mortarboard stands against the amber sky, not the far trees. */
-const INVESTOR = { x: 19, y: 20 } as const;
+/** In the middle, high enough on the crate that the mortarboard stands against the amber sky. */
+const INVESTOR = { x: 31, y: 20 } as const;
 const CRATE = { x: INVESTOR.x, y: INVESTOR.y + 21 } as const;
-/** Held by its left end, which the hand closes over. */
-const DIPLOMA = { x: INVESTOR.x + IF_INVESTOR_HAND.x, y: INVESTOR.y + IF_INVESTOR_HAND.y - 1 } as const;
-const BED = { x: 35, y: 46 } as const;
+/** Held up by its lower left corner, which the hand closes over. */
+const POLICY = {
+  x: INVESTOR.x + IF_INVESTOR_HAND.x - POLICY_GRIP.x,
+  y: INVESTOR.y + IF_INVESTOR_HAND.y + 1 - POLICY_GRIP.y,
+} as const;
+/** The portfolio lesson 9 planted, grown: a fig tree, the money tree and a teal bush for bonds. */
+const FIG = { x: 5, y: 26 } as const;
+const TREE = { x: 56, y: 9 } as const;
+const BUSH = { x: 51, y: 32 } as const;
+/** At the crate's foot, the first real coin, planted. */
+const BED = { x: 18, y: 46 } as const;
 const SPROUT = { x: BED.x + 2, y: BED.y - 6 } as const;
-const TREE = { x: 55, y: 9 } as const;
 
 const base = ifCompose('if25-opener-base', 80, 60, [
   { sprite: ifStage, x: 0, y: 0 },
   { sprite: ifSunsetSky, x: 0, y: 0 },
   { sprite: ifOrchardRow, x: 0, y: 25 },
   { sprite: ifMoneyTree, x: TREE.x, y: TREE.y },
-  { sprite: ifRecolour(ifFruitTree, 'if25-apple-tree', IF_APPLE), x: 44, y: 26 },
-  { sprite: ifRecolour(ifFruitTree, 'if25-plum-tree', IF_PLUM), x: 70, y: 27 },
+  { sprite: ifRecolour(ifFruitTree, 'if25-fig-tree', IF_FIG), x: FIG.x, y: FIG.y },
+  { sprite: ifBondBush, x: BUSH.x, y: BUSH.y },
   { sprite: ifBedOf('if25-bed', 12), x: BED.x, y: BED.y },
   { sprite: ifCoinSprout, x: SPROUT.x, y: SPROUT.y },
   { sprite: crate, x: CRATE.x, y: CRATE.y },
-  // The diploma before the graduate, so the hand closes over its end.
-  { sprite: diploma, x: DIPLOMA.x, y: DIPLOMA.y },
+  // The page before the graduate, so the hand closes over its corner.
+  { sprite: policy, x: POLICY.x, y: POLICY.y },
   { sprite: graduate, x: INVESTOR.x, y: INVESTOR.y },
 ]);
 
 export const if25Opener: SceneArt = {
   id: 'if25-opener',
-  label: 'At sunset in the grown orchard, an investor in a graduation cap stands on a harvest crate holding out a diploma tied with a red ribbon, a first real coin sprouting at their feet and confetti falling.',
+  label: 'At sunset in the grown orchard, between a fig tree and the money tree with a teal bush, an investor in a graduation cap stands on a harvest crate holding up the plan they wrote, lines of writing with a green check mark, while a first real coin sprouts nearby and confetti falls.',
   width: 80,
   height: 60,
   base,

@@ -3,13 +3,15 @@
  *
  * One of the pathway's three 50-XP lessons, so it is a harvest: the grown orchard at sunset, a row
  * of trees on every far hill and a heavy money tree close by. The investor is not picking anything
- * yet. They sit on a stool at an easel and draw the orchard they mean to plant: three trees, one each
- * of gold coins, plums and apples (a three-fund portfolio), and under them a tally of the days they
- * have tracked it. Practice with nothing real at stake, before the real thing. The pencil writes (bob),
- * the sun's rays shine, the page's corner lifts in the breeze (frames), coins glint, gold dust rises
- * and the first stars come out.
+ * yet. They sit on a stool at an easel and draw the portfolio they mean to plant, the three funds
+ * lesson 9 planted (a coin tree for home stocks, a fig tree for the rest of the world, a teal bush for
+ * bonds), and under it the days they have tracked it so far, tallied in fives: two gates of four
+ * strokes, each struck through. Practice with nothing real at stake, kept up day by day, before the
+ * real thing. The pencil writes (bob), the sun's rays shine, the page's corner lifts in the breeze
+ * (frames), coins glint, gold dust rises and the first stars come out.
  *
- * The keepsake is the premium acorn (halo and a ring of lights); its emblem is the paper plan.
+ * The keepsake is the premium acorn (halo and a ring of lights); its emblem is the tally page on its
+ * easel.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -23,7 +25,6 @@ import {
   ifStar,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { IF_A_PALETTE } from './if-kit-a';
 import {
   IF_SEATED_HAND,
   IF_SEATED_SEAT,
@@ -78,33 +79,34 @@ const easel: PixelSprite = {
 };
 
 /** Where the page sits on the easel: under the clip, on the ledge. */
-const PAGE_AT = { x: 2, y: 4 } as const;
+const PAGE_AT = { x: 1, y: 4 } as const;
 
 /**
- * The page, 18x15: three trees drawn in a row, gold coins, plums and apples, on a pencilled ground
- * line, and under them a tally of days in pencil.
+ * The page, 20x15: the three-fund portfolio lesson 9 planted, drawn in a row on a pencilled ground
+ * line (a coin tree for home stocks, a fig tree for the rest of the world, a teal bush for bonds), and
+ * under it the days tracked so far, tallied in fives: two gates of four strokes, each struck through.
  */
 const page: PixelSprite = {
   id: 'if24-page',
   name: 'if24-page',
   tags: ['scene', 'if'],
-  palette: IF_A_PALETTE,
+  palette: IF_PALETTE,
   rows: [
-    'wwwwwwwwwwwwwwwwwx',
-    'wwNNwwwwNNwwwwNNwx',
-    'wNGNnwwNuNnwwNRNnx',
-    'wnNnnwwnNnnwwnNnnx',
-    'wwwAwwwwwAwwwwwAwx',
-    'wXXXXXXXXXXXXXXXwx',
-    'wwwwwwwwwwwwwwwwwx',
-    'wwwwwwwwwwwwwwwwwx',
-    'wXwXwXwXwwXwXwXwwx',
-    'wXwXwXwXwwXwXwXwwx',
-    'wXwXwXwXwwXwXwXwwx',
-    'wwwwwwwwwwwwwwwwwx',
-    'wwwwwwwwwwwwwwwwwx',
-    'wwwwwwwwwwwwwwwwwx',
-    'xxxxxxxxxxxxxxxxxx',
+    'wwwwwwwwwwwwwwwwwwwx',
+    'wwNNwwwwwNNwwwwwwwwx',
+    'wNyGnwwwNqPnwwwmTtwx',
+    'wnNnnwwwnNnnwwmTTttx',
+    'wwwAwwwwwwAwwwwttwwx',
+    'wXXXXXXXXXXXXXXXXXwx',
+    'wwwwwwwwwwwwwwwwwwwx',
+    'wwXwXwXwXKwXwXwXwXKx',
+    'wwXwXwXKKwwXwXwXKKwx',
+    'wwXwXKKwXwwXwXKKwXwx',
+    'wwXKKwXwXwwXKKwXwXwx',
+    'wKKwXwXwXwKKwXwXwXwx',
+    'wwwwwwwwwwwwwwwwwwwx',
+    'wwwwwwwwwwwwwwwwwwwx',
+    'xxxxxxxxxxxxxxxxxxxx',
   ],
 };
 
@@ -182,14 +184,14 @@ const base = ifCompose('if24-opener-base', 80, 60, [
 
 export const if24Opener: SceneArt = {
   id: 'if24-opener',
-  label: 'At sunset in the grown orchard, an investor sits on a stool at an easel and draws three trees, one of gold coins, one of plums and one of apples, with a tally of days beneath them.',
+  label: 'At sunset in the grown orchard, an investor sits on a stool at an easel and draws a coin tree, a fig tree and a teal bush, with the days tracked so far tallied in fives beneath them.',
   width: 80,
   height: 60,
   base,
   layers: [
     { sprite: ifSunsetRays, x: IF_SUNSET_RAYS_AT.x, y: IF_SUNSET_RAYS_AT.y, motion: { kind: 'twinkle', periodMs: 2600, min: 0.35 } },
     { sprite: pencil, x: INVESTOR.x + IF_SEATED_HAND.x + 2, y: INVESTOR.y + IF_SEATED_HAND.y, motion: { kind: 'bob', amp: 1, periodMs: 600 } },
-    { sprite: corner, x: PAGE.x + 15, y: PAGE.y },
+    { sprite: corner, x: PAGE.x + 17, y: PAGE.y },
     { sprite: ifGlint, x: TREE.x + 14, y: TREE.y + 3 },
     { sprite: ifLater(ifGlint, 'if24-glint-low', 2, 300), x: TREE.x + 9, y: TREE.y + 13 },
     { sprite: ifGoldMote, x: 30, y: 50, motion: { kind: 'rise', amp: 6, periodMs: 3400, phase: 0.1 } },
@@ -202,28 +204,28 @@ export const if24Opener: SceneArt = {
 
 /* ── the keepsake ──────────────────────────────────────────────────────────────────────────────── */
 
-const emblemPaperPlan: PixelSprite = {
-  id: 'if-emblem-paper-plan',
-  name: 'if-emblem-paper-plan',
+const emblemTally: PixelSprite = {
+  id: 'if-emblem-tally',
+  name: 'if-emblem-tally',
   tags: ['scene', 'if'],
-  blurb: "Lesson 24: a page with three trees drawn on it and a tally of days. A portfolio planted on paper first.",
-  palette: IF_A_PALETTE,
+  blurb: "Lesson 24: a page of days tallied in fives, on the easel the plan was drawn at. Practise on paper, and track it, before the real thing.",
+  palette: IF_PALETTE,
   rows: [
-    'wwwwwwwwwx',
-    'wNNwNNwNNx',
-    'wGnwunwRnx',
-    'whwwhwwhwx',
-    'wwwwwwwwwx',
-    'wXwXwXwwwx',
-    'wXwXwXwwwx',
-    'xxxxxxxxxx',
+    '.wwwwwwwx.',
+    '.wKwKwKKx.',
+    '.wKwKKKwx.',
+    '.wKKKwKwx.',
+    '.KKwKwKwx.',
+    '.aaaaaaaa.',
+    '..hA.a.hA.',
+    '.hA..a..hA',
   ],
 };
 
 export const if24Finish: SceneArt = ifPremiumKeepsake(
   'if24-finish',
-  'A golden acorn inside a ring of gold light, hanging from an oak twig, with a page of three drawn trees and a tally of days in its purple window and sparkles all around it.',
-  emblemPaperPlan,
+  'A golden acorn inside a ring of gold light, hanging from an oak twig, with a page of tally marks struck in fives standing on a small easel in its purple window and sparkles all around it.',
+  emblemTally,
 );
 
 export const art: LessonArtSet = { opener: if24Opener, backdrop: ifBackdrop, finish: if24Finish };

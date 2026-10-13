@@ -26,7 +26,6 @@ import {
   ifStarBig,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { ifDigits } from './if-kit-b';
 import { ifFall } from './if-kit-c';
 import type { LessonArtSet, SceneArt } from './types';
 
@@ -48,25 +47,25 @@ const lantern: PixelSprite = {
   ],
 };
 
-/** The fee tag, 11x7, nailed to the trunk at the top: 1% in ink on white paper. */
-const tagPaper: PixelSprite = {
-  id: 'if20-tag-paper',
-  name: 'if20-tag-paper',
+/**
+ * The fee tag, 12x7, nailed to the trunk at the top: 1% in ink on white paper. The percent sign is
+ * drawn here at 5x5, two square dots and a slash, because the kit's 3x5 one is too small to read on a
+ * tag this size.
+ */
+const tag: PixelSprite = {
+  id: 'if20-tag',
+  name: 'if20-tag',
   tags: ['scene', 'if'],
   rows: [
-    '.wwwwDwwwx.',
-    'wwwwwwwwwwx',
-    'wwwwwwwwwwx',
-    'wwwwwwwwwwx',
-    'wwwwwwwwwwx',
-    'wwwwwwwwwwx',
-    '.xxxxxxxxx.',
+    '.wwwwwDwwwx.',
+    'wwKwwKKwwKwx',
+    'wKKwwKKwKwwx',
+    'wwKwwwwKwwwx',
+    'wwKwwwKwKKwx',
+    'wKKKwKwwKKwx',
+    '.xxxxxxxxxx.',
   ],
 };
-const tag = ifCompose('if20-tag', 11, 7, [
-  { sprite: tagPaper, x: 0, y: 0 },
-  { sprite: ifDigits('if20-fee', '1%', 'K'), x: 2, y: 1 },
-]);
 
 /** The beetles' burrow, 6x3: a little mound of soil with a dark hole. */
 const burrow: PixelSprite = {
@@ -83,28 +82,30 @@ const burrow: PixelSprite = {
 
 /* ── the beetles ───────────────────────────────────────────────────────────────────────────────── */
 
-/** A beetle nibbling, 4x3, facing left: blue shell with a highlight, dark head and legs. */
+/** A beetle nibbling, 5x4, facing left: a blue shell lit on top with a dark seam, head and legs. */
 const nibbler: PixelSprite = {
   id: 'if20-nibbler',
   name: 'if20-nibbler',
   tags: ['scene', 'if'],
   rows: [
-    '.Bb.',
-    'Kbbb',
-    '.K.K',
+    '.BBB.',
+    'KBKbb',
+    'KbKbb',
+    '.K.K.',
   ],
 };
 
-/** A beetle marching off to the right, 4x4, a gold crumb on its back. */
+/** A beetle marching off to the right, 5x5, a gold crumb on its back. */
 const carrier: PixelSprite = {
   id: 'if20-carrier',
   name: 'if20-carrier',
   tags: ['scene', 'if'],
   rows: [
-    '.y..',
-    '.Bb.',
-    'bbbK',
-    'K.K.',
+    '..y..',
+    '.BBB.',
+    'bbKBK',
+    'bbKbK',
+    '.K.K.',
   ],
 };
 
@@ -130,7 +131,7 @@ const NIBBLED = [
   { x: TREE.x + 18, y: TREE.y + 10 },
   { x: TREE.x + 3, y: TREE.y + 16 },
 ] as const;
-const TAG = { x: TREE.x + 7, y: TREE.y + 23 } as const;
+const TAG = { x: TREE.x + 6, y: TREE.y + 23 } as const;
 const BURROW = { x: 72, y: 44 } as const;
 
 const base = ifCompose('if20-opener-base', 80, 60, [
@@ -145,7 +146,7 @@ const base = ifCompose('if20-opener-base', 80, 60, [
 
 export const if20Opener: SceneArt = {
   id: 'if20-opener',
-  label: 'At night an investor holds up a lantern to a money tree with a tag reading 1% nailed to its trunk, and finds beetles nibbling its gold coins while a line of beetles carries crumbs of gold away to a burrow.',
+  label: 'At night an investor carrying a lantern finds a money tree with a tag reading 1% nailed to its trunk, beetles nibbling its gold coins, and a line of beetles carrying crumbs of gold away to a burrow.',
   width: 80,
   height: 60,
   base,
@@ -157,9 +158,9 @@ export const if20Opener: SceneArt = {
       y,
       motion: { kind: 'drift' as const, amp: 1, periodMs: 900 + i * 170, phase: i / 3 },
     })),
-    { sprite: carrier, x: 54, y: 43, motion: { kind: 'drift', amp: 2, periodMs: 2400 } },
-    { sprite: carrier, x: 60, y: 44, motion: { kind: 'drift', amp: 2, periodMs: 2400, phase: 0.33 } },
-    { sprite: carrier, x: 66, y: 45, motion: { kind: 'drift', amp: 2, periodMs: 2400, phase: 0.66 } },
+    { sprite: carrier, x: 52, y: 42, motion: { kind: 'drift', amp: 2, periodMs: 2400 } },
+    { sprite: carrier, x: 59, y: 43, motion: { kind: 'drift', amp: 2, periodMs: 2400, phase: 0.33 } },
+    { sprite: carrier, x: 66, y: 44, motion: { kind: 'drift', amp: 2, periodMs: 2400, phase: 0.66 } },
     { sprite: crumb, x: NIBBLED[2].x + 3, y: NIBBLED[2].y + 3 },
     { sprite: ifFlame, x: LANTERN.x + 1, y: LANTERN.y + 3 },
     { sprite: ifGlint, x: TREE.x + 14, y: TREE.y + 3 },

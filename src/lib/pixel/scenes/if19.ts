@@ -4,10 +4,12 @@
  *
  * Late at night, out of a cottage whose lamp is still lit, the investor has come out to the row of
  * coin sprouts planted earlier and, unable to wait, yanked one up to see if it is growing: they hold it
- * high by the stem, its coin and bare roots dangling, soil still falling off into the hole it left,
- * while every sprout left alone down the row is doing fine. A red alarm mark flashes over their head:
- * fear, panic selling, checking too often, all of it in one gesture. Soil falls (frames), smoke rises
- * from the chimney, the lamp flickers, a coin glints, seed fluff drifts and the stars twinkle.
+ * high by the stem, its coin and bare roots dangling and its two small leaves already wilting, soil
+ * still falling off into the hole it left. Every sprout left alone down the row has grown taller and
+ * put out a second, bigger pair of leaves, so the cost of meddling is in the picture. A red alarm mark
+ * flashes over their head: fear, panic selling, checking too often, all of it in one gesture. Soil
+ * falls (frames), smoke rises from the chimney, the lamp flickers, a coin glints, seed fluff drifts
+ * and the stars twinkle.
  *
  * The keepsake's emblem is the uprooted sprout with its alarm mark.
  */
@@ -26,7 +28,7 @@ import {
   ifStarBig,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { ifBedOf, ifCoinSprout } from './if-kit-a';
+import { ifBedOf } from './if-kit-a';
 import { ifFall } from './if-kit-c';
 import type { LessonArtSet, SceneArt } from './types';
 
@@ -100,8 +102,9 @@ const smoke: PixelSprite = {
 /* ── the pulled sprout ─────────────────────────────────────────────────────────────────────────── */
 
 /**
- * A coin sprout pulled out of the bed, 7x12, held up by the stem: limp leaves above the fist, the coin,
- * a clod of soil and the bare roots hanging below it. Drawn in front of the investor's hand.
+ * A coin sprout pulled out of the bed, 7x12, held up by the stem: its two small leaves already wilting
+ * and drooping over the fist, the coin, a clod of soil and the bare roots hanging below it. Drawn in
+ * front of the investor's hand.
  */
 const pulledSprout: PixelSprite = {
   id: 'if19-pulled-sprout',
@@ -109,10 +112,10 @@ const pulledSprout: PixelSprite = {
   tags: ['scene', 'if'],
   palette: IF_PALETTE,
   rows: [
-    '..mNn..',
-    '.mNnNn.',
-    'mNn.nNn',
     '...n...',
+    '..nNn..',
+    '.nN.Nn.',
+    'n..n..n',
     '...n...',
     '..OnO..',
     '.OyGgO.',
@@ -121,6 +124,30 @@ const pulledSprout: PixelSprite = {
     '.h.h.h.',
     'h..h..h',
     'h..h..h',
+  ],
+};
+
+/**
+ * A coin sprout that was left alone, 9x11: planted the same night as the pulled one, it has grown a
+ * second, bigger pair of leaves on a taller stem above its coin. Its last row sits on the bed.
+ */
+const grownSprout: PixelSprite = {
+  id: 'if19-grown-sprout',
+  name: 'if19-grown-sprout',
+  tags: ['scene', 'if'],
+  palette: IF_PALETTE,
+  rows: [
+    '..mN.Nn..',
+    '.mNNnNNn.',
+    'mNNNnNNNn',
+    '.mNnnnNn.',
+    '...mnN...',
+    '..mNnNn..',
+    '....n....',
+    '....n....',
+    '...OnO...',
+    '..OyGgO..',
+    '...OOO...',
   ],
 };
 
@@ -172,14 +199,14 @@ const PULLED = { x: INVESTOR.x + 11, y: INVESTOR.y + 8 } as const;
 /** The bed runs across the foreground, in front of the investor, so the roots hang well clear of it. */
 const BED = { x: 30, y: 50 } as const;
 /** The sprouts left alone, every nine pixels down the bed. */
-const SPROUTS = [42, 51, 60, 69] as const;
+const SPROUTS = [41, 50, 59, 68] as const;
 
 const base = ifCompose('if19-opener-base', 80, 60, [
   { sprite: ifStage, x: 0, y: 0 },
   { sprite: cottage, x: COTTAGE.x, y: COTTAGE.y },
   { sprite: ifBedOf('if19-bed', 48), x: BED.x, y: BED.y },
   { sprite: hole, x: PULLED.x, y: BED.y - 1 },
-  ...SPROUTS.map((x) => ({ sprite: ifCoinSprout, x, y: BED.y - 6 })),
+  ...SPROUTS.map((x) => ({ sprite: grownSprout, x, y: BED.y - 10 })),
   { sprite: ifInvestor, x: INVESTOR.x, y: INVESTOR.y },
   // The sprout after the investor: held up in front of the fist, clear of the body.
   { sprite: pulledSprout, x: PULLED.x, y: PULLED.y },
@@ -187,7 +214,7 @@ const base = ifCompose('if19-opener-base', 80, 60, [
 
 export const if19Opener: SceneArt = {
   id: 'if19-opener',
-  label: 'Late at night outside a cottage with a lit window, an investor has pulled a coin sprout out of its bed to check on it, roots dangling and an alarm mark over their head, while the sprouts left alone grow on.',
+  label: 'Late at night outside a cottage with a lit window, an investor has pulled a coin sprout out of its bed to check on it, roots dangling, leaves wilting and an alarm mark over their head, while the sprouts left alone in the row have grown taller and leafier.',
   width: 80,
   height: 60,
   base,
@@ -197,8 +224,8 @@ export const if19Opener: SceneArt = {
     { sprite: lamp, x: COTTAGE.x + 4, y: COTTAGE.y + 13, motion: { kind: 'twinkle', periodMs: 1700, min: 0.15 } },
     { sprite: smoke, x: COTTAGE.x + 14, y: COTTAGE.y - 1, motion: { kind: 'rise', amp: 6, periodMs: 3200 } },
     { sprite: smoke, x: COTTAGE.x + 15, y: COTTAGE.y - 4, motion: { kind: 'rise', amp: 6, periodMs: 3200, phase: 0.5 } },
-    { sprite: ifLater(ifGlint, 'if19-glint', 2, 300), x: SPROUTS[1] + 1, y: BED.y - 2 },
-    { sprite: ifSeedMote, x: SPROUTS[2] + 3, y: BED.y - 9, motion: { kind: 'rise', amp: 6, periodMs: 3600, phase: 0.3 } },
+    { sprite: ifLater(ifGlint, 'if19-glint', 2, 300), x: SPROUTS[1] + 2, y: BED.y - 2 },
+    { sprite: ifSeedMote, x: SPROUTS[2] + 4, y: BED.y - 13, motion: { kind: 'rise', amp: 6, periodMs: 3600, phase: 0.3 } },
     { sprite: ifStarBig, x: 36, y: 6, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
     { sprite: ifStar, x: 50, y: 3, motion: { kind: 'twinkle', periodMs: 1800, phase: 0.4, min: 0.2 } },
     { sprite: ifStar, x: 63, y: 10, motion: { kind: 'twinkle', periodMs: 2600, phase: 0.7, min: 0.2 } },

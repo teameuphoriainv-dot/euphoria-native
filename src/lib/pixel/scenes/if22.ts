@@ -4,12 +4,12 @@
  *
  * A night tree nursery: three young money trees for sale stand on a plank stand, their roots balled in
  * burlap, each with a white price tag. Before buying the nearest one, the shiniest, the investor holds
- * a big magnifying glass over its root ball, and through the glass a worm is wriggling in the soil: a
- * problem nobody sees from the leaves, the way a company can look great on top and be rotten
- * underneath. The worm wriggles (bob), the lens catches the light, coins glint, stars twinkle and
- * fireflies drift up.
+ * a big magnifying glass over its root ball, and through the glass a white grub is chewing at a root
+ * that has rotted black: a problem nobody sees from the leaves, the way a company can look great on
+ * top and be rotten underneath. The grub squirms (bob), the lens catches the light, coins glint, stars
+ * twinkle and fireflies drift up.
  *
- * The keepsake's emblem is the magnifying glass.
+ * The keepsake's emblem is the magnifying glass, with the grub and the rotten root in its lens.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -76,8 +76,9 @@ const priceTag: PixelSprite = {
 /* ── the magnifying glass ──────────────────────────────────────────────────────────────────────── */
 
 /**
- * The lens, 9x9: a steel rim lit on its upper left, and inside it the root ball seen up close, dark
- * soil threaded with pale roots, where the worm (a layer) wriggles.
+ * The lens, 9x9: a steel rim lit on its upper left, and inside it the root ball seen up close, the
+ * soil lit by the glass: a pale root that turns black and rotten partway along, and the grub (a
+ * layer) chewing at the rot.
  */
 const lens: PixelSprite = {
   id: 'if22-lens',
@@ -86,13 +87,13 @@ const lens: PixelSprite = {
   palette: IF_PALETTE,
   rows: [
     '..wwxxx..',
-    '.wehheeX.',
-    'weeeheceX',
-    'wechheeeX',
-    'xeeeeheeX',
-    'xheceehcX',
-    'XeeheeheD',
-    '.XeeehhD.',
+    '.wcccccX.',
+    'whhcccccX',
+    'wcchhcccX',
+    'xccccKKcX',
+    'xcccccKKX',
+    'XcccccKKD',
+    '.XccccKD.',
     '..XXDDD..',
   ],
 };
@@ -110,16 +111,16 @@ const handle: PixelSprite = {
   ],
 };
 
-/** The worm in the glass, 4x4, head up with a dark eye. */
-const worm: PixelSprite = {
-  id: 'if22-worm',
-  name: 'if22-worm',
+/** The grub in the glass, 5x3: a fat white C, its brown head and black jaws at the rotten root. */
+const grub: PixelSprite = {
+  id: 'if22-grub',
+  name: 'if22-grub',
   tags: ['scene', 'if'],
+  palette: IF_PALETTE,
   rows: [
-    '..FK',
-    '.Ff.',
-    '.F..',
-    'fF..',
+    '.www.',
+    'ww.hK',
+    '.www.',
   ],
 };
 
@@ -162,12 +163,12 @@ const base = ifCompose('if22-opener-base', 80, 60, [
 
 export const if22Opener: SceneArt = {
   id: 'if22-opener',
-  label: 'At a night tree nursery, an investor holds a big magnifying glass over the burlap root ball of a young money tree for sale and finds a worm wriggling in its soil.',
+  label: 'At a night tree nursery, an investor holds a big magnifying glass over the burlap root ball of a young money tree for sale and finds a white grub chewing a root that has rotted black.',
   width: 80,
   height: 60,
   base,
   layers: [
-    { sprite: worm, x: LENS.x + 3, y: LENS.y + 3, motion: { kind: 'bob', amp: 1, periodMs: 700 } },
+    { sprite: grub, x: LENS.x + 1, y: LENS.y + 4, motion: { kind: 'bob', amp: 1, periodMs: 800 } },
     { sprite: glare, x: LENS.x + 2, y: LENS.y + 1, motion: { kind: 'twinkle', periodMs: 1900, min: 0.2 } },
     { sprite: ifGlint, x: TREES[0].x + 8, y: TREES[0].y + 3 },
     { sprite: ifLater(ifGlint, 'if22-glint-mid', 2, 300), x: TREES[1].x + 2, y: TREES[1].y + 6 },
@@ -184,18 +185,18 @@ export const if22Opener: SceneArt = {
 /* ── the keepsake ──────────────────────────────────────────────────────────────────────────────── */
 
 const emblemMagnifier: PixelSprite = {
-  id: 'if-emblem-magnifier',
-  name: 'if-emblem-magnifier',
+  id: 'if-emblem-magnifier-grub',
+  name: 'if-emblem-magnifier-grub',
   tags: ['scene', 'if'],
-  blurb: "Lesson 22: a magnifying glass. Looking closely before you buy.",
+  blurb: "Lesson 22: a magnifying glass over a grub chewing a rotten root. The flaw you only find by looking under the leaves.",
   palette: IF_PALETTE,
   rows: [
     '..wwxx....',
-    '.wBBBbx...',
-    'wBwBbbbx..',
-    'wBBbbbbX..',
-    'xBbbbbbX..',
-    '.xbbbbX...',
+    '.wchhcx...',
+    'wcccKhcx..',
+    'wwwhKKcX..',
+    'xw.cKKcX..',
+    '.xwwccX...',
     '..XXXXhA..',
     '......ahAa',
   ],
@@ -203,7 +204,7 @@ const emblemMagnifier: PixelSprite = {
 
 export const if22Finish: SceneArt = ifKeepsake(
   'if22-finish',
-  'A golden acorn hanging from an oak twig, with a magnifying glass in its purple window and small sparkles around it.',
+  'A golden acorn hanging from an oak twig, with a magnifying glass showing a white grub chewing a black rotten root in its purple window and small sparkles around it.',
   emblemMagnifier,
 );
 

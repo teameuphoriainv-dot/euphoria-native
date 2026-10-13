@@ -1,16 +1,17 @@
 /**
- * Investing Fundamentals lesson 21, Rebalancing Your Portfolio: trimming what grew too big back to
- * the plan.
+ * Investing Fundamentals lesson 21, Rebalancing Your Portfolio: trimming what grew too big and moving
+ * it to what fell behind.
  *
- * Two trees were planted to a plan, and a stake in front of the plum tree still says it: 60/40. A
- * good year later the money tree (stocks) has grown far past its share and the plum tree (bonds) is
- * small beside it, so the investor is up a stepladder with garden shears, cutting the money tree
- * back. The trimmed twig, leaves only, drops onto the cuttings already on the ground, and as it lands
- * a coin from the money tree's side facing the plum tree drops into the soil at the foot of the plum
- * tree: the money taken off what grew goes to what fell behind, not onto the pile. The shears snip,
- * the twig and the coin fall (frames), coins glint, stars twinkle and fireflies drift up.
+ * Two holdings were planted to a plan, and a stake in front of the bond bush still says it: 60/40. A
+ * good year later the money tree (stocks) has grown far past its share and the teal bush (bonds, as
+ * lesson 9 planted them) is small beside it, so the investor is up a stepladder with garden shears,
+ * cutting the money tree back. Nothing cut is thrown away: the snipped coin drops into a basket at the
+ * foot of the ladder, hops out and rolls across to the bush, and settles into a fresh hole at its
+ * foot, where a trowel stands in the turned soil. The money taken off what grew is planted in what
+ * fell behind, and no coin leaves the picture. The shears snip and the coin falls and rolls (frames),
+ * coins glint, stars twinkle and fireflies drift up.
  *
- * The keepsake's emblem is a pair of open shears.
+ * The keepsake's emblem is the same move: open shears, and a coin dropping into the teal bush.
  */
 import type { PixelSprite } from '../types';
 import {
@@ -25,12 +26,10 @@ import {
   ifStage,
   ifStar,
   ifStarBig,
-  ifYoungTree,
 } from './if-kit';
 import { ifBackdrop } from './if-backdrop';
-import { IF_PLUM, ifCoinDrop, ifRecolour } from './if-kit-a';
-import { ifDigits } from './if-kit-b';
-import { ifFall } from './if-kit-c';
+import { ifCoinBasket, ifDigits } from './if-kit-b';
+import { ifBondBush } from './if-kit-r';
 import type { LessonArtSet, SceneArt } from './types';
 
 /* ── props ─────────────────────────────────────────────────────────────────────────────────────── */
@@ -94,19 +93,94 @@ const sign = ifCompose('if21-sign', 21, 12, [
   { sprite: ifDigits('if21-plan', '60/40', 'w'), x: 1, y: 1 },
 ]);
 
-/** Twigs already cut, lying at the foot of the ladder, 9x2. */
-const cuttings: PixelSprite = {
-  id: 'if21-cuttings',
-  name: 'if21-cuttings',
+/**
+ * The fresh hole at the bush's foot, 9x5: a dark pit in turned soil, a coin from an earlier trim set
+ * in it up to its middle, and a trowel standing in the heap on the left. The trip's coin settles on
+ * that coin exactly (HOLE_COIN).
+ */
+const hole: PixelSprite = {
+  id: 'if21-hole',
+  name: 'if21-hole',
   tags: ['scene', 'if'],
   palette: IF_PALETTE,
   rows: [
-    '.mN...mn.',
-    'hAAnAAhNn',
+    '.h.......',
+    '.hA..OO..',
+    '.xw.OyGO.',
+    'cXxdddddc',
+    '.ccdddcc.',
   ],
 };
+/** Where the set coin's top-left is, in the hole's pixels. */
+const HOLE_COIN = { x: 4, y: 1 } as const;
 
-/* ── moving parts ──────────────────────────────────────────────────────────────────────────────── */
+/* ── moving parts: the trim's one coin, and the shears on its clock ──────────────────────────── */
+
+const COIN_FACE = ['.OO.', 'OyGO', 'OGgO', '.OO.'];
+const COIN_EDGE = ['.OO.', '.yG.', '.Gg.', '.OO.'];
+/** The coin settled in the hole: its top half, the rest under the soil. */
+const COIN_SET = ['.OO.', 'OyGO'];
+
+type CoinStep = readonly [x: number, y: number, shape: readonly string[]];
+
+/** Where the coin rests on the basket's heap, and where it settles in the bush's hole (scene pixels). */
+const RESTING = { x: 24, y: 37 } as const;
+const SETTLED = { x: 57, y: 42 } as const;
+
+/**
+ * One coin's trip, in scene pixels: its top-left and shape per frame, at 180ms a frame. Cut at the
+ * blades (0), it drops into the basket's heap (5) and rests a beat, hops out over the rim (7 to 9),
+ * rolls along the ground in front of the money tree's roots, turning (10 to 16), and drops into the
+ * fresh hole (17), settling on the coin already set there (18 to 20), so it never vanishes.
+ */
+const TRIP: readonly CoinStep[] = [
+  [26, 27, COIN_FACE],
+  [26, 29, COIN_EDGE],
+  [25, 31, COIN_FACE],
+  [25, 33, COIN_EDGE],
+  [24, 35, COIN_FACE],
+  [RESTING.x, RESTING.y, COIN_FACE],
+  [RESTING.x, RESTING.y, COIN_FACE],
+  [27, 34, COIN_EDGE],
+  [30, 36, COIN_FACE],
+  [33, 40, COIN_EDGE],
+  [36, 40, COIN_FACE],
+  [39, 40, COIN_EDGE],
+  [42, 40, COIN_FACE],
+  [45, 40, COIN_EDGE],
+  [48, 40, COIN_FACE],
+  [51, 40, COIN_EDGE],
+  [54, 40, COIN_FACE],
+  [57, 41, COIN_EDGE],
+  [SETTLED.x, SETTLED.y, COIN_SET],
+  [SETTLED.x, SETTLED.y, COIN_SET],
+  [SETTLED.x, SETTLED.y, COIN_SET],
+];
+const TRIP_MS = 180;
+/** The layer's corner and size: the box the whole trip fits in. */
+const TRIP_AT = { x: 24, y: 27, width: 37, height: 17 } as const;
+
+const TRIP_FRAMES = TRIP.map(([x, y, shape]) => {
+  const cells = Array.from({ length: TRIP_AT.height }, () => new Array<string>(TRIP_AT.width).fill('.'));
+  shape.forEach((row, j) => {
+    const line = cells[y - TRIP_AT.y + j];
+    if (!line) return;
+    [...row].forEach((ch, k) => {
+      if (ch !== '.') line[x - TRIP_AT.x + k] = ch;
+    });
+  });
+  return cells.map((line) => line.join(''));
+});
+
+/** The coin's trip as one layer. At rest and under Reduce Motion it sits on the basket's heap (6). */
+const trip: PixelSprite = {
+  id: 'if21-trip',
+  name: 'if21-trip',
+  tags: ['scene', 'if'],
+  rows: TRIP_FRAMES[6] ?? [],
+  frames: TRIP_FRAMES,
+  frameMs: TRIP_MS,
+};
 
 const SHEARS_OPEN = [
   '.......wx',
@@ -123,31 +197,19 @@ const SHEARS_SHUT = [
   '.........',
 ];
 
-/** Garden shears, 9x5, red grips in the hand and the blades opening and snapping shut. */
+/**
+ * Garden shears, 9x5, red grips in the hand, on the coin's clock: the blades snap shut as the coin is
+ * cut (frames 20 and 0) and stand open for the rest of its trip.
+ */
 const shears: PixelSprite = {
   id: 'if21-shears',
   name: 'if21-shears',
   tags: ['scene', 'if'],
   palette: IF_PALETTE,
   rows: SHEARS_OPEN,
-  frames: [SHEARS_OPEN, SHEARS_OPEN, SHEARS_SHUT, SHEARS_SHUT],
-  frameMs: 230,
+  frames: TRIP.map((_, i) => (i === 0 || i === TRIP.length - 1 ? SHEARS_SHUT : SHEARS_OPEN)),
+  frameMs: TRIP_MS,
 };
-
-/**
- * A trimmed twig, leaves only, dropping from the blades onto the cuttings, then a beat. Ten frames
- * at 180ms: the proceeds coin below runs on the same clock and lands on the same frame.
- */
-const twig = ifFall(
-  'if21-twig',
-  8,
-  21,
-  ['.mNn..', 'mNNnhA', '...nn.'],
-  [[2, 0], [2, 2], [1, 5], [1, 8], [0, 11], [0, 14], [0, 15], [0, 15], [-9, -9], [-9, -9]],
-  180,
-  3,
-  IF_PALETTE,
-);
 
 /* ── the opener ────────────────────────────────────────────────────────────────────────────────── */
 
@@ -157,32 +219,18 @@ const LADDER = { x: INVESTOR.x + 1, y: INVESTOR.y + 21 - LADDER_STEP } as const;
 /** The grips just past the hand, so the blades reach into the crown's left edge. */
 const SHEARS = { x: INVESTOR.x + 14, y: INVESTOR.y + 9 } as const;
 const TREE = { x: 26, y: 11 } as const;
-const PLUMS = { x: 61, y: 24 } as const;
-
-/**
- * Where the trim's proceeds leave the money tree: a coin half over the crown's right edge, the side
- * facing the plum tree.
- */
-const PROCEEDS = { x: TREE.x + 21, y: TREE.y + 14 } as const;
-/**
- * The proceeds: a coin turning as it drops from the money tree's edge, down and right only, into the
- * soil beside the foot of the plum tree's trunk. Same ten frames at 180ms as the twig, so it lands on
- * the frame the twig lands (6), then it is gone. At rest it is in open sky between the two trees.
- */
-const proceeds = ifCoinDrop(
-  'if21-proceeds',
-  19,
-  20,
-  [[0, 0], [3, 1], [5, 2], [8, 4], [10, 7], [13, 11], [PLUMS.x + 1 - PROCEEDS.x, PLUMS.y + 17 - PROCEEDS.y], [-9, -9], [-9, -9], [-9, -9]],
-  180,
-  2,
-);
+const BUSH = { x: 61, y: 34 } as const;
+/** At the ladder's foot, the middle of its heap under the trip's resting coin. */
+const BASKET = { x: RESTING.x - 3, y: RESTING.y + 2 } as const;
+/** Under the trip's last frames, so the coin settles on the one already set there. */
+const HOLE = { x: SETTLED.x - HOLE_COIN.x, y: SETTLED.y - HOLE_COIN.y } as const;
 
 const base = ifCompose('if21-opener-base', 80, 60, [
   { sprite: ifStage, x: 0, y: 0 },
   { sprite: ifMoneyTree, x: TREE.x, y: TREE.y },
-  { sprite: ifRecolour(ifYoungTree, 'if21-plum-tree', IF_PLUM), x: PLUMS.x, y: PLUMS.y },
-  { sprite: cuttings, x: 21, y: 44 },
+  { sprite: ifBondBush, x: BUSH.x, y: BUSH.y },
+  { sprite: hole, x: HOLE.x, y: HOLE.y },
+  { sprite: ifCoinBasket, x: BASKET.x, y: BASKET.y },
   { sprite: sign, x: 54, y: 47 },
   // The ladder before the investor, who stands in front of it.
   { sprite: ladder, x: LADDER.x, y: LADDER.y },
@@ -191,50 +239,49 @@ const base = ifCompose('if21-opener-base', 80, 60, [
 
 export const if21Opener: SceneArt = {
   id: 'if21-opener',
-  label: 'At night an investor on a stepladder trims an overgrown money tree with garden shears, and as the cut twig falls onto a small pile of cuttings a gold coin from the money tree drops to the foot of a much smaller plum tree, which has a stake in front of it reading 60/40.',
+  label: 'At night an investor on a stepladder trims an overgrown money tree with garden shears, and the cut gold coin drops into a basket at the foot of the ladder, then rolls across to a much smaller teal bush and settles into a fresh hole at its foot, with a stake in front of the bush reading 60/40.',
   width: 80,
   height: 60,
   base,
   layers: [
-    // The twig before the shears, so the blades stay over it as it is cut.
-    { sprite: twig, x: SHEARS.x, y: SHEARS.y },
+    { sprite: trip, x: TRIP_AT.x, y: TRIP_AT.y },
     { sprite: shears, x: SHEARS.x, y: SHEARS.y },
-    { sprite: proceeds, x: PROCEEDS.x, y: PROCEEDS.y },
     { sprite: ifGlint, x: TREE.x + 14, y: TREE.y + 3 },
     { sprite: ifLater(ifGlint, 'if21-glint-low', 2, 300), x: TREE.x + 18, y: TREE.y + 10 },
+    { sprite: ifLater(ifGlint, 'if21-glint-basket', 4, 330), x: BASKET.x + 2, y: BASKET.y - 1 },
     { sprite: ifStarBig, x: 54, y: 6, motion: { kind: 'twinkle', periodMs: 2300, min: 0.3 } },
     { sprite: ifStar, x: 33, y: 4, motion: { kind: 'twinkle', periodMs: 1800, phase: 0.4, min: 0.2 } },
     { sprite: ifStar, x: 68, y: 12, motion: { kind: 'twinkle', periodMs: 2600, phase: 0.7, min: 0.2 } },
     { sprite: ifStar, x: 76, y: 3, motion: { kind: 'twinkle', periodMs: 2900, phase: 0.2, min: 0.2 } },
     { sprite: ifFirefly, x: 33, y: 51, motion: { kind: 'rise', amp: 5, periodMs: 3500, phase: 0.1 } },
-    { sprite: ifFirefly, x: 52, y: 44, motion: { kind: 'rise', amp: 6, periodMs: 4100, phase: 0.55 } },
+    { sprite: ifFirefly, x: 47, y: 46, motion: { kind: 'rise', amp: 6, periodMs: 4100, phase: 0.55 } },
     { sprite: ifFirefly, x: 8, y: 54, motion: { kind: 'rise', amp: 5, periodMs: 3800, phase: 0.8 } },
   ],
 };
 
 /* ── the keepsake ──────────────────────────────────────────────────────────────────────────────── */
 
-const emblemShears: PixelSprite = {
-  id: 'if-emblem-shears',
-  name: 'if-emblem-shears',
+const emblemShearsToBonds: PixelSprite = {
+  id: 'if-emblem-shears-to-bonds',
+  name: 'if-emblem-shears-to-bonds',
   tags: ['scene', 'if'],
-  blurb: "Lesson 21: a pair of open shears. Cutting back what outgrew the plan.",
+  blurb: "Lesson 21: open shears, and the coin they cut going into the teal bush. Trim what outgrew the plan; plant it in what fell behind.",
   rows: [
-    'w........w',
-    'xw......wx',
-    '.xw....wx.',
-    '..xw..wx..',
-    '....KK....',
-    '..RR..RR..',
-    '.R..RR..R.',
-    '..RR..RR..',
+    'w...w.....',
+    'xw.wx..OO.',
+    '.xKx..OyGO',
+    'RR.RR.OGgO',
+    'R..R.R.OO.',
+    'RR.RRmTTt.',
+    '....mTTTTt',
+    '...TTTTTtt',
   ],
 };
 
 export const if21Finish: SceneArt = ifKeepsake(
   'if21-finish',
-  'A golden acorn hanging from an oak twig, with a pair of open shears in its purple window and small sparkles around it.',
-  emblemShears,
+  'A golden acorn hanging from an oak twig, with open garden shears beside a gold coin dropping into a small teal bush in its purple window and small sparkles around it.',
+  emblemShearsToBonds,
 );
 
 export const art: LessonArtSet = { opener: if21Opener, backdrop: ifBackdrop, finish: if21Finish };
