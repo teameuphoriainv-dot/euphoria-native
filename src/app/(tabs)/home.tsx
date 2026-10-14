@@ -972,7 +972,7 @@ export default function Home() {
           )}
 
           {BAND === 'today' && (
-            <Card depthColor={theme.primary + '8C'} style={[styles.todayCard, { borderColor: theme.primary + '40' }]}>
+            <Card style={styles.todayCard}>
               <View style={styles.todayBody}>
               <View style={styles.todayHead}>
                 {/* Never "streak lost": an open earn-back says how to win it back, and a past best
