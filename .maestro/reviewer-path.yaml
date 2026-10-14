@@ -35,9 +35,12 @@ appId: com.euphoriainv.euphoria
 # reads "Nothing to restore" -- which is itself the proof the control is wired to RevenueCat and
 # not a no-op. It MUST be dismissed: a live alert swallows every subsequent tap, and a following
 # assertion then fails against a perfectly healthy screen.
+# 90 s, not 20: on 2026-10-14 the simulator's StoreKit round trip sometimes ran past 20 s, so
+# the wait timed out against a healthy control and the late alert then blocked the Sign out
+# scroll below. A fast store costs nothing: Maestro stops waiting as soon as the alert shows.
 - extendedWaitUntil:
     visible: "Nothing to restore"
-    timeout: 20000
+    timeout: 90000
 - tapOn: "OK"
 - waitForAnimationToEnd:
     timeout: 10000
