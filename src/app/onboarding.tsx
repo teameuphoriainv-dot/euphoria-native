@@ -31,6 +31,7 @@ import {
   ATLAS_SIZE,
   AtlasStage,
   PAYWALL_MAX_FONT_SCALE,
+  PAYWALL_ROOMY_COST,
   type Choice,
   GrowthChart,
   MultiSelectStep,
@@ -1247,6 +1248,28 @@ export default function Onboarding() {
    * SE does, which is the case that was scrolling.
    */
   const paywallTight = windowH < 760 || fontScale > 1.05;
+  /*
+   * ...AND THE OTHER WAY (CONSTITUTION 5.2: grow the components rather than leave slack). A tall
+   * phone at the default size fits the regular screen with a band of empty space under the legal
+   * links, so once the MEASURED spare covers PAYWALL_ROOMY_COST the rows, cards and section margins
+   * each step one token up. Measured rather than keyed on the device, so it can never push the
+   * screen into a scroll (5.3): if roomy ever overflows it drops back, and stays back.
+   */
+  const [paywallRoomyOn, setPaywallRoomyOn] = useState(false);
+  const paywallRoomy = paywallRoomyOn && !paywallTight;
+  /* `content` is where the footer ENDS, not the scroll content's size: the content container is
+     flexGrow 1, so its reported height is never less than the viewport and would hide the slack. */
+  const paywallFit = useRef({ viewport: 0, content: 0, blocked: false });
+  const fitPaywall = () => {
+    const f = paywallFit.current;
+    if (renderStep !== PAYWALL_INDEX || paywallTight || f.blocked || !f.viewport || !f.content) return;
+    if (paywallRoomyOn) {
+      if (f.content > f.viewport + 0.5) {
+        f.blocked = true;
+        setPaywallRoomyOn(false);
+      }
+    } else if (f.viewport - f.content >= PAYWALL_ROOMY_COST) setPaywallRoomyOn(true);
+  };
 
   const body = () => {
     if (!def) return null;
@@ -1372,7 +1395,7 @@ export default function Onboarding() {
               type="display"
               maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE}
               numberOfLines={2}
-              style={[styles.paywallHeading, paywallTight && styles.paywallHeadingTight]}>
+              style={[styles.paywallHeading, paywallTight && styles.paywallHeadingTight, paywallRoomy && styles.paywallHeadingRoomy]}>
               {isProNow
                 ? "You're on Euphoria Pro"
                 : spent
@@ -1381,9 +1404,8 @@ export default function Onboarding() {
                     ? `Your first ${trialLen} days are free`
                     : `You're on day ${trialDay} of ${TRIAL_DAYS}`}
             </ThemedText>
-            {/* The body shares the spare height evenly between the heading, the benefits and the
-                plans (paywallBody, space-evenly), and the action follows it in the same scroll
-                stack, so no single gap opens above the CTA or under the legal links. */}
+            {/* The body stays top-packed, and the action follows it in the same scroll stack so no
+                flex spacer can separate Monthly from the purchase action. */}
             {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
                 three days are gone describes something that cannot happen to them, so a spent user
                 gets what Pro reopens instead — the gate sheet's one-line promise, expanded. */}
@@ -1415,10 +1437,10 @@ export default function Onboarding() {
               </View>
             ) : (
               <RiseIn delay={childDelay(0)} style={{ marginTop: Spacing.one }}>
-                <PremiumBenefits tight={paywallTight} />
+                <PremiumBenefits tight={paywallTight} roomy={paywallRoomy} />
               </RiseIn>
             )}
-            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: paywallTight ? 0 : Spacing.two }}>
+            <RiseIn delay={childDelay(TRIAL_STEPS.length)} style={{ marginTop: paywallTight ? 0 : paywallRoomy ? Spacing.three : Spacing.two }}>
               {/* The plan NAME carries the billing period and the price carries the amount you
                   are actually charged. Both cards used to headline a "/mo" figure, so the annual
                   plan read as a second, cheaper monthly plan rather than as a yearly one. */}
@@ -1431,6 +1453,7 @@ export default function Onboarding() {
                 price={annualPrice}
                 unit="per year"
                 tight={paywallTight}
+                roomy={paywallRoomy}
               />
               <View style={styles.monthlyPlan}>
                 {/*
@@ -1451,6 +1474,7 @@ export default function Onboarding() {
                   price={monthlyPrice}
                   unit="per month"
                   tight={paywallTight}
+                  roomy={paywallRoomy}
                 />
               </View>
             </RiseIn>
@@ -1488,7 +1512,9 @@ export default function Onboarding() {
   const fillsViewport = renderStep === REVEAL_INDEX || def?.kind === 'statement' || def?.kind === 'loader';
 
   const actionFooter = (
-    <View style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}>
+    <View
+      style={[styles.footer, step === PAYWALL_INDEX && styles.paywallFooter]}
+      onLayout={step === PAYWALL_INDEX ? (e) => { const l = e.nativeEvent.layout; paywallFit.current.content = l.y + l.height; fitPaywall(); } : undefined}>
       {step === PAYWALL_INDEX && offersTrial && (
         <View style={[styles.noPay, paywallTight && styles.noPayTight]}>
           <UIcon name="check" size={16} color={theme.primary} />
@@ -1676,10 +1702,11 @@ export default function Onboarding() {
       <ScrollView
         ref={scrollRef}
         contentContainerStyle={[styles.content, renderStep === PAYWALL_INDEX && styles.paywallContent]}
+        onLayout={(e) => { paywallFit.current.viewport = e.nativeEvent.layout.height; fitPaywall(); }}
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled">
-        <Animated.View style={[bodyStyle, (fillsViewport || renderStep === PAYWALL_INDEX) && styles.grow]}>
+        <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
           {/*
             * STALE CONTENT MUST NOT TAKE TAPS.
@@ -1698,7 +1725,7 @@ export default function Onboarding() {
           <View
             key={renderStep}
             pointerEvents={renderStep === step ? 'auto' : 'none'}
-            style={fillsViewport || renderStep === PAYWALL_INDEX ? styles.grow : undefined}>
+            style={fillsViewport ? styles.grow : undefined}>
             {/* NO GUIDE BUBBLE AT THE HEAD OF A STEP (owner, 2026-09-30: "the double text boxes
                 are annoying and Atlas's lines don't even matter"). A question step used to stack
                 Atlas's reaction bubble over the question bubble, two boxes with two tails, and the
@@ -1743,13 +1770,14 @@ const styles = StyleSheet.create({
   avatarHero: { alignItems: 'center', marginTop: Spacing.three },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  /** Grows into the spare height and shares it evenly between its sections (owner, 2026-10-14), so
-      the screen is laid out top to bottom with no single band: not above the CTA, not under it. */
-  paywallBody: { flexGrow: 1, justifyContent: 'space-evenly', gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
+  /** Content-sized so no flexible spacer can separate Monthly from the purchase action. Spare height
+      is spent by growing the components (paywallRoomy), never by spreading gaps (CONSTITUTION 5.2). */
+  paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
   /* One step under `display` (32pt) and left-aligned like every other heading in the flow. 26pt
      bold still outweighs everything else on the screen, which is what rule 5.4 asks of it. */
   paywallHeading: { fontSize: FontSize.titleLg, lineHeight: 32, marginTop: Spacing.two },
   paywallHeadingTight: { fontSize: FontSize.titleSm, lineHeight: 27, marginTop: 0 },
+  paywallHeadingRoomy: { marginTop: Spacing.three },
   monthlyPlan: { marginTop: Spacing.one },
   noPay: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: Spacing.one, paddingBottom: Spacing.two },
   fine: { textAlign: "center", fontSize: FontSize.label, lineHeight: 15, paddingTop: Spacing.one, paddingHorizontal: Spacing.two },

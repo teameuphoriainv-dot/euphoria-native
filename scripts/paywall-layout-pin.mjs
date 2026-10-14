@@ -1,12 +1,14 @@
 /**
  * THE PURCHASE SCREEN'S LAYOUT RULES, both of them.
  *
- * 1. NO DEAD BAND, ABOVE THE CTA OR UNDER IT. A flex-growing paywall body packed at the top left
- *    one large gap between Monthly and the CTA, so this rule first banned flex outright. That left
- *    the opposite band on a tall phone, empty screen under the legal links, and the owner asked for
- *    the components to be laid out through the screen (2026-10-14). So the body grows and shares
- *    the spare height EVENLY between its sections ('space-evenly'): no single gap anywhere. Any
- *    other distribution, or a flex spacer, parks the spare height in one band again.
+ * 1. SPARE HEIGHT GROWS THE COMPONENTS, NEVER THE GAPS. A flex-growing body packed at the top left
+ *    one large gap between Monthly and the CTA; spreading the spare height evenly between the
+ *    sections (2026-10-14) left large gaps everywhere instead, and the owner rejected it as not
+ *    following the design system. CONSTITUTION 5.2 is that rule: "if a screen already fits, grow
+ *    the components rather than leave slack". So the body stays content-sized with the footer right
+ *    after it, and a screen with PAYWALL_ROOMY_COST to spare goes `paywallRoomy`: the benefit rows,
+ *    the plan cards and the section margins each step one token up. The switch is MEASURED (it
+ *    reads the scroll view's real content and viewport), so it cannot push the screen into a scroll.
  *
  * 2. DYNAMIC TYPE CANNOT PUSH IT INTO A SCROLL (CONSTITUTION 5.3: "Screens that ask for money do
  *    not scroll... Verify at the largest Dynamic Type size the screen supports"). Measured on the
@@ -35,13 +37,18 @@ assert.ok(styles, 'onboarding StyleSheet not found');
 
 const paywallBody = styles[1].match(/paywallBody:\s*\{([^}]*)\}/);
 assert.ok(paywallBody, 'paywallBody style not found');
-assert.match(paywallBody[1], /\bflexGrow:\s*1\b/, 'paywallBody must grow into the spare height, or the screen leaves an empty band under the legal links');
-assert.match(
+assert.doesNotMatch(
   paywallBody[1],
-  /\bjustifyContent:\s*'space-evenly'/,
-  "paywallBody must share its spare height evenly ('space-evenly'); any other distribution parks it in one band, like the gap above the CTA this rule was written for",
+  /\b(?:flex|flexGrow|flexBasis|justifyContent)\b/,
+  'paywallBody must stay content-sized; flexible layout turns spare height into gaps (5.2 says grow the components)',
 );
-assert.doesNotMatch(paywallBody[1], /\bflex:\s*\d/, 'paywallBody must grow with flexGrow, not flex (flex also shrinks it, which is how the screen scrolls)');
+assert.match(parts, /export const PAYWALL_ROOMY_COST =/, 'the roomy step has no stated cost, so nothing says when a screen has room for it');
+assert.match(onboarding, /const \[paywallRoomyOn, setPaywallRoomyOn\] = useState\(false\);/, 'the paywall no longer grows its components on a screen with room to spare');
+assert.match(onboarding, /f\.viewport - f\.content >= PAYWALL_ROOMY_COST/, 'roomy is not gated on the MEASURED spare height, so it could push the screen into a scroll');
+assert.match(onboarding, /paywallFit\.current\.content = l\.y \+ l\.height; fitPaywall\(\);/, 'the paywall stopped measuring where its footer ends, so roomy is a guess (the flexGrow content container always reports at least the viewport)');
+for (const piece of ['roomy && pb.rowRoomy', 'roomy && pb.wrapRoomy', 'roomy && styles.planRoomy']) {
+  assert.ok(parts.includes(piece), `a roomy component does not grow: ${piece}`);
+}
 
 assert.match(
   onboarding,
@@ -111,7 +118,7 @@ assert.doesNotMatch(body, /<StepHeading/, 'the paywall headline is back on the u
 
 // The compaction that buys the fit on a short screen or at large type.
 assert.match(onboarding, /const paywallTight = windowH < \d+ \|\| fontScale > [\d.]+;/, 'paywallTight is gone, so nothing compacts the screen when the room is not there');
-for (const consumer of ['<PremiumBenefits tight={paywallTight} />', 'tight={paywallTight}']) {
+for (const consumer of ['<PremiumBenefits tight={paywallTight}', 'tight={paywallTight}', 'roomy={paywallRoomy}']) {
   assert.ok(onboarding.includes(consumer), `paywallTight is computed but not passed: ${consumer}`);
 }
 
@@ -158,4 +165,4 @@ for (const l of linkSlops) {
   assert.ok(!top || Number(top[1]) <= 4, `a legal link's hitSlop top is ${top?.[1] ?? '?'}pt; over 4 it reaches into "Maybe later" and a dismiss tap opens a legal page`);
 }
 
-console.log(`PASS - paywall body shares its spare height evenly, the CTA follows it, every text is capped at ${String(cap)}x, and the dismiss is a 44pt target.`);
+console.log(`PASS - paywall body is content-sized and grows its components when there is room, the CTA follows it, every text is capped at ${String(cap)}x, and the dismiss is a 44pt target.`);

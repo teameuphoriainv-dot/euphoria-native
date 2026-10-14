@@ -215,6 +215,24 @@ const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
   { label: 'Unlimited paper trading', free: false },
   { label: 'Games, streaks & leaderboards', free: true },
 ];
+const PREMIUM_BENEFITS_COUNT = PREMIUM_BENEFITS.length;
+
+/*
+ * ROOMY: CONSTITUTION 5.2's other half, "if a screen already fits, grow the components rather than
+ * leave slack". On a tall phone at the default type size the regular paywall fits with a band of
+ * empty screen under the legal links (96pt on an iPhone 17 Pro Max, measured 2026-10-14). Spreading
+ * that height into even gaps was tried the same day and rejected by the owner as not following the
+ * design system, which is this rule: the components grow. Every step is one token up, and their
+ * total is what a screen must have spare before onboarding.tsx turns roomy on:
+ *   benefit rows 7 -> 10pt a side (header + every row), the table's top margin Spacing.three ->
+ *   four, both plan cards' padding 20 -> 24, and the heading and plans margins Spacing.two -> three.
+ */
+export const PAYWALL_ROOMY_ROW_PAD = Spacing.two + Spacing.half;
+export const PAYWALL_ROOMY_COST =
+  2 * (PAYWALL_ROOMY_ROW_PAD - 7) * (PREMIUM_BENEFITS_COUNT + 1) +
+  (Spacing.four - Spacing.three) +
+  2 * 2 * (Spacing.four - (Spacing.three + 4)) +
+  2 * (Spacing.three - Spacing.two);
 
 /**
  * <PremiumBenefits> — "Subscription screen needs a features list — right now it's just an image;
@@ -231,11 +249,11 @@ const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
  * five captured competitor paywalls (C29/C31) — deleting measured work to satisfy a styling note
  * would be trading evidence for a preference.
  */
-export function PremiumBenefits({ tight = false }: { tight?: boolean }) {
+export function PremiumBenefits({ tight = false, roomy = false }: { tight?: boolean; roomy?: boolean }) {
   const theme = useTheme();
   return (
-    <View style={[pb.wrap, tight && pb.wrapTight]}>
-      <View style={[pb.row, tight && pb.rowTight]}>
+    <View style={[pb.wrap, tight && pb.wrapTight, roomy && pb.wrapRoomy]}>
+      <View style={[pb.row, tight && pb.rowTight, roomy && pb.rowRoomy]}>
         <ThemedText type="label" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={pb.label}>BENEFITS</ThemedText>
         <ThemedText type="label" themeColor="mutedForeground" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} style={pb.col}>FREE</ThemedText>
         {/* The one place the premium ramp is allowed to speak as a word rather than a mark, and
@@ -245,7 +263,7 @@ export function PremiumBenefits({ tight = false }: { tight?: boolean }) {
       {PREMIUM_BENEFITS.map((b, i) => (
         <View
           key={b.label}
-          style={[pb.row, tight && pb.rowTight, i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border } : null]}>
+          style={[pb.row, tight && pb.rowTight, roomy && pb.rowRoomy, i > 0 ? { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: theme.border } : null]}>
           <ThemedText type="small" maxFontSizeMultiplier={PAYWALL_MAX_FONT_SCALE} numberOfLines={2} style={pb.label}>{b.label}</ThemedText>
           <View style={pb.col}>
             {b.free
@@ -277,6 +295,9 @@ const pb = StyleSheet.create({
   wrapTight: { marginTop: Spacing.two },
   row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: Spacing.two },
   rowTight: { paddingVertical: 3 },
+  /** One token up on a tall screen with room to spare (PAYWALL_ROOMY_COST). */
+  rowRoomy: { paddingVertical: PAYWALL_ROOMY_ROW_PAD },
+  wrapRoomy: { marginTop: Spacing.four },
   label: { flex: 1 },
   col: { width: 48, alignItems: 'center' },
   // a dash, not a cross: the free tier is missing this, it has not failed at it
@@ -335,6 +356,7 @@ export function PlanCard({
   price,
   unit,
   tight = false,
+  roomy = false,
 }: {
   selected: boolean;
   onPress: () => void;
@@ -346,6 +368,8 @@ export function PlanCard({
   unit?: string;
   /** Short screen or large type: the card gives up padding so the screen still fits (5.3). */
   tight?: boolean;
+  /** Tall screen with room to spare: the card takes one token more padding (5.2, PAYWALL_ROOMY_COST). */
+  roomy?: boolean;
 }) {
   const theme = useTheme();
   return (
@@ -380,6 +404,7 @@ export function PlanCard({
         style={[
           styles.plan,
           tight && styles.planTight,
+          roomy && styles.planRoomy,
           {
             /*
              * OPAQUE WHEN SELECTED. This was `theme.primary + '14'`, an 8%-alpha violet, which was
@@ -1285,6 +1310,7 @@ const styles = StyleSheet.create({
   plan: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two + 4, padding: Spacing.three + 4, borderRadius: Radius.lg },
   /** 20pt of padding twice over is 32pt of the no-scroll budget on a 667pt SE (PAYWALL_MAX_FONT_SCALE). */
   planTight: { padding: Spacing.two + 4 },
+  planRoomy: { padding: Spacing.four },
   // sits flush on the card's top edge, which squares off its top corners
   planBadge: { alignSelf: 'stretch', alignItems: 'center', paddingVertical: 5, borderTopLeftRadius: Radius.lg, borderTopRightRadius: Radius.lg },
   planRadio: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
