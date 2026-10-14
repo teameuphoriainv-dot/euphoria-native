@@ -233,7 +233,9 @@ const INVARIANTS = [
         'atlas-mark.tsx': 'AtlasMarkBody',
         'celebration-burst.tsx': 'CelebrationRays',
       };
-      const name = Object.entries(MEASURED).find(([f]) => file.endsWith(f))?.[1];
+      // Exact basename, not endsWith: endsWith held src/app/dev-lesson-art.tsx (a dev gallery, a different component) to LessonArt's rule (2026-10-13).
+      const base = file.split('/').pop();
+      const name = Object.entries(MEASURED).find(([f]) => base === f)?.[1];
       if (!name) return [];
       return new RegExp(`export const ${name} = memo\\(`).test(src)
         ? []
@@ -368,6 +370,10 @@ if (process.argv.includes('--selftest')) {
     'a correctly memoised UIcon was wrongly flagged');
   ok(!memoInv.test('src/components/themed-text.tsx', 'export function ThemedText() {}').length,
     'an UNLISTED component was wrongly required to be memoised');
+  ok(memoInv.test('src/components/lesson-art.tsx', 'export function LessonArt() {}').length,
+    'a LessonArt that lost its memo was NOT caught');
+  ok(!memoInv.test('src/app/dev-lesson-art.tsx', 'export default function DevLessonArt() {}').length,
+    'a file that only ENDS in lesson-art.tsx was held to LessonArt\'s memo rule');
   const nrInv = INVARIANTS.find((x) => x.name === 'NumberRollup does not set state every frame');
   ok(nrInv.test('src/shared/motion/number-rollup.tsx', 'setN(value * p);').length,
     'an unthrottled NumberRollup was NOT caught');
@@ -382,7 +388,7 @@ if (process.argv.includes('--selftest')) {
   ok(!simInv.test('src/components/ambient-background.tsx',
       'const isDevice = true;\n    if (!isDevice) {\n      glowPulse.set(1);\n      return;\n    }\n    twinkle(t0);').length,
     'a gated simulator starfield was wrongly flagged');
-  console.log('motion-invariants selftest ok — 14 regressions caught, 16 harmless edits ignored');
+  console.log('motion-invariants selftest ok — 15 regressions caught, 17 harmless edits ignored');
   process.exit(0);
 }
 

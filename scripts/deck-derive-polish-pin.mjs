@@ -43,6 +43,15 @@ const { stepIdPosition } = await imported('src/lib/mobile-lesson/stepId.ts');
 const { DECK_MAX_CARDS } = await imported('src/lib/mobile-lesson/types.ts');
 const { MOBILE_KIT_ACCENTS } = await imported('src/lib/pixel/sprites-mobile-kit.ts');
 const { sentences } = await imported('src/lib/mobile-lesson/compress.ts');
+/*
+ * NATIVE LESSONS (src/lib/native-lessons, owner 2026-10-12) are hand-written, never derived or
+ * placed, so their decks (sourceType 'native') are skipped here and pinned by native-lesson-pin.mjs.
+ * The synced decks they replace are subtracted from the 721 census below, computed, not typed.
+ */
+const { nativeLessonKeys } = await imported('src/lib/native-lessons/index.ts');
+const NATIVE_KEYS = new Set(nativeLessonKeys());
+let replacedByNative = 0;
+let nativeDecks = 0;
 
 /** Same verbs derive.ts drops; kept separate so a regression in derive.ts cannot also blind this. */
 const CONTROL_VERB = /^(adjust|drag|move|slide|toggle|use the slider|watch how|try changing|click)\b/i;
@@ -111,8 +120,12 @@ for (const course of wrapped.COURSES) {
 
   shown.forEach((lesson, li) => {
     const lessonSteps = authored[li]?.steps ?? [];
+    if (NATIVE_KEYS.has(`${course.id}:${String(lesson.num)}`)) {
+      replacedByNative += lessonSteps.filter((s) => s?.type === 'teachingSlide' || s?.type === 'interactiveGraph').length;
+    }
     lesson.steps.forEach((deck) => {
       if (deck?.type !== 'mobileDeck') return;
+      if (deck.sourceType === 'native') { nativeDecks += 1; return; }
       decks += 1;
       const id = deck.sourceId;
 
@@ -188,11 +201,12 @@ for (const [key, p] of Object.entries(PLACEMENTS)) {
   if (!['dial', 'lever', 'scene', 'stage', 'predict', 'build', 'place'].includes(p.kind)) fail(`placement ${key} has unsupported kind ${p.kind}`);
   if (!/^[a-z-]+:\d+:\d+$/.test(key)) fail(`placement key ${key} is not course:lesson:stepIndex`);
 }
-if (decks !== 721) fail(`expected 721 decks through the wrapped loader, saw ${decks}`);
+if (decks !== 721 - replacedByNative) fail(`expected ${721 - replacedByNative} derived decks through the wrapped loader (721 less ${replacedByNative} replaced by native lessons), saw ${decks}`);
+if (NATIVE_KEYS.size > 0 && nativeDecks === 0) fail('native lessons are registered but none reached the wrapped loader; see native-lesson-pin.mjs');
 if (scenes === 0) fail('saw no scenes at all; the pin is not reading decks');
 if (bare401Decks === 0) fail('saw no deck sourced from a 401(k) passage; check 5 is not reading anything');
 
-const summary = `${decks} decks; control-verb graph ideas ${graphIdeas ? 'checked on ' + graphIdeas : 'NONE SEEN'}; `
+const summary = `${decks} decks (${nativeDecks} native skipped); control-verb graph ideas ${graphIdeas ? 'checked on ' + graphIdeas : 'NONE SEEN'}; `
   + `scenes accented ${accented}/${scenes} (${rampsUsed.size} ramps in use, ${distinctRamps} in the table); `
   + `empty-table identity ${identity}/${decks}; null-builder kept ${nullKept}/${decks}; `
   + `probe placed ${placedReplaced} replaced, ${placedInserted} inserted, ${placedSkipped} skipped (full); `

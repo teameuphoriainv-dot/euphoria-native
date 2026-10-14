@@ -19,8 +19,16 @@
 import assert from 'node:assert/strict';
 
 import { COURSES, loadCourseLessons } from '../src/lib/curriculum/courseIndex.ts';
-import { loadCourseLessons as loadNative } from '../src/lib/curriculum/index.ts';
+import { loadCourseLessons as loadNative, withMobileDecks } from '../src/lib/curriculum/index.ts';
 import { DECK_MAX_CARDS } from '../src/lib/mobile-lesson/types.ts';
+/*
+ * NATIVE LESSONS (src/lib/native-lessons, owner 2026-10-12) replace a whole synced lesson in the app
+ * and do not carry its stakes visual. For those keys part 3 is checked on the derived fallback (the
+ * deck the app shows if the rewrite goes stale), so the census still covers every synced lesson.
+ */
+import { nativeLessonKeys } from '../src/lib/native-lessons/index.ts';
+
+const NATIVE_KEYS = new Set(nativeLessonKeys());
 
 const MODULES = {
   'investing-fundamentals': 'investingFundamentals',
@@ -71,7 +79,9 @@ for (const course of COURSES) {
     folded += 1;
   }
 
-  for (const lesson of await loadNative(course.id)) {
+  const derivedOnly = withMobileDecks(await loadCourseLessons(course.id), course.id);
+  for (const shown of await loadNative(course.id)) {
+    const lesson = NATIVE_KEYS.has(`${course.id}:${String(shown.num)}`) ? derivedOnly.find((l) => l.num === shown.num) : shown;
     const visual = rawVisuals.get(lesson.num);
     if (!visual) continue;
     const deck = lesson.steps.find((s) => s.type === 'mobileDeck' && s.sourceType === 'teachingSlide' && s.cards.some((c) => c.kind === 'chart' && c.visual === visual));

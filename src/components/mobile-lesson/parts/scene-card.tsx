@@ -130,7 +130,7 @@ const FLOOR_ALPHA = '1F';
 const RIM_ALPHA = '59';
 
 /** What the stage is doing on this render: which beat, which change of it, and whether to animate. */
-type Change = { beat: number; seq: number; animate: boolean };
+export type Change = { beat: number; seq: number; animate: boolean };
 
 function Actor({
   actorKey,
@@ -372,7 +372,7 @@ function AtlasOnFloor({
  * Reduce Motion) swaps in place. `shown` only changes inside timers, so the text on screen during
  * the fade-out is still the old sentence and the new one never flashes in before its fade.
  */
-function SceneCaption({ text, change, reduced }: { text: string; change: Change; reduced: boolean }) {
+export function SceneCaption({ text, change, reduced }: { text: string; change: Change; reduced: boolean }) {
   const [shown, setShown] = useState(text);
   const animated = change.animate && !reduced;
   // The clip clock mounts on beat 0 with animate true, so the first run is an arrival, not a swap.
@@ -419,7 +419,7 @@ function SceneCaption({ text, change, reduced }: { text: string; change: Change;
  * uses (beatHoldMs), linearly, because it is a timer and not data. Paused, it freezes where it is;
  * a beat reached by hand shows full; under Reduce Motion it is always full and never moves.
  */
-function ProgressLine({
+export function ProgressLine({
   change,
   playing,
   holdMs,

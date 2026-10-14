@@ -34,6 +34,8 @@
 // the scrollToEnd, each passed with --onboarding -> exits 1 on check 8, naming the missing piece.
 // Break test, 2026-09-22 (review): dropping the `reduced` guard from the stepper border, the coin
 // FadeIn or the bar slide -> exits 1 on check 5, naming the unguarded line.
+// Break test, 2026-10-13 (check 6 retarget): reading lesson 2 instead of 3, and asking for a phrase IF3
+// lacks, each exit 1 on check 6, naming it.
 // ============================================================================
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -178,12 +180,15 @@ if (existsSync(join(ROOT, COMPONENT))) {
 }
 
 // ─── 6. The course teaches the same rule, through the wrapped loader ──────────────────────────
+// Retargeted 2026-10-13 to IF3, the lesson that teaches the rule (double-it.ts cites its line): IF1's native rewrite dropped the untaught rule-of-72 question that held "at 6% a year".
 try {
   const curriculum = await imported('src/lib/curriculum/index.ts');
   const lessons = await curriculum.loadCourseLessons('investing-fundamentals');
-  const text = JSON.stringify(lessons);
-  check(/divide 72 by/i.test(text), 'investing-fundamentals no longer says "divide 72 by" in the wrapped loader');
-  check(/at 6% a year/i.test(text), 'investing-fundamentals no longer asks the 6% doubling question');
+  const if3 = lessons.find((l) => l.num === 3);
+  check(!!if3, 'investing-fundamentals has no lesson 3 in the wrapped loader');
+  const text = JSON.stringify(if3 ?? null);
+  check(/divide 72 by/i.test(text), 'IF3 no longer says "divide 72 by" in the wrapped loader');
+  check(/doubles every \d/i.test(text), 'IF3 no longer says money "doubles every" so many years in the wrapped loader');
 } catch (e) {
   failures.push(`wrapped loader src/lib/curriculum/index.ts failed to load: ${e?.message ?? e}`);
 }

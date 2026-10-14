@@ -47,10 +47,33 @@
 import { useMemo, useState } from 'react';
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 
+import { useStoryArt } from '@/components/mobile-lesson/parts/story-stage';
+import { PixelSceneView } from '@/components/pixel-scene-view';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
 import { PixelSpriteView } from '@/lib/pixel/PixelSprite';
 import { composeScene } from '@/lib/pixel/sprites-mobile-kit';
 import type { SceneSpec } from '@/lib/mobile-lesson/types';
+
+/*
+ * STORY STILLS (native lessons only, spec section 6.3). A card whose scene names `story` draws a
+ * finished picture from that lesson's story art (src/lib/pixel/stories) instead of the archetype,
+ * so the Term, Idea and Takeaway cards show the learner's own story world rather than a keyword
+ * icon. The art is 80 x 60 scene pixels; 3pt per pixel is 240 x 180, inside the 329pt content column.
+ * 2pt (160 x 120) left about 250pt of empty card above and below on the iPhone 17 and made the detail
+ * a definition leans on (the up sticker, the grey ticket, the coin stacks) too small to read
+ * (simulator review, 2026-10-13). A narrower column steps down a whole point at a time.
+ *   loading  an empty box the still's size, so the archetype never flashes in and out.
+ *   missing  (no art, a failed load, or an unknown still id) the archetype path below, unchanged,
+ *            which is why `archetype` stays required on every scene.
+ * Ambient layers move through PixelSceneView, which pauses off-focus and rests under Reduce
+ * Motion (its own useReducedMotion), so a still needs no motion handling here.
+ * Not pressable unless the caller passes onPress: nothing replays on a still, and a tap target
+ * that does nothing visible is a dead control. The `explain` line stays reachable for VoiceOver
+ * by joining the image's label.
+ */
+const STILL_W = 80;
+const STILL_H = 60;
+const STILL_SCALE = 3;
 
 /**
  * 160pt: ten points per art pixel. Measured against the target layout rather than picked, because
@@ -101,6 +124,37 @@ export function PixelScene({
 
   const [avail, setAvail] = useState<number | null>(null);
   const [runs, setRuns] = useState(0);
+
+  const story = useStoryArt(scene.story?.artKey ?? null);
+  const still = scene.story && story.art ? (story.art.stills[scene.story.still] ?? null) : null;
+  if (scene.story && (still || story.status === 'loading')) {
+    // Whole points per scene pixel only: the largest that fits, never past STILL_SCALE, never under 1.
+    const scale = avail != null ? Math.max(1, Math.min(STILL_SCALE, Math.floor(avail / STILL_W))) : STILL_SCALE;
+    const box = { width: STILL_W * scale, height: STILL_H * scale };
+    const label = still ? [still.label, scene.explain].filter(Boolean).join('. ') : undefined;
+    const picture = still ? (
+      <PixelSceneView art={still} scale={scale} decorative={!!onPress} />
+    ) : null;
+    return (
+      <View
+        style={[{ width: '100%', alignItems: 'center', overflow: 'hidden' }, style]}
+        onLayout={(e) => { setAvail(e.nativeEvent.layout.width); }}>
+        {still && onPress ? (
+          <SpringPressable onPress={onPress} accessibilityLabel={label} style={box}>
+            {picture}
+          </SpringPressable>
+        ) : (
+          <View
+            accessible={!!still}
+            accessibilityRole={still ? 'image' : undefined}
+            accessibilityLabel={label}
+            style={box}>
+            {picture}
+          </View>
+        )}
+      </View>
+    );
+  }
 
   /*
    * RENDER NOTHING FOR AN ARCHETYPE THE KIT DOES NOT HAVE. This is how the rest of the pixel system

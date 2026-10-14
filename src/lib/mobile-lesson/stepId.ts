@@ -27,8 +27,12 @@ const GROUP = '';
  * paragraph, not to resist an attacker. Written out rather than imported so this module stays pure
  * and `node --import ./scripts/ts-resolve-hooks.mjs` can load it with no dependencies, which is how
  * every audit script in this repo runs.
+ *
+ * Exported for src/lib/native-lessons/fingerprint.ts, which fingerprints a whole source lesson the
+ * same way. One hash implementation, so the two kinds of staleness key can never disagree on what a
+ * hash of the same text is.
  */
-function fnv1a(input: string): string {
+export function fnv1a(input: string): string {
   let h = 0x811c9dc5;
   for (let i = 0; i < input.length; i += 1) {
     h ^= input.charCodeAt(i);

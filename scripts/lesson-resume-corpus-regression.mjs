@@ -42,7 +42,8 @@ import assert from 'node:assert/strict';
 // The phone caps practice at five screens (curriculum/index.ts, withCappedPractice, 2026-10-01),
 // so the web shape is compared WITH the same cap; everything else here is unchanged.
 import { COURSES, loadCourseLessons as loadWebShape } from '../src/lib/curriculum/courseIndex.ts';
-import { loadCourseLessons, withCappedPractice } from '../src/lib/curriculum/index.ts';
+import { loadCourseLessons, withCappedPractice, withMobileDecks } from '../src/lib/curriculum/index.ts';
+import { nativeLessonKeys } from '../src/lib/native-lessons/index.ts';
 import { expandSteps, expandedStepIdentities } from '../src/lib/lesson-steps.ts';
 import { hasMasteryChallenge } from '../src/lib/mastery-challenge-model.ts';
 import {
@@ -143,10 +144,21 @@ let shortest = Infinity;
 let decks = 0;
 let heavyOnWeb = 0;
 const lengthDrift = [];
+/*
+ * NATIVE LESSONS (src/lib/native-lessons, owner 2026-10-12) are whole lessons rewritten for the
+ * phone, so they are a different length and shape from web BY DESIGN and sit outside the 1:1 deck
+ * census below. Every screen still has to round-trip (findingsFor), and the one promise that matters
+ * for a rewrite is asserted instead: a position saved on the lesson as it was before the rewrite
+ * (the derived phone lesson) is refused once, never clamped onto different content.
+ */
+const NATIVE_KEYS = new Set(nativeLessonKeys());
+let rewrites = 0;
 
 for (const course of COURSES) {
   const native = await loadCourseLessons(course.id);
-  const web = (await loadWebShape(course.id)).map((l) => ({ ...l, steps: withCappedPractice(l.steps) }));
+  const rawWeb = await loadWebShape(course.id);
+  const web = rawWeb.map((l) => ({ ...l, steps: withCappedPractice(l.steps) }));
+  const derivedOnly = NATIVE_KEYS.size ? withMobileDecks(rawWeb, course.id) : [];
   for (const lesson of native) {
     lessons += 1;
     const key = `${course.id}:${String(lesson.num)}`;
@@ -154,8 +166,25 @@ for (const course of COURSES) {
     if (expandSteps(authored).length !== authored.length) expanded += 1;
     if (hasMasteryChallenge(lesson.challenge)) withChallenge += 1;
     shortest = Math.min(shortest, expandSteps(authored).length);
-    decks += authored.filter((step) => step?.type === 'mobileDeck').length;
     findings.push(...findingsFor(key, lesson));
+
+    if (NATIVE_KEYS.has(key)) {
+      rewrites += 1;
+      const before = derivedOnly.find((l) => l.num === lesson.num)?.steps ?? [];
+      const oldShape = lessonShapeSignature(expandSteps(before).map((s) => s?.type ?? ''));
+      const newShape = lessonShapeSignature(expandSteps(authored).map((s) => s?.type ?? ''));
+      if (oldShape === newShape) findings.push(`${key}: the shape hash did not notice the native rewrite`);
+      let restored;
+      try {
+        restored = resumeScreenFor({ key, screen: 1, shape: oldShape, savedAt: 0 }, { key, screens: authored.length, shape: newShape });
+      } catch (err) {
+        findings.push(`${key}: a pointer from before the native rewrite THREW instead of degrading: ${String(err)}`);
+        restored = 0;
+      }
+      if (restored !== 0) findings.push(`${key}: a pointer from before the native rewrite was trusted`);
+      continue;
+    }
+    decks += authored.filter((step) => step?.type === 'mobileDeck').length;
 
     /*
      * THE MOBILE DECK LAYER MUST NOT MOVE ANYONE'S POSITION.
@@ -198,6 +227,7 @@ for (const course of COURSES) {
   }
 }
 findings.push(...lengthDrift);
+if (rewrites !== NATIVE_KEYS.size) findings.push(`${String(NATIVE_KEYS.size)} native lesson key(s) but ${String(rewrites)} matched a lesson`);
 
 if (findings.length) {
   for (const f of findings.slice(0, 20)) console.error(`[lesson-resume-corpus-regression] ${f}`);

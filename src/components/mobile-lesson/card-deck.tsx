@@ -28,6 +28,9 @@ import { DeckInteractive } from '@/components/mobile-lesson/deck-interactives';
 import { LessonColors, LessonTypography } from '@/constants/lesson-design';
 import { CLIP_DRAWS_ATLAS } from '@/components/mobile-lesson/clickthrough/pixel-stage';
 import { SCENE_DRAWS_ATLAS } from '@/lib/mobile-lesson/parts/scene';
+import { STORY_HIDES_FLOAT } from '@/lib/mobile-lesson/parts/story';
+import { TOGGLE_HIDES_FLOAT } from '@/lib/mobile-lesson/parts/toggle';
+import { LEDGER_HIDES_FLOAT } from '@/lib/mobile-lesson/parts/ledger';
 import type { MobileCard, MobileDeck } from '@/lib/mobile-lesson/types';
 
 /**
@@ -37,12 +40,21 @@ import type { MobileCard, MobileDeck } from '@/lib/mobile-lesson/types';
  * every Atlas clip mount an <Atlas> inside the card, and lesson.tsx floats its Ask-Atlas button over
  * every step, so without this the 14 scene decks and 11 clip decks each showed two (S2 and K0
  * reviews, 2026-09-22). lesson.tsx hides its button while this is true for the active card.
+ *
+ * The native-lesson cards (story, toggle, ledger; src/lib/native-lessons) draw no Atlas, but their
+ * stage and 48pt chips fill the card, so the floating Ask-Atlas button would sit on top of them.
+ * Hiding it is the same switch; their *_HIDES_FLOAT constants name why it is on.
  */
 export function cardDrawsAtlas(card: MobileCard | undefined): boolean {
   if (card?.kind !== 'interactive') return false;
   const k = card.spec.kind;
   if (k === 'scene') return SCENE_DRAWS_ATLAS;
-  return (k === 'stage' || k === 'predict' || k === 'build' || k === 'place') && CLIP_DRAWS_ATLAS;
+  if (k === 'stage' || k === 'predict' || k === 'build' || k === 'place') return CLIP_DRAWS_ATLAS;
+  // Native-lesson cards: see the note above. Kept after the clips (new-parts-placement-pin reads 600 chars).
+  if (k === 'story') return STORY_HIDES_FLOAT;
+  if (k === 'toggle') return TOGGLE_HIDES_FLOAT;
+  if (k === 'ledger') return LEDGER_HIDES_FLOAT;
+  return false;
 }
 
 /*

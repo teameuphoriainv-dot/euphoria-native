@@ -28,8 +28,19 @@ import { COURSES, loadCourseLessons as loadWeb } from '../src/lib/curriculum/cou
 /** What the iOS app receives, decks and all. */
 // The phone caps practice at five screens (curriculum/index.ts, withCappedPractice, 2026-10-01),
 // so the web shape is compared WITH the same cap; everything else here is unchanged.
-import { loadCourseLessons as loadNative, withCappedPractice } from '../src/lib/curriculum/index.ts';
+import { loadCourseLessons as loadNative, withCappedPractice, withMobileDecks } from '../src/lib/curriculum/index.ts';
 import { expandSteps } from '../src/lib/lesson-steps.ts';
+/*
+ * NATIVE LESSONS (src/lib/native-lessons, owner 2026-10-12) replace a whole synced lesson in the app
+ * with a hand-written one, so for those keys native deliberately does NOT follow web's structure.
+ * They are compared here through the same derivation with no rewrite applied (withMobileDecks with an
+ * empty native map), which keeps every census below meaning "all 300 synced lessons" and still checks
+ * the derived fallback the app shows if a rewrite ever goes stale. The rewrite itself is pinned by
+ * scripts/native-lesson-pin.mjs; this script only asserts it is active.
+ */
+import { nativeLessonKeys, nativeLessonStatus } from '../src/lib/native-lessons/index.ts';
+
+const NATIVE_KEYS = new Set(nativeLessonKeys());
 
 const EXPECTED_LESSONS = 300;
 /** 4050 authored, less the 300 `stakesCard` steps retired at the loader on 2026-09-30 (one per lesson),
@@ -52,17 +63,26 @@ if (process.argv.includes('--selftest')) {
 }
 
 let lessons = 0, screens = 0, substitutions = 0, identical = 0;
-const countDiffs = [], wrongSubstitution = [], unexpectedChange = [];
+const countDiffs = [], wrongSubstitution = [], unexpectedChange = [], inactiveNative = [];
+let nativeRewrites = 0;
 
 for (const course of COURSES) {
   const webLessons = await loadWeb(course.id);
   const nativeLessons = await loadNative(course.id);
   assert.equal(webLessons.length, nativeLessons.length, `${course.id} lesson count drifted`);
+  const derivedOnly = withMobileDecks(webLessons, course.id);
 
   for (let li = 0; li < webLessons.length; li += 1) {
     lessons += 1;
+    const key = `${course.id}:${String(webLessons[li].num)}`;
+    const rewritten = NATIVE_KEYS.has(key);
+    if (rewritten) {
+      nativeRewrites += 1;
+      const status = await nativeLessonStatus(key, webLessons);
+      if (status.state !== 'active') inactiveNative.push(`${key} is ${status.state} (${status.reason})`);
+    }
     const web = expandSteps(withCappedPractice(webLessons[li].steps ?? []));
-    const native = expandSteps(nativeLessons[li].steps ?? []);
+    const native = expandSteps((rewritten ? derivedOnly[li] : nativeLessons[li]).steps ?? []);
     const title = webLessons[li].title;
 
     if (web.length !== native.length) {
@@ -91,6 +111,7 @@ console.log(`  lessons compared      ${lessons}`);
 console.log(`  screens compared      ${screens}`);
 console.log(`  substituted to deck   ${substitutions}`);
 console.log(`  identical to web      ${identical}`);
+console.log(`  native rewrites       ${nativeRewrites} (compared as their derived fallback)`);
 
 const problems = [];
 if (lessons !== EXPECTED_LESSONS) problems.push(`expected ${EXPECTED_LESSONS} lessons, walked ${lessons}`);
@@ -102,6 +123,8 @@ if (substitutions !== EXPECTED_SUBSTITUTIONS) {
 if (wrongSubstitution.length) problems.push(`${wrongSubstitution.length} heavy step(s) did NOT become a deck`);
 if (unexpectedChange.length) problems.push(`${unexpectedChange.length} screen(s) changed type without being a heavy step`);
 if (substitutions + identical !== screens) problems.push('every screen must be either substituted or identical');
+if (nativeRewrites !== NATIVE_KEYS.size) problems.push(`${NATIVE_KEYS.size} native lesson key(s), but ${nativeRewrites} matched a synced lesson`);
+inactiveNative.forEach((m) => problems.push(`native rewrite not in use: ${m}; see scripts/native-lesson-pin.mjs`));
 
 if (problems.length) {
   console.log('\nFAIL');

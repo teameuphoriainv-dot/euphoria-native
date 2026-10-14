@@ -25,6 +25,8 @@ import { deriveDeck, isHeavyStep } from '../mobile-lesson/derive';
 import { applyPlacement } from '../mobile-lesson/parts/placements';
 import { STEP_TEXT_BUDGET, shortenField, shortenHookFact, shortenOptions, shortenPrompt } from '../mobile-lesson/question';
 import { stepId } from '../mobile-lesson/stepId';
+import { resolveNativeLessons } from '../native-lessons/index';
+import type { NativeLesson } from '../native-lessons/types';
 import { segmentsOf } from '../lesson-segments';
 import { expandSteps } from '../lesson-steps';
 import type { LessonStep, PathwayLesson } from './types';
@@ -287,15 +289,39 @@ export function withCappedPractice(steps: LessonStep[]): LessonStep[] {
   return [...steps.slice(0, start), ...all.filter((p) => keep.has(p.i) || !PRACTICE_PRIORITY.includes(p.type)).map((p) => p.step)];
 }
 
-function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLesson[] {
+/*
+ * NATIVE LESSONS (src/lib/native-lessons) are swapped in HERE, at the same lazy getter, and nowhere
+ * else. A native lesson is a whole lesson rewritten for the phone (owner, 2026-10-12, Investing
+ * Fundamentals lesson 1 first), so its steps already meet every phone budget and are handed over as
+ * written: no withShorterQuestions, no deck derivation, no placements, no practice cap, and no bump
+ * to deckDerivations. Its challenge replaces the synced one too, so the mastery round and the later
+ * lessons' warmup recall ask what this lesson actually taught.
+ *
+ * `natives` only ever holds lessons whose fingerprint matched the RAW source (resolveNativeLessons),
+ * so a re-synced web lesson falls straight back to the derived path below.
+ * scripts/native-lesson-pin.mjs fails loudly when that happens.
+ *
+ * Exported only so scripts/native-lesson-pin.mjs can feed it a stale native map and prove the
+ * getter falls back to the synced lesson. UI code reads lessons through loadCourseLessons.
+ */
+export function withMobileDecks(
+  lessons: PathwayLesson[],
+  courseId: string,
+  natives: Map<number, NativeLesson> = new Map(),
+): PathwayLesson[] {
   return lessons.map((lesson) => {
     const authored = lesson.steps;
     const out = { ...lesson };
+    const native = natives.get(lesson.num);
+    if (native) out.challenge = native.challenge;
     Object.defineProperty(out, 'steps', {
       enumerable: true,
       configurable: true,
       get() {
-        const steps = withCappedPractice(mobileSteps(authored, courseId, lesson.num));
+        // A copy of the native array, so nothing downstream can edit the data module's own list.
+        const steps = native
+          ? (native.steps.slice() as unknown as LessonStep[])
+          : withCappedPractice(mobileSteps(authored, courseId, lesson.num));
         // Redefined on `out`, not `this`, so a read through a prototype or proxy still memoizes
         // on the lesson itself instead of deriving again on every read.
         Object.defineProperty(out, 'steps', { value: steps, enumerable: true, configurable: true, writable: true });
@@ -310,7 +336,12 @@ function withMobileDecks(lessons: PathwayLesson[], courseId: string): PathwayLes
 export function loadCourseLessons(courseId: string): Promise<PathwayLesson[]> {
   const hit = lessonCache.get(courseId);
   if (hit) return hit;
-  const p = loadCourseLessonsUncached(courseId).then((lessons) => withMobileDecks(lessons, courseId));
+  /*
+   * resolveNativeLessons reads the RAW lessons (before any wrapping) to fingerprint them, never
+   * rejects, and returns an empty map without importing anything for a course with no native lesson.
+   */
+  const p = loadCourseLessonsUncached(courseId).then(async (lessons) =>
+    withMobileDecks(lessons, courseId, await resolveNativeLessons(courseId, lessons)));
   lessonCache.set(courseId, p);
   // Evict on failure so a retry can genuinely retry.
   void p.catch(() => lessonCache.delete(courseId));

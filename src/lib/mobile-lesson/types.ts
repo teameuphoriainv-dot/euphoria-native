@@ -26,6 +26,9 @@ import type { ScenePartSpec } from './parts/scene';
 import type { BuildSpec, PredictSpec } from './clickthrough/types';
 import type { StageClipSpec } from './clickthrough/stage';
 import type { PlaceBuilt } from './clickthrough/place';
+import type { StorySpec } from './parts/story';
+import type { ToggleSpec } from './parts/toggle';
+import type { LedgerSpec } from './parts/ledger';
 
 /**
  * A pixel scene on a card.
@@ -40,6 +43,12 @@ export interface SceneSpec {
   overlay?: string;
   /** Scenes respond to touch. This is the sentence Atlas says when the art is pressed. */
   explain?: string;
+  /**
+   * A still from a native lesson's story art (src/lib/pixel/stories), drawn instead of the
+   * archetype when it loads. `archetype` stays required and is the fallback if the art fails or the
+   * still is missing, so a card can never lose its picture to a bad story module.
+   */
+  story?: { artKey: string; still: string };
 }
 
 /**
@@ -146,7 +155,16 @@ export type MobileInteractive =
   | StageClipSpec
   | PredictSpec
   | BuildSpec
-  | PlaceBuilt;
+  | PlaceBuilt
+  /*
+   * THE NATIVE-LESSON CARDS (parts/story.ts, parts/toggle.ts, parts/ledger.ts). Never derived and
+   * never placed: they appear only in hand-written native lessons (src/lib/native-lessons), which the
+   * wrapped loader swaps in whole. Same dispatch contract as above: a line in DeckInteractive, and a
+   * line in cardDrawsAtlas so the floating Atlas never covers their stage or controls.
+   */
+  | StorySpec
+  | ToggleSpec
+  | LedgerSpec;
 
 /**
  * One card in a deck.
@@ -183,7 +201,12 @@ export type MobileCard =
  */
 export interface MobileDeck {
   type: 'mobileDeck';
-  sourceType: 'teachingSlide' | 'interactiveGraph';
+  /**
+   * 'native' for a deck written by hand inside a native lesson (src/lib/native-lessons). Its
+   * `sourceId` is `native:<course>:<num>:s<screen>`, which never parses as the `course:lesson:index`
+   * position stepIdPosition and applyPlacement read, so no derived-deck consumer can misread it.
+   */
+  sourceType: 'teachingSlide' | 'interactiveGraph' | 'native';
   sourceId: string;
   label: string;
   title: string;

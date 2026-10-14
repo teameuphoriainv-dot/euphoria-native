@@ -20,6 +20,9 @@ import { PixelScene } from '@/components/mobile-lesson/PixelScene';
 import { DialCard } from '@/components/mobile-lesson/parts/dial-card';
 import { LeverCard } from '@/components/mobile-lesson/parts/lever-card';
 import { SceneCard } from '@/components/mobile-lesson/parts/scene-card';
+import { StoryCard } from '@/components/mobile-lesson/parts/story-card';
+import { ToggleSceneCard } from '@/components/mobile-lesson/parts/toggle-scene-card';
+import { GrowthLedgerCard } from '@/components/mobile-lesson/parts/growth-ledger-card';
 import { BuildupCard } from '@/components/mobile-lesson/clickthrough/buildup-card';
 import { PlaceCard } from '@/components/mobile-lesson/clickthrough/place-card';
 import { PredictCard } from '@/components/mobile-lesson/clickthrough/predict-card';
@@ -283,6 +286,14 @@ export function DeckInteractive({ spec, onWorked }: { spec: MobileInteractive; o
   if (spec.kind === 'predict') return <PredictCard spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'build') return <BuildupCard spec={spec} onWorked={onWorked} />;
   if (spec.kind === 'place') return <PlaceCard spec={spec} onWorked={onWorked} />;
+  /*
+   * The native-lesson cards (src/lib/native-lessons), which only hand-written native lessons use.
+   * Without these lines the card renders null and CardDeck keeps Got it locked forever, which is
+   * why scripts/native-lesson-pin.mjs checks this file for one line per kind a native lesson uses.
+   */
+  if (spec.kind === 'story') return <StoryCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'toggle') return <ToggleSceneCard spec={spec} onWorked={onWorked} />;
+  if (spec.kind === 'ledger') return <GrowthLedgerCard spec={spec} onWorked={onWorked} />;
   /*
    * Unreachable while every member of MobileInteractive has a line above, and deliberately not a
    * throw. If a kind is added and someone forgets this switch, a learner should get a card that is

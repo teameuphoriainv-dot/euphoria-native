@@ -87,6 +87,11 @@ export type Normalized =
       feedbackByOption: string[];
       /** Canonical scenarios may author more than one valid decision. */
       correctByOption: boolean[];
+      /**
+       * Show the explanation after a RIGHT answer too (Why? on the check bar). Only native lessons
+       * set it (NativeChoiceStep in native-lessons/types.ts); synced lessons keep the web flow.
+       */
+      explainWhenRight?: boolean;
     }
   | { kind: 'reveal'; spec: RevealSpec }
   | { kind: 'match'; spec: MatchSpec }
@@ -252,6 +257,10 @@ export function chartLabel(v?: AnimatedVisual): string {
   return parts.filter(Boolean).join('. ');
 }
 
+/** A native lesson's opt-in: the field is added only when set, so synced steps normalize exactly as before. */
+const withWhyWhenRight = (c: Extract<Normalized, { kind: 'choice' }>, on: unknown): Extract<Normalized, { kind: 'choice' }> =>
+  (on === true ? { ...c, explainWhenRight: true } : c);
+
 /** de-duplicate a tray while preserving author order — repeated distractors would be unplaceable */
 const uniq = (xs: string[]): string[] => Array.from(new Set(xs));
 
@@ -300,7 +309,9 @@ export function choiceFeedback(step: Extract<Normalized, { kind: 'choice' }>, se
  * A correct quiz relies on its selected/correct state and celebration; repeating the explanation
  * in a second card is not part of the web flow. A scenario is different: the selected decision's
  * outcome is the reward, so it remains inline. Wrong answers always hand Atlas the explanation for
- * the option the learner actually chose.
+ * the option the learner actually chose. A native lesson's step can opt in (`explainWhenRight`), so a
+ * right answer also offers its one-sentence reason behind Why? (owner brief 2026-10-12: lessons that
+ * actually teach; research.json: instant feedback that explains).
  */
 export function choiceResponse(
   step: Extract<Normalized, { kind: 'choice' }>,
@@ -312,7 +323,7 @@ export function choiceResponse(
 } {
   if (isChoiceCorrect(step, selectedIndex)) {
     const outcome = choiceFeedback(step, selectedIndex);
-    return step.sourceType === 'scenario' && outcome
+    return (step.sourceType === 'scenario' || step.explainWhenRight) && outcome
       ? { correct: true, correctOutcome: outcome }
       : { correct: true };
   }
@@ -369,9 +380,9 @@ export function normalizeStep(step: LessonStep): Normalized {
   switch (s.type as string) {
     // ─── single-choice family → the quiz UI lesson.tsx already has ─────────────
     case 'quiz':
-      return choice(s.question, s.options, s.correct, s.explanation, s.explanation);
+      return withWhyWhenRight(choice(s.question, s.options, s.correct, s.explanation, s.explanation), s.explainWhenRight);
     case 'microCheck':
-      return choice(s.question, s.options, s.correct, s.explanationCorrect, s.explanationWrong, undefined, 'microCheck');
+      return withWhyWhenRight(choice(s.question, s.options, s.correct, s.explanationCorrect, s.explanationWrong, undefined, 'microCheck'), s.explainWhenRight);
     case 'fillBlank':
       return choice(s.sentence, s.options, s.correct, 'That fits.', 'Not the one.', undefined, 'fillBlank', 'confirm');
     case 'visualInteractive':
@@ -432,6 +443,8 @@ export function normalizeStep(step: LessonStep): Normalized {
           definition: String(term.definition ?? ''),
           example: String(term.example ?? ''),
           sentence: String(term.sentence ?? ''),
+          // Native lessons only (NativeVocabStep): the quiz question for this term, a situation.
+          ...(typeof term.ask === 'string' && term.ask.trim() ? { ask: term.ask } : {}),
         })),
       };
     case 'dragSort':

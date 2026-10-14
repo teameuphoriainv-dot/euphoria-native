@@ -53,6 +53,14 @@ const native = await imported('src/lib/curriculum/index.ts');
 const { deriveDeck, isHeavyStep } = await imported('src/lib/mobile-lesson/derive.ts');
 const { stepId } = await imported('src/lib/mobile-lesson/stepId.ts');
 const { applyPlacement } = await imported('src/lib/mobile-lesson/parts/placements.ts');
+/*
+ * NATIVE LESSONS (src/lib/native-lessons, owner 2026-10-12): while a rewrite's fingerprint is
+ * active, the wrapped getter hands back its hand-written steps instead of deriving, so for those
+ * keys the eager equivalent is the native data itself, and reading them must derive no deck. A stale
+ * rewrite falls back to the derived path and is compared like every other lesson.
+ */
+const { nativeLessonKeys, nativeLessonStatus, loadNativeLesson } = await imported('src/lib/native-lessons/index.ts');
+const NATIVE_KEYS = new Set(nativeLessonKeys());
 
 const failures = [];
 const check = (ok, message) => { if (!ok) failures.push(message); };
@@ -106,6 +114,16 @@ if (typeof shorten === 'function') {
     const rawLessons = await raw.loadCourseLessons(course.id);
     const nativeLessons = byCourse.get(course.id);
     for (const rawLesson of rawLessons) {
+      const key = `${course.id}:${rawLesson.num}`;
+      if (NATIVE_KEYS.has(key) && (await nativeLessonStatus(key, rawLessons)).state === 'active') {
+        const lazy = nativeLessons.find((l) => l.num === rawLesson.num);
+        compared += 1;
+        const beforeNative = probe();
+        const steps = lazy?.steps;
+        check(probe() === beforeNative, `${key} is a native lesson but reading its steps derived ${probe() - beforeNative} decks`);
+        if (JSON.stringify(steps) !== JSON.stringify((await loadNativeLesson(key))?.steps)) failures.push(`${key} lazy steps differ from its native lesson`);
+        continue;
+      }
       // The eager path includes applyPlacement over the RAW steps, as index.ts does, or the 9
       // lessons carrying a dial, lever or scene would differ for a reason that is not laziness.
       // Capped like the loader caps it (withCappedPractice, 2026-10-01): practice runs five screens on the phone.
