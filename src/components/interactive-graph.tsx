@@ -697,6 +697,69 @@ function CompoundGrowthGraph({
   const handleX = x(data.years);
   const handleY = y(data.endValue);
   const chipAbove = handleY > 54;
+  /*
+   * THE LABELS KEEP CLEAR OF THE LINES AND OF EACH OTHER (owner, 2026-10-14: "can you format this
+   * well"). The year axis always ends at the chosen year, so the handle always sits on the plot's
+   * right edge: a "drag me" centred on it lost its right half off the chart and landed on the chip,
+   * which is clamped in just above. "where you started", centred over its dashed line, sat on the
+   * solid line beside it. Now "drag me" sits just left of the handle, a few points above its centre
+   * so a flat curve (the Manhattan trade's $24 on a $2.5M axis lies along the baseline) never runs
+   * through it, with the chip lifted clear above; and "where you started" takes the first spot by
+   * its dashed line that clears every other line and label. When the curves crowd the line (a
+   * steep curve over a low dashed one), it becomes a legend instead, a dashed swatch and the words
+   * in the plot's empty upper area, and it stays off only if even that would overlap something.
+   */
+  const chipX = Math.min(Math.max(handleX - 52, 2), CHART_WIDTH - 106);
+  const chipY = handleY + (chipAbove ? -40 : 18);
+  const showDragHint = !grabbedOnce && controlsLive;
+  const crossoverX = shownCrossover === undefined ? undefined : x(shownCrossover);
+  const crossoverLabelX = crossoverX === undefined ? undefined : Math.min(Math.max(crossoverX, pad.left + 40), CHART_WIDTH - pad.right - 40);
+  const startedLabel = (() => {
+    if (!ghost.length) return undefined;
+    const labelW = 76; // "where you started" at 9pt
+    const plotW = CHART_WIDTH - pad.left - pad.right;
+    const valueAt = (points: readonly { x: number; y: number }[], year: number): number => {
+      const j = points.findIndex((p) => p.x >= year);
+      const after = points[j === -1 ? points.length - 1 : j];
+      const before = j > 0 ? points[j - 1] : undefined;
+      if (!after) return 0;
+      if (!before || j === -1) return after.y;
+      return before.y + (after.y - before.y) * ((year - before.x) / (after.x - before.x || 1));
+    };
+    const ysOver = (points: readonly { x: number; y: number }[], x1: number, x2: number) =>
+      [0, 0.25, 0.5, 0.75, 1].map((f) => y(valueAt(points, (x1 + (x2 - x1) * f - pad.left) / plotW * data.years)));
+    const boxes: (readonly [number, number, number, number])[] = [
+      [handleX - 13, handleY - 13, handleX + 13, handleY + 13],
+      [chipX, chipY, chipX + 104, chipY + 22],
+      ...(showDragHint ? [[handleX - 62, handleY - 15, handleX - 14, handleY - 3] as const] : []),
+      ...(crossoverX === undefined || crossoverLabelX === undefined
+        ? []
+        : [[crossoverLabelX - 40, pad.top, crossoverLabelX + 40, pad.top + 12] as const, [crossoverX - 2, pad.top + 14, crossoverX + 2, baselineY] as const]),
+    ];
+    const fits = (x1: number, baseline: number, w = labelW) => {
+      const top = baseline - 8;
+      const bottom = baseline + 2;
+      const x2 = x1 + w;
+      if (x1 < pad.left || x2 > CHART_WIDTH - pad.right || top < pad.top || bottom > baselineY - 2) return false;
+      if ([total, contributed].some((line) => ysOver(line, x1, x2).some((ly) => ly > top - 2 && ly < bottom + 2))) return false;
+      return boxes.every(([bx1, by1, bx2, by2]) => x2 < bx1 || x1 > bx2 || bottom < by1 || top > by2);
+    };
+    // The right end first, where the dashed line is highest, then its middle; under it, then over it.
+    for (const x1 of [handleX - 16 - labelW, pad.left + plotW * 0.55 - labelW / 2]) {
+      const ghostYs = ysOver(ghost, x1, x1 + labelW);
+      for (const baseline of [Math.max(...ghostYs) + 11, Math.min(...ghostYs) - 4]) {
+        if (fits(x1, baseline)) return { x: x1, y: baseline, legend: false };
+      }
+    }
+    // The legend: a 14pt dashed swatch, 4pt of air, then the words, high in the plot.
+    const legendW = 18 + labelW;
+    for (const x1 of [pad.left + 6, ...(crossoverX === undefined ? [] : [crossoverX + 8])]) {
+      for (const baseline of [pad.top + 26, pad.top + 40]) {
+        if (fits(x1, baseline, legendW)) return { x: x1, y: baseline, legend: true };
+      }
+    }
+    return undefined;
+  })();
   const yearTickStep = data.years > 30 ? 10 : data.years > 12 ? 5 : data.years > 5 ? 2 : 1;
   const yearTicks: number[] = [];
   for (let year = 0; year <= data.years; year += yearTickStep) yearTicks.push(year);
@@ -784,20 +847,22 @@ function CompoundGrowthGraph({
             return <TweenLine key={`total-${String(index)}`} x1={x(previous.x)} y1={y(previous.y)} x2={x(point.x)} y2={y(point.y)} duration={curveDuration} stroke={theme.primary} strokeWidth={2.8} strokeLinecap="round" />;
           })}
           {ghostLine ? <Polyline points={ghostLine} fill="none" stroke="#F4F4F547" strokeWidth={1.4} strokeDasharray="5 4" /> : null}
-          {ghost.length ? (() => {
-            const point = ghost[Math.floor(ghost.length * 0.55)] ?? ghost[0];
-            return <SvgText x={x(point.x)} y={y(point.y) - 7} fill={theme.mutedForeground} fontSize={9} textAnchor="middle">where you started</SvgText>;
-          })() : null}
+          {startedLabel?.legend ? (
+            <G>
+              <Line x1={startedLabel.x} y1={startedLabel.y - 3} x2={startedLabel.x + 14} y2={startedLabel.y - 3} stroke="#F4F4F547" strokeWidth={1.4} strokeDasharray="5 4" />
+              <SvgText x={startedLabel.x + 18} y={startedLabel.y} fill={theme.mutedForeground} fontSize={9} textAnchor="start">where you started</SvgText>
+            </G>
+          ) : startedLabel ? <SvgText x={startedLabel.x} y={startedLabel.y} fill={theme.mutedForeground} fontSize={9} textAnchor="start">where you started</SvgText> : null}
           {shownCrossover !== undefined ? (
             <G>
               <TweenLine x1={x(shownCrossover)} y1={pad.top + 14} x2={x(shownCrossover)} y2={baselineY} duration={curveDuration} stroke={theme.primary} strokeWidth={1.6} strokeDasharray="2 3" opacity={0.55} />
-              <SvgText x={x(shownCrossover)} y={pad.top + 9} fill={theme.mutedForeground} fontSize={9} textAnchor="middle">growth takes over</SvgText>
+              <SvgText x={crossoverLabelX} y={pad.top + 9} fill={theme.mutedForeground} fontSize={9} textAnchor="middle">growth takes over</SvgText>
             </G>
           ) : null}
           <TweenCircle cx={handleX} cy={handleY} r={dragging ? 11 : 9} fill={theme.primary} stroke={theme.primaryForeground} strokeWidth={2.5} duration={curveDuration} />
-          {!grabbedOnce && controlsLive ? <SvgText x={handleX} y={Math.max(12, handleY - 35)} fill={theme.text} fontSize={10} fontWeight="700" textAnchor="middle">drag me</SvgText> : null}
+          {showDragHint ? <SvgText x={handleX - 16} y={handleY - 6} fill={theme.text} fontSize={10} fontWeight="700" textAnchor="end">drag me</SvgText> : null}
           {/* Multi-child SvgText anchors each child separately and overlaps them; keep labels one string. Chip clamped inside the plot. */}
-          <G transform={`translate(${String(Math.min(Math.max(handleX - 52, 2), CHART_WIDTH - 106))} ${String(handleY + (chipAbove ? -36 : 18))})`}>
+          <G transform={`translate(${String(chipX)} ${String(chipY)})`}>
             <Rect width={104} height={22} rx={11} fill={theme.card} stroke={theme.primary} strokeOpacity={0.5} />
             <SvgText x={52} y={15} fill={theme.text} fontSize={10.5} fontWeight="700" textAnchor="middle">{`${String(data.annualReturn)}% · ${String(data.years)} yrs`}</SvgText>
           </G>
