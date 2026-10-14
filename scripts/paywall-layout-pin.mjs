@@ -1,9 +1,12 @@
 /**
  * THE PURCHASE SCREEN'S LAYOUT RULES, both of them.
  *
- * 1. NO DEAD BAND ABOVE THE CTA. A flex-growing paywall body consumed the spare viewport height
- *    and left a large gap between Monthly and the CTA. The footer already follows the body in the
- *    same ScrollView, so neither side may grow or use a spacer to distribute unused height.
+ * 1. NO DEAD BAND, ABOVE THE CTA OR UNDER IT. A flex-growing paywall body packed at the top left
+ *    one large gap between Monthly and the CTA, so this rule first banned flex outright. That left
+ *    the opposite band on a tall phone, empty screen under the legal links, and the owner asked for
+ *    the components to be laid out through the screen (2026-10-14). So the body grows and shares
+ *    the spare height EVENLY between its sections ('space-evenly'): no single gap anywhere. Any
+ *    other distribution, or a flex spacer, parks the spare height in one band again.
  *
  * 2. DYNAMIC TYPE CANNOT PUSH IT INTO A SCROLL (CONSTITUTION 5.3: "Screens that ask for money do
  *    not scroll... Verify at the largest Dynamic Type size the screen supports"). Measured on the
@@ -32,11 +35,13 @@ assert.ok(styles, 'onboarding StyleSheet not found');
 
 const paywallBody = styles[1].match(/paywallBody:\s*\{([^}]*)\}/);
 assert.ok(paywallBody, 'paywallBody style not found');
-assert.doesNotMatch(
+assert.match(paywallBody[1], /\bflexGrow:\s*1\b/, 'paywallBody must grow into the spare height, or the screen leaves an empty band under the legal links');
+assert.match(
   paywallBody[1],
-  /\b(?:flex|flexGrow|flexBasis|justifyContent)\b/,
-  'paywallBody must stay content-sized; flexible layout recreates the gap above the CTA',
+  /\bjustifyContent:\s*'space-evenly'/,
+  "paywallBody must share its spare height evenly ('space-evenly'); any other distribution parks it in one band, like the gap above the CTA this rule was written for",
 );
+assert.doesNotMatch(paywallBody[1], /\bflex:\s*\d/, 'paywallBody must grow with flexGrow, not flex (flex also shrinks it, which is how the screen scrolls)');
 
 assert.match(
   onboarding,
@@ -98,6 +103,9 @@ assert.equal(
   `text on the purchase screen with no Dynamic Type cap, which is how the scroll comes back:\n  ${uncapped.join('\n  ')}`,
 );
 
+// No flex spacer element inside the body: it would take the spare height that space-evenly shares.
+assert.doesNotMatch(body, /<View style=\{\{\s*flex(?:Grow)?:\s*1\s*\}\}\s*\/>/, 'a flex spacer in the paywall body parks the spare height in one band');
+
 // The headline was the worst of them: `display` at 32pt with no ceiling.
 assert.doesNotMatch(body, /<StepHeading/, 'the paywall headline is back on the uncapped StepHeading');
 
@@ -150,4 +158,4 @@ for (const l of linkSlops) {
   assert.ok(!top || Number(top[1]) <= 4, `a legal link's hitSlop top is ${top?.[1] ?? '?'}pt; over 4 it reaches into "Maybe later" and a dismiss tap opens a legal page`);
 }
 
-console.log(`PASS - paywall body is content-sized, the CTA follows it, every text is capped at ${String(cap)}x, and the dismiss is a 44pt target.`);
+console.log(`PASS - paywall body shares its spare height evenly, the CTA follows it, every text is capped at ${String(cap)}x, and the dismiss is a 44pt target.`);

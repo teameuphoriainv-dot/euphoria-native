@@ -1381,8 +1381,9 @@ export default function Onboarding() {
                     ? `Your first ${trialLen} days are free`
                     : `You're on day ${trialDay} of ${TRIAL_DAYS}`}
             </ThemedText>
-            {/* The body stays top-packed, and the action follows it in the same scroll stack so no
-                flex spacer can separate Monthly from the CTA. */}
+            {/* The body shares the spare height evenly between the heading, the benefits and the
+                plans (paywallBody, space-evenly), and the action follows it in the same scroll
+                stack, so no single gap opens above the CTA or under the legal links. */}
             {/* The timeline is about a trial. Showing "Today / Day 2 / Day 3" to someone whose
                 three days are gone describes something that cannot happen to them, so a spent user
                 gets what Pro reopens instead — the gate sheet's one-line promise, expanded. */}
@@ -1678,7 +1679,7 @@ export default function Onboarding() {
         showsVerticalScrollIndicator={false}
         keyboardDismissMode="interactive"
         keyboardShouldPersistTaps="handled">
-        <Animated.View style={[bodyStyle, fillsViewport && styles.grow]}>
+        <Animated.View style={[bodyStyle, (fillsViewport || renderStep === PAYWALL_INDEX) && styles.grow]}>
           {/* keyed on renderStep so RiseIn's `entering` re-fires for every step */}
           {/*
             * STALE CONTENT MUST NOT TAKE TAPS.
@@ -1697,7 +1698,7 @@ export default function Onboarding() {
           <View
             key={renderStep}
             pointerEvents={renderStep === step ? 'auto' : 'none'}
-            style={fillsViewport ? styles.grow : undefined}>
+            style={fillsViewport || renderStep === PAYWALL_INDEX ? styles.grow : undefined}>
             {/* NO GUIDE BUBBLE AT THE HEAD OF A STEP (owner, 2026-09-30: "the double text boxes
                 are annoying and Atlas's lines don't even matter"). A question step used to stack
                 Atlas's reaction bubble over the question bubble, two boxes with two tails, and the
@@ -1742,8 +1743,9 @@ const styles = StyleSheet.create({
   avatarHero: { alignItems: 'center', marginTop: Spacing.three },
   avatarGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.two, marginTop: Spacing.three },
   avatarTile: { width: 62, height: 62, borderRadius: Radius.md, alignItems: 'center', justifyContent: 'center' },
-  /** Content-sized so no flexible spacer can separate Monthly from the purchase action. */
-  paywallBody: { gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
+  /** Grows into the spare height and shares it evenly between its sections (owner, 2026-10-14), so
+      the screen is laid out top to bottom with no single band: not above the CTA, not under it. */
+  paywallBody: { flexGrow: 1, justifyContent: 'space-evenly', gap: Spacing.one, paddingBottom: Spacing.two + Spacing.one },
   /* One step under `display` (32pt) and left-aligned like every other heading in the flow. 26pt
      bold still outweighs everything else on the screen, which is what rule 5.4 asks of it. */
   paywallHeading: { fontSize: FontSize.titleLg, lineHeight: 32, marginTop: Spacing.two },

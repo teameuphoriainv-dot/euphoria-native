@@ -19,9 +19,7 @@ import { UIcon } from '@/components/ui-icon';
 import { Radius, Spacing, FontSize } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { PremiumText, usePremiumRamp } from '@/components/ui/premium';
-import { DIGEST_POSTS } from '@/lib/digest-content';
 import { courseAccent } from '@/lib/course-accents';
-import { AVAILABLE_COURSES, AVAILABLE_LESSON_COUNT } from '@/lib/curriculum';
 import { NumberRollup } from '@/shared/motion/number-rollup';
 import { RiseIn } from '@/shared/motion/rise-in';
 import { SpringPressable } from '@/shared/motion/spring-pressable';
@@ -187,8 +185,9 @@ export const PAYWALL_MAX_FONT_SCALE = 1.3;
 
 /** Selectable pricing tier. The highlighted tier carries a badge tab across its top edge. */
 /**
- * The five differences between Free and Premium, taken VERBATIM from the owner's own web
- * pricing page (design doc refs 4 and 5) so the two surfaces cannot drift apart.
+ * The five differences between Free and Premium. They began as the owner's web pricing page,
+ * word for word (design doc refs 4 and 5); since 2026-10-14 they are the owner's shorter,
+ * count-free phrasing for the phone (see the first row).
  *
  * `free` is what the free tier actually gets, and it matches the web's Basic card word for word
  * ("First lessons, games, and paper trading") rather than being talked up. Overstating the free
@@ -197,35 +196,22 @@ export const PAYWALL_MAX_FONT_SCALE = 1.3;
  */
 const PREMIUM_BENEFITS: readonly { label: string; free: boolean }[] = [
   /*
-   * DERIVED, not typed. This was the literal '12 courses, 300 lessons available now', the only
-   * count on the purchase screen that nothing checked: PROOF and PRO_STEPS in onboarding.tsx
-   * already read AVAILABLE_COURSES / AVAILABLE_LESSON_COUNT, so a course added or held back would
-   * have left this row quoting a different number from the screen before it, on the screen where
-   * money is taken (CONSTITUTION 3.1). Measured 2026-09-22 with the wrapped loader: 12 courses,
-   * AVAILABLE_LESSON_COUNT 300, 300 lessons actually loaded, so the rendered text is byte-identical
-   * to the old literal and the paywall layout does not move.
+   * GENERAL PHRASES, NO COUNTS (owner, 2026-10-14: "not specific numbers but rather smaller and
+   * more specific phrases just generalized"). The first row read '12 courses, 300 lessons available
+   * now' and was later derived from AVAILABLE_COURSES / AVAILABLE_LESSON_COUNT so it could not
+   * drift from the screens before it; with no number on the row there is nothing left to drift.
+   * onboarding-reveal-start-pin.mjs now holds that no row quotes a number.
    */
-  { label: `${AVAILABLE_COURSES.length} courses, ${AVAILABLE_LESSON_COUNT} lessons available now`, free: false },
+  { label: 'All courses & lessons', free: false },
   { label: 'Coaching by Atlas', free: false },
   /*
-   * WAS "AI market simulations", which shipped as a paid claim with no feature behind it.
-   *
-   * Searching the app for it finds only this label. Every other match for "simulat" is either the
-   * iOS Simulator or — pointedly — trade-ideas.ts, which exists to explain why the app does NOT
-   * do this: "Trade ideas — PURE DERIVATION from the portfolio the user already has… a simulator
-   * that issues directional calls is giving investment advice with no licence." The paywall was
-   * selling the one thing the trading code was written to avoid being.
-   *
-   * Same class as the invented testimonials and the "4x faster" copy this flow already removed,
-   * and the same exposure the PROOF block cites: App Store 2.3.1 and FTC 16 CFR Part 465.
-   *
-   * Replaced with a benefit that is real, gated, and not already claimed twice over. The Digest
-   * gives free readers FREE_CARDS = 1 card and then calls entitled(state, 'guide') — so "in full"
-   * is the actual Pro distinction, not a flourish. The count is DERIVED from DIGEST_POSTS for the
-   * reason the lesson count is: a number typed by hand is a claim that drifts the moment content
-   * changes, and this one sits on the screen where money is taken.
+   * WAS "AI market simulations", which shipped as a paid claim with no feature behind it: the only
+   * match for it in the app was this label, and trade-ideas.ts exists to explain why the app does
+   * NOT issue directional calls (App Store 2.3.1, FTC 16 CFR Part 465). It became the guides row,
+   * a benefit that is real and gated: the Digest gives free readers FREE_CARDS = 1 card and then
+   * calls entitled(state, 'guide'), so "full" is the actual Pro distinction, not a flourish.
    */
-  { label: `${DIGEST_POSTS.length} money guides, read in full`, free: false },
+  { label: 'Full money guides', free: false },
   { label: 'Unlimited paper trading', free: false },
   { label: 'Games, streaks & leaderboards', free: true },
 ];

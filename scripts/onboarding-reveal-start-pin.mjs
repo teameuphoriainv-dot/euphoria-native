@@ -3,8 +3,8 @@
  *
  *   node scripts/onboarding-reveal-start-pin.mjs [onboarding-parts.tsx] [start.tsx]
  *
- * Holds: the paywall's course and lesson count is derived, never typed (it is the only place the
- * count is said); the reveal opens on the lead course's node with a pixel beam growing UP to Atlas
+ * Holds: the paywall's benefits quote no numbers at all (owner, 2026-10-14: general phrases, so
+ * no count on the screen where money is taken can go stale; until then the count was derived); the reveal opens on the lead course's node with a pixel beam growing UP to Atlas
  * and no spring on that geometry; reduced-motion stats render the final number, not a frame of 0;
  * /start shows the same node and course art, drops the repeated "your plan is ready", and does not
  * treat "still loading" as "no lesson" (which flashed the Digest fallback and let a fast tap send a
@@ -19,8 +19,9 @@ const [parts, start] = [
 ].map((p) => readFileSync(p, 'utf8'));
 const fail = [];
 const label = parts.match(/PREMIUM_BENEFITS[\s\S]*?\];/)[0];
-if (/label: '\d+ courses/.test(label)) fail.push('paywall benefit count is a typed literal');
-if (!/\$\{AVAILABLE_COURSES\.length\} courses, \$\{AVAILABLE_LESSON_COUNT\} lessons available now/.test(label)) fail.push('paywall count not derived');
+const rows = [...label.matchAll(/label: (['`])(.*?)\1/g)].map((m) => m[2]);
+if (rows.length !== 5) fail.push(`paywall benefits list has ${String(rows.length)} rows, expected 5`);
+if (rows.some((row) => /\d|\$\{/.test(row))) fail.push('a paywall benefit quotes a number (owner, 2026-10-14: general phrases only)');
 const reveal = parts.slice(parts.indexOf('export function PlanRevealStep'));
 if (!/<RevealPedestal/.test(reveal)) fail.push('reveal has no node pedestal');
 if (!/<PixelBeam[\s\S]*?order="up"/.test(parts)) fail.push('reveal beam does not grow up');
