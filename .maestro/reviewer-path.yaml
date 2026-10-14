@@ -84,6 +84,26 @@ appId: com.euphoriainv.euphoria
 - assertVisible: "Privacy Policy"
 - assertVisible: "Terms of Use"
 
+# DEV BUILDS ONLY, as on the paywall: a RevenueCat console error from the restore can leave the
+# LogBox toast at the bottom of this screen too, and the scroll below then opened it into the
+# full-screen inspector, which covered "Sign out" (2026-10-14). Clear both first. A release build
+# has no LogBox, so these are no-ops there.
+- runFlow:
+    when:
+      visible: "Dismiss"
+    commands:
+      - tapOn: "Dismiss"
+      - waitForAnimationToEnd:
+          timeout: 4000
+- runFlow:
+    when:
+      visible: "RevenueCat"
+    commands:
+      - tapOn:
+          point: "96%,95%"
+      - waitForAnimationToEnd:
+          timeout: 4000
+
 # "Sign out" is in the last section, below the fold -- absent from the a11y tree entirely, not
 # merely unhittable. A dev build makes it worse: the __DEV__ DEVELOPER section in
 # settings/[section].tsx occupies ~74pt that a release build does not have, pushing this off the
