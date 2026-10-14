@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>euphoria-native motion audit — 2026-09-23</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=Public+Sans:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:oklch(0.155 0.006 255);--surface:oklch(0.195 0.007 255);--surface-2:oklch(0.235 0.008 255);
+  --paper:oklch(0.945 0.004 255);--paper-dim:oklch(0.800 0.006 255);--muted:oklch(0.680 0.008 255);--faint:oklch(0.505 0.008 255);
+  --line:oklch(0.95 0.01 255 / 0.09);--line-strong:oklch(0.95 0.01 255 / 0.16);
+  --accent:var(--paper);--accent-soft:var(--paper-dim);--accent-tint:oklch(0.95 0.01 255 / 0.06);
+  --crit:oklch(0.655 0.185 25);--imp:oklch(0.805 0.125 78);--opp:oklch(0.745 0.135 152);
+  --t-good:oklch(0.745 0.135 152);--t-mid:oklch(0.805 0.125 78);--t-slow:oklch(0.655 0.185 25);
+  --display:"Familjen Grotesk","Hanken Grotesk",system-ui,sans-serif;
+  --sans:"Public Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:"Geist Mono",ui-monospace,"SF Mono",Menlo,monospace;
+}
+:root:has(#theme-light:checked){
+  --ink:oklch(0.985 0.003 255);--surface:oklch(0.965 0.004 255);--surface-2:oklch(0.940 0.005 255);
+  --paper:oklch(0.180 0.006 255);--paper-dim:oklch(0.330 0.008 255);--muted:oklch(0.475 0.010 255);--faint:oklch(0.640 0.009 255);
+  --line:oklch(0.180 0.010 255 / 0.12);--line-strong:oklch(0.180 0.010 255 / 0.22);--accent-tint:oklch(0.18 0.01 255 / 0.05);
+  --crit:oklch(0.555 0.185 25);--imp:oklch(0.62 0.13 78);--opp:oklch(0.56 0.13 152);
+  --t-good:oklch(0.56 0.13 152);--t-mid:oklch(0.62 0.13 78);--t-slow:oklch(0.555 0.185 25);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--sans);font-size:15px;line-height:1.6}
+.wrap{max-width:1120px;margin:0 auto;padding:40px 28px 80px}
+.vh{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.theme-switch{display:flex;justify-content:flex-end}
+.theme-switch .seg label{font-size:10px;padding:5px 11px}
+#theme-dark:checked ~ .theme-switch label[for=theme-dark],#theme-light:checked ~ .theme-switch label[for=theme-light]{background:color-mix(in oklch,var(--paper) 12%,transparent);color:var(--paper)}
+.mono-label{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--muted);margin-top:28px}
+.title{font-family:var(--display);font-size:40px;line-height:1.1;letter-spacing:-.02em;margin:10px 0 12px;font-weight:700}
+.lede{color:var(--paper-dim);max-width:760px;margin:0}
+.meta-row{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px}
+.stats{display:flex;gap:28px;margin-top:22px;flex-wrap:wrap}
+.stats a{text-decoration:none;color:var(--paper)}
+.stat b{font-family:var(--display);font-size:30px;display:block;line-height:1}
+.stat span{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+.stat.crit b{color:var(--crit)}.stat.imp b{color:var(--imp)}.stat.opp b{color:var(--opp)}
+section{margin-top:52px}
+h2{font-family:var(--display);font-size:22px;margin:6px 0 16px;font-weight:600}
+.assessment p{font-family:var(--display);font-size:20px;line-height:1.5;color:var(--paper);max-width:900px;margin:8px 0 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line-strong)}
+td{padding:12px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.lens-table tr{transition:border-color .2s ease}
+.chip{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--line-strong);border-radius:100px;padding:2px 8px;color:var(--paper-dim);white-space:nowrap}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+.dot.crit{background:var(--crit)}.dot.imp{background:var(--imp)}.dot.opp{background:var(--opp)}
+code{font-family:var(--mono);font-size:12.5px;color:var(--paper-dim)}
+.timing-grid{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start}
+.timing-grid svg{width:100%;height:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tkey{list-style:none;padding:0;margin:0;font-size:13px}
+.tkey li{display:flex;gap:10px;padding:5px 0;border-bottom:1px solid var(--line)}
+.tkey b{font-family:var(--mono);font-weight:500;min-width:18px;color:var(--muted)}
+.tkey code{margin-left:auto}
+.whats-off{margin-top:16px;color:var(--paper-dim);font-size:14px}
+.lens-sec{border:1px solid var(--line);border-radius:14px;padding:26px;background:var(--surface)}
+.lens-sec + .lens-sec{margin-top:22px}
+.lens-sec__head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.lens-sec__head h3{font-family:var(--display);font-size:21px;margin:0}
+.lens-sec__verdict{margin:6px 0 0;color:var(--paper-dim)}
+.lens-block{margin-top:22px}
+.lens-list{margin:8px 0 0;padding:0;list-style:none}
+.lens-list li{padding:6px 0 6px 26px;position:relative;color:var(--paper-dim)}
+.lens-list.good li::before{content:"✓";position:absolute;left:4px;color:var(--opp)}
+.lens-list.opp li::before{content:"💡";position:absolute;left:0;font-size:13px}
+.lens-empty{color:var(--faint);font-style:italic;margin:8px 0 0}
+.finding-row{display:grid;grid-template-columns:1fr 380px;gap:24px;padding:20px 0;border-top:1px solid var(--line);transition:border-color .2s ease}
+.find-tags{display:flex;gap:6px;flex-wrap:wrap}
+.sev{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;border-radius:100px;padding:2px 8px;border:1px solid}
+.sev.crit{color:var(--crit);border-color:var(--crit)}.sev.imp{color:var(--imp);border-color:var(--imp)}
+.find-title{font-family:var(--display);font-size:17px;margin:10px 0 6px}
+.find-body p{margin:6px 0;color:var(--paper-dim);font-size:14px}
+.find-body .label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);display:block}
+.fix{background:var(--accent-tint);border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-top:8px}
+.find-loc{margin-top:8px}
+.lens-take{margin-top:22px;padding:12px 16px;border:1px solid var(--line);border-radius:10px;color:var(--paper-dim);font-size:14px}
+.tier-label{display:flex;align-items:center;gap:12px;margin:28px 0 8px}
+.tier-label hr{flex:1;border:0;border-top:1px solid var(--line)}
+.tier-label .mono-label.crit{color:var(--crit)}.tier-label .mono-label.imp{color:var(--imp)}.tier-label .mono-label.opp{color:var(--opp)}
+.ref-summary{border:1px solid var(--line);border-radius:14px;padding:24px;background:var(--surface)}
+.ref-lean{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;margin-top:12px;font-size:14px;color:var(--paper-dim)}
+footer{margin-top:60px;font-family:var(--mono);font-size:11px;color:var(--faint)}
+/* ── demo shell ── */
+.demo{position:relative;width:380px;max-width:100%}
+.demo__bar{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+.demo__meta{min-width:0}
+.demo__title{display:block;font-size:13.5px;font-weight:600;color:var(--paper);line-height:1.3}
+.demo__timing{display:block;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:2px;font-variant-numeric:tabular-nums}
+.demo__controls{display:flex;align-items:center;gap:12px;flex-shrink:0}
+.demo__loop{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.seg{display:inline-flex;border:1px solid var(--line-strong);border-radius:100px;overflow:hidden}
+.seg label{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:4px 9px;cursor:pointer;user-select:none;transition:background .15s ease,color .15s ease}
+.demo input[id$="-a"]:checked ~ .demo__bar .seg label[for$="-a"],.demo input[id$="-l"]:checked ~ .demo__bar .seg label[for$="-l"],.demo input[id$="-d"]:checked ~ .demo__bar .seg label[for$="-d"]{background:color-mix(in oklch,var(--paper) 12%,transparent);color:var(--paper)}
+.demo__stage{--st-bg:var(--surface-2);--st-fg:var(--paper);--st-line:var(--line-strong);--st-dim:color-mix(in oklch,var(--paper) 55%,transparent);background:var(--st-bg);color:var(--st-fg);border:1px solid var(--line);border-radius:10px;padding:32px 24px;min-height:190px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.demo input[id$="-l"]:checked ~ .demo__stage{--st-bg:oklch(0.985 0.003 255);--st-fg:oklch(0.180 0.006 255);--st-line:oklch(0.180 0.010 255 / 0.18);--st-dim:oklch(0.180 0.010 255 / 0.45)}
+.demo input[id$="-d"]:checked ~ .demo__stage{--st-bg:oklch(0.180 0.006 255);--st-fg:oklch(0.985 0.003 255);--st-line:oklch(0.985 0.010 255 / 0.18);--st-dim:oklch(0.985 0.010 255 / 0.50)}
+.ui-num{font-family:var(--display);font-size:34px;font-weight:700;color:var(--st-fg);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.ui-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--st-dim)}
+.pair{display:flex;gap:44px;align-items:flex-end}
+.pair > div{display:flex;flex-direction:column;align-items:center;gap:12px}
+.blob{width:52px;height:52px;border-radius:50%;background:var(--st-fg)}
+.flame{width:44px;height:58px;background:var(--st-fg);border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;transform-origin:50% 100%}
+.bloom-wrap{position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center}
+.disc{position:absolute;inset:18px;border-radius:50%;background:var(--st-fg);opacity:.85}
+.bloom{position:absolute;inset:0;border-radius:50%;background:radial-gradient(closest-side,color-mix(in oklch,var(--st-fg) 70%,transparent),color-mix(in oklch,var(--st-fg) 22%,transparent) 55%,transparent)}
+.ring{width:40px;height:40px;border-radius:50%;border:2px solid var(--st-fg);display:flex;align-items:center;justify-content:center}
+.ring i{width:22px;height:22px;border-radius:50%;background:var(--st-fg);display:block}
+.roll{height:40px;overflow:hidden}
+.roll div{display:flex;flex-direction:column}
+.roll span{height:40px;line-height:40px}
+@media (max-width:860px){.finding-row,.timing-grid{grid-template-columns:1fr}}
+@media (max-width:600px){.ref-lean{grid-template-columns:1fr}.title{font-size:30px}}
+@media (prefers-reduced-motion:reduce){.demo__loop{display:none}[class*="__mt"],[class*="__mt"] *{animation:none!important;transition:none!important}}
+
+@media (prefers-reduced-motion:no-preference){
+/* 1 — eased beats vs linear timeline: left = linear (current), right = per-beat easing */
+@keyframes m1a{0%{transform:scale(1)}8%{transform:scale(.82)}26%{transform:scale(1.4)}34%{transform:scale(1.02)}60%,100%{transform:scale(1)}}
+@keyframes m1b{0%{transform:scale(1)}8%{transform:scale(.82);animation-timing-function:cubic-bezier(.34,1.56,.64,1)}26%{transform:scale(1.4);animation-timing-function:cubic-bezier(.22,1,.36,1)}40%{transform:scale(.97)}48%{transform:scale(1.02)}60%,100%{transform:scale(1)}}
+.demo-1__mt .blob.a{animation:m1a 3s linear infinite}
+.demo-1__mt .blob.b{animation:m1b 3s cubic-bezier(.5,0,.75,0) infinite}
+/* 2 — local bloom instead of full-screen white */
+@keyframes m2{0%{opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1.08)}60%,100%{opacity:0;transform:scale(1.25)}}
+.demo-2__mt .bloom{animation:m2 3s cubic-bezier(.22,1,.36,1) infinite}
+.demo-2__mt .bloom{opacity:0}
+/* 3 — radial falloff glow */
+@keyframes m3{0%{opacity:0;transform:scale(.7)}40%{opacity:1;transform:scale(1.05)}60%,100%{opacity:1;transform:scale(1)}}
+.demo-3__mt .bloom{animation:m3 3s cubic-bezier(.22,1,.36,1) infinite}
+/* 4 — flame anticipation squash → stretch → settle */
+@keyframes m4{0%{transform:scale(1,1)}14%{transform:scale(1.14,.8)}30%{transform:scale(.86,1.22) translateY(-10px)}42%{transform:scale(1.06,.95)}52%{transform:scale(.98,1.02)}60%,100%{transform:scale(1,1)}}
+.demo-4__mt .flame{animation:m4 3s cubic-bezier(.22,1,.36,1) infinite}
+/* 5 — Atlas pop from 0.6, not 0 */
+@keyframes m5{0%{opacity:0;transform:scale(.6)}22%{opacity:1;transform:scale(1.08)}34%{transform:scale(.98)}44%,100%{opacity:1;transform:scale(1)}}
+.demo-5__mt .ring i{animation:m5 3s cubic-bezier(.34,1.3,.64,1) infinite}
+/* 6 — number roll landing inside the resolve beat */
+@keyframes m6{0%,30%{transform:translateY(0)}52%{transform:translateY(-44px)}58%{transform:translateY(-38px)}62%,100%{transform:translateY(-40px)}}
+.demo-6__mt .roll div{animation:m6 3s cubic-bezier(.22,1,.36,1) infinite;transform:translateY(-40px)}
+}
+</style>
+</head>
+<body>
+<input class="vh" type="radio" name="theme" id="theme-dark" checked>
+<input class="vh" type="radio" name="theme" id="theme-light">
+<div class="theme-switch wrap" style="padding-bottom:0"><div class="seg"><label for="theme-dark">Dark</label><label for="theme-light">Light</label></div></div>
+<div class="wrap" style="padding-top:0">
+
+<div class="eyebrow">MOTION AUDIT · DESIGN-MOTION-PRINCIPLES</div>
+<h1 class="title">euphoria-native: the streak moment moves, but it doesn&rsquo;t perform</h1>
+<p class="lede">A gamified finance-learning app for teens, benchmarked against Duolingo. The audit covers the earned streak moment (<code>StreakIgnite</code>), the shared week tracker (<code>WeekStreak</code>), and the Home Today card that hosts both.</p>
+<div class="meta-row">Mobile app · Expo 57 · React Native 0.86 · Reanimated 4.5 · Skia 2.6 · fast-confetti 2 · number-flow</div>
+<div class="stats">
+  <a class="stat" href="#rec-crit" style="display:block"><b>12</b><span>Findings</span></a>
+  <a class="stat crit" href="#rec-crit"><b>1</b><span>Critical</span></a>
+  <a class="stat imp" href="#rec-imp"><b>5</b><span>Important</span></a>
+  <a class="stat opp" href="#rec-opp"><b>6</b><span>Opportunities</span></a>
+</div>
+
+<section class="assessment">
+  <div class="mono-label">OVERALL</div>
+  <p>The structure is right: one earned moment, one clock, a reduced-motion path, and confetti kept to the moments that matter. The execution reads as generated because every beat runs at constant speed and everything scales from the same centre point. There is no anticipation you can feel, no follow-through, and no character. The flame is a stroked icon that grows and shrinks, the glow is a flat disc, and Atlas, the one thing Duolingo proves carries the emotion, only shows up at 24pt in the tracker. Fix the timeline's easing first; everything else rests on it.</p>
+</section>
+
+<section>
+  <div class="mono-label">01</div><h2>Lens summary</h2>
+  <table class="lens-table">
+    <tr><th>Lens</th><th>Verdict</th><th>Read</th></tr>
+    <tr><td>Jakub Krehel <span class="chip">Primary</span></td><td><span class="dot crit"></span>Problem</td><td>Linear beats, a flat glow and a full-screen white flash are the opposite of invisible polish.</td></tr>
+    <tr><td>Jhey Tompkins <span class="chip">Secondary</span></td><td><span class="dot imp"></span>Concern</td><td>The moment is rare and earned, so it has the budget for character, but spends it on generic scale.</td></tr>
+    <tr><td>Emil Kowalski <span class="chip">Selective</span></td><td><span class="dot opp"></span>Strong</td><td>Frequency discipline holds: effects only on earned moments, reduced motion respected, CTA stays live.</td></tr>
+  </table>
+</section>
+
+<section>
+  <div class="mono-label">02</div><h2>Where the timings land</h2>
+  <div class="timing-grid">
+    <svg viewBox="0 0 660 300" role="img" aria-label="Duration budget diagram">
+      <style>.z1{fill:var(--t-good);opacity:.10}.z2{fill:var(--t-good);opacity:.16}.z3{fill:var(--t-mid);opacity:.16}.z4{fill:var(--t-slow);opacity:.14}.ax{stroke:var(--line-strong)}.tx{fill:var(--muted);font:10px var(--mono)}.dg{fill:var(--t-good)}.dm{fill:var(--t-mid)}.ds{fill:var(--t-slow)}.dl{fill:var(--ink);font:600 10px var(--mono)}</style>
+      <rect class="z1" x="40" y="30" width="95" height="220"/><rect class="z2" x="135" y="30" width="190" height="220"/><rect class="z3" x="325" y="30" width="190" height="220"/><rect class="z4" x="515" y="30" width="125" height="220"/>
+      <line class="ax" x1="40" y1="250" x2="640" y2="250"/>
+      <text class="tx" x="40" y="268">0</text><text class="tx" x="128" y="268">100</text><text class="tx" x="318" y="268">300</text><text class="tx" x="508" y="268">500</text><text class="tx" x="600" y="268">600+</text>
+      <text class="tx" x="46" y="46">INSTANT</text><text class="tx" x="141" y="46">RESPONSIVE</text><text class="tx" x="331" y="46">DELIBERATE</text><text class="tx" x="521" y="46">SLUGGISH</text>
+      <circle class="dg" cx="283" cy="90" r="11"/><text class="dl" x="279" y="94">1</text>
+      <circle class="dg" cx="187" cy="120" r="11"/><text class="dl" x="183" y="124">2</text>
+      <circle class="dg" cx="306" cy="150" r="11"/><text class="dl" x="302" y="154">3</text>
+      <circle class="dm" cx="420" cy="180" r="11"/><text class="dl" x="416" y="184">4</text>
+      <circle class="ds" cx="625" cy="210" r="11"/><text class="dl" x="621" y="214">5</text>
+      <circle class="ds" cx="610" cy="120" r="11"/><text class="dl" x="606" y="124">6</text>
+    </svg>
+    <ul class="tkey">
+      <li><b>1</b>Label / tracker enter<code>280ms · ease-out</code></li>
+      <li><b>2</b>White flash<code>256ms · linear</code></li>
+      <li><b>3</b>Burst stage (flame peak)<code>416ms · linear</code></li>
+      <li><b>4</b>Atlas pop (spring ζ≈0.56)<code>~400ms · spring</code></li>
+      <li><b>5</b>StreakIgnite total<code>3200ms · linear</code></li>
+      <li><b>6</b>Confetti fall<code>~2s · library default</code></li>
+    </ul>
+  </div>
+  <p class="whats-off"><b>What's off:</b> durations are defensible for a rare earned moment (5 and 6 sit in "sluggish" on purpose, and Duolingo's ignite is also ~3.2s). The problem isn't how long the beats last, it's their <em>shape</em>: 2, 3 and 5 are all linear, so the only easing anywhere in the moment is on the text that arrives after the payoff.</p>
+</section>
+
+<section>
+  <div class="mono-label">03</div>
+  <div class="lens-sec">
+    <div class="lens-sec__head"><h3>Jakub Krehel — Production Polish</h3><span class="chip">Primary</span></div>
+    <p class="lens-sec__verdict"><span class="dot crit"></span>Problem. The motion is noticeable for the wrong reasons.</p>
+    <div class="lens-block"><div class="mono-label">What's working well</div>
+      <ul class="lens-list good">
+        <li>One master clock (<code>Duration.earned</code>) drives every beat, so stages can't drift apart. <code>streak-ignite.tsx:105</code></li>
+        <li>The label and tracker use ease-out entrances with a small 150ms offset, not a stagger across everything. <code>streak-ignite.tsx:178–181</code></li>
+        <li>Confetti uses Euphoria's palette, not rainbow defaults. <code>streak-ignite.tsx:190</code></li>
+      </ul>
+    </div>
+    <div class="lens-block"><div class="mono-label">Issues to address</div>
+
+      <div class="finding-row" data-sev="crit">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev crit">Critical</span><span class="chip">Jakub</span><span class="chip">Jhey</span></div>
+          <h4 class="find-title">The whole moment runs on a piecewise-linear timeline</h4>
+          <div class="find-body">
+            <p><span class="label">What</span><code>t</code> animates 0→1 with <code>Easing.linear</code>, and every style maps <code>t</code> through <code>interpolate()</code> between keyframes, which is also linear. Each beat moves at constant speed and changes speed abruptly at every stage boundary.</p>
+            <p><span class="label">Why it matters</span>This is the single biggest "robotic" tell. Linear motion with velocity jumps has no weight, so anticipation doesn't read as wind-up and the burst doesn't read as release. Easing is "the most important part of any animation."</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Keep the one clock, but ease inside each beat: split <code>t</code> into per-stage local progress and pass each through its own curve. Build: ease-in (gathering). Burn/burst: ease-out-back (release with overshoot). Resolve: a critically damped settle. Or drive the scale with <code>withSequence</code> of eased <code>withTiming</code> and <code>withSpring</code> steps.</p></div>
+            <p class="find-loc"><code>src/components/streak-ignite.tsx:105</code> · <code>:110–150</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st1" id="st1-a" checked><input class="vh" type="radio" name="st1" id="st1-l"><input class="vh" type="radio" name="st1" id="st1-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Linear (left) vs eased beats (right)</span><span class="demo__timing">same keyframes · ease-in → back-out → settle</span></div><div class="demo__controls"><div class="seg"><label for="st1-a">Auto</label><label for="st1-l">Light</label><label for="st1-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-1__mt pair"><div><div class="blob a"></div><span class="ui-label">now</span></div><div><div class="blob b"></div><span class="ui-label">eased</span></div></div></div>
+        </div>
+      </div>
+
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev imp">Important</span><span class="chip">Jakub</span></div>
+          <h4 class="find-title">A full-screen white frame on a dark UI</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>A pure <code>#FFFFFF</code> layer covering the whole screen fades to 0.92 opacity for about 256ms.</p>
+            <p><span class="label">Why it matters</span>On a near-black app it's a hard luma slam that reads as a glitch, and it's uncomfortable for light-sensitive users. It's a single flash, so it's under the WCAG three-flash threshold, but it isn't polish. Duolingo's spike happens on a light UI.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Replace it with a local bloom: a radial gradient centred on the flame that scales 0.6→1.25 while fading out, peaking around 70% brightness at the centre. The payoff stays where the eye already is.</p></div>
+            <p class="find-loc"><code>src/components/streak-ignite.tsx:138</code> · <code>:222</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st2" id="st2-a" checked><input class="vh" type="radio" name="st2" id="st2-l"><input class="vh" type="radio" name="st2" id="st2-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Localised bloom at the burst</span><span class="demo__timing">600ms · ease-out-quint</span></div><div class="demo__controls"><div class="seg"><label for="st2-a">Auto</label><label for="st2-l">Light</label><label for="st2-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-2__mt bloom-wrap"><div class="bloom"></div><div class="flame" style="width:34px;height:46px"></div></div></div>
+        </div>
+      </div>
+
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev imp">Important</span><span class="chip">Jakub</span></div>
+          <h4 class="find-title">The glow is a flat, solid disc</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>The glow is a 160pt <code>View</code> with a solid <code>Colors.dark.streak</code> background, animated with opacity and scale.</p>
+            <p><span class="label">Why it matters</span>Light has falloff and a hard-edged disc doesn't, so it reads as a sticker. In the recorded frames it was the most "cheap" element on screen.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Render it with Skia (<code>Circle</code> + <code>RadialGradient</code>): streak colour at about 60% in the centre, 20% at 55%, transparent at the edge. Keep the same scale curve.</p></div>
+            <p class="find-loc"><code>src/components/streak-ignite.tsx:130</code> · <code>:214–221</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st3" id="st3-a" checked><input class="vh" type="radio" name="st3" id="st3-l"><input class="vh" type="radio" name="st3" id="st3-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Radial-falloff glow</span><span class="demo__timing">1200ms · ease-out-quint</span></div><div class="demo__controls"><div class="seg"><label for="st3-a">Auto</label><label for="st3-l">Light</label><label for="st3-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-3__mt bloom-wrap"><div class="bloom"></div></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="lens-block"><div class="mono-label">Opportunities</div>
+      <ul class="lens-list opp">
+        <li>Delete the unused Home band variants, including <code>DayCheck</code>'s infinite pulse ring, which is a pulsing-indicator slop pattern even though it isn't rendered now. <code>src/app/(tabs)/home.tsx:188</code></li>
+      </ul>
+    </div>
+    <p class="lens-take">Through Jakub's lens: this should feel expensive and physical. Ease every beat, give light a falloff, and keep the payoff where the eye already is.</p>
+  </div>
+
+  <div class="lens-sec">
+    <div class="lens-sec__head"><h3>Jhey Tompkins — Experimentation &amp; Delight</h3><span class="chip">Secondary</span></div>
+    <p class="lens-sec__verdict"><span class="dot imp"></span>Concern. A rare, earned moment with no character in it.</p>
+    <div class="lens-block"><div class="mono-label">What's working well</div>
+      <ul class="lens-list good">
+        <li>Rolling the number from yesterday's count to today's at the flash is the right Duolingo beat. <code>streak-ignite.tsx:174</code></li>
+        <li>Lighting today's circle last, so Atlas pops in as the closing beat, is a real story ending. <code>streak-ignite.tsx:95–101</code></li>
+      </ul>
+    </div>
+    <div class="lens-block"><div class="mono-label">Issues to address</div>
+
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev imp">Important</span><span class="chip">Jhey</span><span class="chip">Jakub</span></div>
+          <h4 class="find-title">The flame only scales uniformly from its centre</h4>
+          <div class="find-body">
+            <p><span class="label">What</span>A stroked outline icon, <code>UIcon</code> "flame" at <code>strokeWidth 1.6</code>, runs through a uniform scale curve. There's no squash and stretch, no arc, no colour change, and no secondary motion.</p>
+            <p><span class="label">Why it matters</span>Uniform scale is the most generic motion there is. Duolingo's flame changes from desaturated grey to vivid and bursts; ours is the same orange line throughout.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>A filled flame, pinned at the bottom (<code>transformOrigin: bottom</code>). Build: squash to 1.14×0.80 (anticipation). Burst: stretch to 0.86×1.22 and rise 10pt. Then overshoot 1.06×0.95 and settle. Colour goes from a muted grey to <code>streak</code> across the burn.</p></div>
+            <p class="find-loc"><code>src/components/streak-ignite.tsx:110–128</code> · <code>:168</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st4" id="st4-a" checked><input class="vh" type="radio" name="st4" id="st4-l"><input class="vh" type="radio" name="st4" id="st4-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Squash → stretch → settle, bottom-anchored</span><span class="demo__timing">1800ms · ease-out-quint per beat</span></div><div class="demo__controls"><div class="seg"><label for="st4-a">Auto</label><label for="st4-l">Light</label><label for="st4-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-4__mt"><div class="flame"></div></div></div>
+        </div>
+      </div>
+
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev imp">Important</span><span class="chip">Jhey</span></div>
+          <h4 class="find-title">Atlas pops in from scale 0</h4>
+          <div class="find-body">
+            <p><span class="label">What</span><code>ZoomIn</code> starts at scale 0, so Atlas grows out of a point inside the circle.</p>
+            <p><span class="label">Why it matters</span>Growing from 0 reads as "appearing from nothing". Starting at about 0.6 with opacity reads as "arriving", and the overshoot has something to land on.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>A custom entering animation: scale 0.6→1 with opacity 0→1 on the existing spring (ζ≈0.56, about 12% overshoot).</p></div>
+            <p class="find-loc"><code>src/components/week-streak.tsx:63</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st5" id="st5-a" checked><input class="vh" type="radio" name="st5" id="st5-l"><input class="vh" type="radio" name="st5" id="st5-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Atlas arrives into the circle</span><span class="demo__timing">~400ms · spring ζ 0.56</span></div><div class="demo__controls"><div class="seg"><label for="st5-a">Auto</label><label for="st5-l">Light</label><label for="st5-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-5__mt"><div class="ring"><i></i></div></div></div>
+        </div>
+      </div>
+
+      <div class="finding-row" data-sev="imp">
+        <div class="finding-row__prose">
+          <div class="find-tags"><span class="sev imp">Important</span><span class="chip">Jhey</span><span class="chip">Jakub</span></div>
+          <h4 class="find-title">The number roll runs on its own clock</h4>
+          <div class="find-body">
+            <p><span class="label">What</span><code>NumberFlow</code> uses its library-default roll timing, triggered by a <code>setTimeout</code> at <code>FLASH_END</code>, while the count's scale bounce is on the master <code>t</code>.</p>
+            <p><span class="label">Why it matters</span>Two clocks can drift apart, for example when the JS thread is busy after a lesson. Then the digit lands after the bounce has finished and the beat splits in two.</p>
+            <div class="fix"><p><span class="label">Recommended motion</span>Pass explicit roll timing so the digit lands inside RESOLVE (about 400ms, ease-out-quint, a small overshoot to −4pt, then settle), and time the scale bounce to the digit's landing.</p></div>
+            <p class="find-loc"><code>src/components/streak-ignite.tsx:98</code> · <code>:174</code></p>
+          </div>
+        </div>
+        <div class="demo">
+          <input class="vh" type="radio" name="st6" id="st6-a" checked><input class="vh" type="radio" name="st6" id="st6-l"><input class="vh" type="radio" name="st6" id="st6-d">
+          <div class="demo__bar"><div class="demo__meta"><span class="demo__title">Digit roll lands on the beat</span><span class="demo__timing">400ms · ease-out-quint</span></div><div class="demo__controls"><div class="seg"><label for="st6-a">Auto</label><label for="st6-l">Light</label><label for="st6-d">Dark</label></div><span class="demo__loop">↻</span></div></div>
+          <div class="demo__stage"><div class="demo-6__mt roll ui-num"><div><span>2</span><span>3</span></div></div></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="lens-block"><div class="mono-label">Opportunities</div>
+      <ul class="lens-list opp">
+        <li><b>Atlas celebration twirl (your pick):</b> crouch as anticipation (squash 1.12×0.85, ~180ms), launch and spin 360° on a small upward arc with stretch (0.9×1.12, ~420ms), land with overshoot, then settle into a proud pose (~300ms). About 900ms total, placed on the BURST beat. Build it in code now; your Blender Atlas replaces the sprite later.</li>
+        <li><b>Duolingo's phoenix idea:</b> at milestones (7 / 30 / 100 days) Atlas visibly changes form. Duolingo's blog credits this character transformation with making milestones land.</li>
+        <li><b>Confetti with a brand shape:</b> swap the square flakes for small star or coin shapes drawn from an SVG texture (fast-confetti supports this). <code>streak-ignite.tsx:192</code></li>
+        <li><b>Sound:</b> a short CC0 chime from Kenney at the burst via <code>expo-audio</code>. This needs a native rebuild.</li>
+      </ul>
+    </div>
+    <p class="lens-take">Through Jhey's lens: the streak is where Euphoria is allowed to be loud, so spend it on Atlas, the one thing that's actually yours.</p>
+  </div>
+
+  <div class="lens-sec">
+    <div class="lens-sec__head"><h3>Emil Kowalski — Restraint &amp; Speed</h3><span class="chip">Selective</span></div>
+    <p class="lens-sec__verdict"><span class="dot opp"></span>Strong. Frequency discipline holds.</p>
+    <div class="lens-block"><div class="mono-label">What's working well</div>
+      <ul class="lens-list good">
+        <li>Confetti fires only when the streak goes up, never on mount, and only inside the Today card. <code>src/app/(tabs)/home.tsx</code></li>
+        <li>Reduced Motion collapses the ignite to its final state and keeps the haptic. <code>streak-ignite.tsx:88–92</code></li>
+        <li>The lesson keeps its CTA ("Collect +XP") available during the moment, so the 3.2s sequence never blocks. <code>src/app/lesson.tsx:748</code></li>
+      </ul>
+    </div>
+    <div class="lens-block"><div class="mono-label">Issues to address</div><p class="lens-empty">No issues found at this severity level.</p></div>
+    <div class="lens-block"><div class="mono-label">Opportunities</div>
+      <ul class="lens-list opp">
+        <li>A tap on the streak screen should skip straight to the resolved state (Apple: interruptible), not just advance via the CTA.</li>
+      </ul>
+    </div>
+    <p class="lens-take">Through Emil's lens: the restraint is in the right places. Keep every new effect on earned moments and out of taps and lists.</p>
+  </div>
+</section>
+
+<section>
+  <div class="mono-label">06</div><h2>Combined recommendations</h2>
+  <div class="tier-label" id="rec-crit"><span class="mono-label crit">Critical · must fix</span><hr><span class="mono-label">1</span></div>
+  <table><tr><th>Issue</th><th>File</th><th>Fix</th></tr>
+    <tr><td>Piecewise-linear timeline</td><td><code>streak-ignite.tsx:105</code></td><td>Per-beat easing on local stage progress, or a withSequence of eased steps and a spring settle</td></tr></table>
+  <div class="tier-label" id="rec-imp"><span class="mono-label imp">Important · should fix</span><hr><span class="mono-label">5</span></div>
+  <table><tr><th>Issue</th><th>File</th><th>Fix</th></tr>
+    <tr><td>Full-screen white flash</td><td><code>streak-ignite.tsx:138</code></td><td>Local radial bloom at the flame</td></tr>
+    <tr><td>Flat solid glow disc</td><td><code>streak-ignite.tsx:130</code></td><td>Skia radial gradient with falloff</td></tr>
+    <tr><td>Flame scales uniformly from its centre</td><td><code>streak-ignite.tsx:110</code></td><td>Filled flame, bottom origin, squash/stretch, grey→streak colour</td></tr>
+    <tr><td>Atlas from scale 0</td><td><code>week-streak.tsx:63</code></td><td>Enter from 0.6 plus opacity on the same spring</td></tr>
+    <tr><td>Number roll on its own clock</td><td><code>streak-ignite.tsx:174</code></td><td>Explicit roll timing aligned to RESOLVE</td></tr></table>
+  <div class="tier-label" id="rec-opp"><span class="mono-label opp">Opportunities · could enhance</span><hr><span class="mono-label">6</span></div>
+  <table><tr><th>Enhancement</th><th>Where</th><th>Impact</th></tr>
+    <tr><td>Atlas celebration twirl</td><td><code>streak-ignite.tsx</code></td><td>Puts the character at the centre of the payoff</td></tr>
+    <tr><td>Milestone transformation (phoenix idea)</td><td><code>streak-ignite.tsx</code></td><td>Milestones feel distinct from ordinary days</td></tr>
+    <tr><td>Brand-shaped confetti</td><td><code>streak-ignite.tsx:192</code></td><td>Stops reading as a library default</td></tr>
+    <tr><td>Chime at the burst</td><td>new, via <code>expo-audio</code></td><td>Sound, haptics and motion together, like Duolingo</td></tr>
+    <tr><td>Tap to skip to the resolved state</td><td><code>streak-ignite.tsx</code></td><td>Interruptible, respects fast users</td></tr>
+    <tr><td>Delete dead band variants and the pulse ring</td><td><code>home.tsx:188</code></td><td>Removes a slop pattern and dead code</td></tr></table>
+</section>
+
+<section>
+  <div class="mono-label">07</div>
+  <div class="ref-summary">
+    <b>Lens referenced most: Jakub Krehel — Production Polish.</b>
+    <p style="color:var(--paper-dim);margin:8px 0 0">This is a shipped consumer app whose core problem is motion that looks generated. Easing, falloff and restraint about where attention goes are Jakub's territory. Jhey supplies the character work for the one moment that's allowed to be loud.</p>
+    <div class="ref-lean">
+      <div><b>To follow Emil more strictly:</b> cut the ignite to about 1.2s, drop the flash, and keep confetti only for milestones.</div>
+      <div><b>To follow Jakub more strictly:</b> no overshoot outside Atlas, a bloom instead of the flash, and ease-out-quint everywhere else.</div>
+      <div><b>To follow Jhey more strictly:</b> lead with the Atlas twirl, add the milestone transformation, brand confetti and sound.</div>
+    </div>
+  </div>
+</section>
+
+<footer>euphoria-native · motion audit 2026-09-23 · 1 critical · 5 important · 6 opportunities</footer>
+</div>
+</body>
+</html>
